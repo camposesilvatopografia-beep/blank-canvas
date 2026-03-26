@@ -23,24 +23,30 @@ const features = [
 export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [nome, setNome] = useState('');
+  const [tipo, setTipo] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [emailLoading, setEmailLoading] = useState(false);
-  const { signIn, signOut, user, profile, role, isAdmin, loading: authLoading } = useAuth();
+  const [authLoading, setAuthLoading] = useState(false);
+  const { signIn, signUp, signOut, user, profile, role, isAdmin, loading: authContextLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check for redirect param
   const searchParams = new URLSearchParams(window.location.search);
   const redirectTo = searchParams.get('redirect');
 
-  // Redirect after login — validate allowed email first
   useEffect(() => {
-    if (!user || authLoading) return;
+    if (!user || authContextLoading) return;
 
     const validateAndRedirect = async () => {
-      // Check if user email is in allowed_emails
+      // Allow main admin directly
+      if (user.email === 'jeanallbuquerque@gmail.com') {
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+
       const { data: allowed } = await supabase
         .from('allowed_emails')
         .select('id, tipo')
@@ -52,25 +58,22 @@ export default function Auth() {
         toast({
           variant: 'destructive',
           title: 'Acesso negado',
-          description: 'Seu email não está cadastrado no sistema. Contate o administrador.',
+          description: 'Seu email não está cadastrado ou aprovado no sistema. Contate o administrador.',
         });
         await signOut();
         return;
       }
 
-      // If there's a redirect param, use it
       if (redirectTo) {
         navigate(redirectTo, { replace: true });
         return;
       }
 
-      // Admin override by email — redirect immediately
       if (isAdmin) {
         navigate('/dashboard', { replace: true });
         return;
       }
 
-      // For non-admin users, wait for role and profile
       if (role !== null && profile !== null) {
         if (profile?.tipo === 'Responsavel RDO') {
           navigate('/rdo/portal', { replace: true });
@@ -84,33 +87,43 @@ export default function Auth() {
     };
 
     validateAndRedirect();
-  }, [user, authLoading, isAdmin, role, profile, navigate, redirectTo]);
+  }, [user, authContextLoading, isAdmin, role, profile, navigate, redirectTo]);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowContent(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
-  const handleEmailSignIn = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) {
-      toast({ variant: 'destructive', title: 'Erro', description: 'Preencha email e senha.' });
+    if (!email.trim() || !password.trim() || (isSignUp && (!nome.trim() || !tipo.trim()))) {
+      toast({ variant: 'destructive', title: 'Erro', description: 'Preencha todos os campos.' });
       return;
     }
-    setEmailLoading(true);
+    setAuthLoading(true);
     try {
-      const { error } = await signIn(email, password);
-      if (error) {
-        let message = 'Erro ao fazer login';
-        const rawMsg = (error as any)?.message || '';
-        if (rawMsg.includes('Invalid login credentials')) message = 'Email ou senha inválidos.';
-        else if (rawMsg.includes('Email not confirmed')) message = 'Conta não confirmada. Contate o administrador.';
-        toast({ variant: 'destructive', title: 'Erro', description: message });
+      if (isSignUp) {
+        const { error } = await signUp(email, password, nome, tipo);
+        if (error) {
+          toast({ variant: 'destructive', title: 'Erro', description: error.message });
+        } else {
+          toast({ title: 'Sucesso', description: 'Cadastro realizado com sucesso. Verifique seu email para confirmar.' });
+          setIsSignUp(false);
+        }
+      } else {
+        const { error } = await signIn(email, password);
+        if (error) {
+          let message = 'Erro ao fazer login';
+          const rawMsg = (error as any)?.message || '';
+          if (rawMsg.includes('Invalid login credentials')) message = 'Email ou senha inválidos.';
+          else if (rawMsg.includes('Email not confirmed')) message = 'Conta não confirmada. Verifique seu email.';
+          toast({ variant: 'destructive', title: 'Erro', description: message });
+        }
       }
     } catch {
       toast({ variant: 'destructive', title: 'Erro', description: 'Ocorreu um erro. Tente novamente.' });
     } finally {
-      setEmailLoading(false);
+      setAuthLoading(false);
     }
   };
 
