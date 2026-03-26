@@ -928,7 +928,7 @@ export default function Dashboard() {
               <div className="flex flex-col items-center justify-center text-center">
                 <AlertCircle className="w-12 h-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium">Nenhum dado encontrado</h3>
-                <p className="text-muted-foreground">Não há dados de carga registrados na planilha.</p>
+                <p className="text-muted-foreground">Todas as planilhas estão vazias, preciso importar os arquivos completos, com os lançamentos</p>
               </div>
             </Card>
           ) : (
