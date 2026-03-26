@@ -1,0 +1,1 @@
+DELETE FROM servicos_retigrafico WHERE id = 'c189bf97-3858-4e83-b922-248f6b759e8d';

@@ -1,0 +1,1 @@
+DELETE FROM public.evolucao_obra_execucoes;

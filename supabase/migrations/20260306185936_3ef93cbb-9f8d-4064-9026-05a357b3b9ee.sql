@@ -1,0 +1,1 @@
+ALTER TABLE public.alm_movimentacoes ADD COLUMN IF NOT EXISTS nf_foto_path text DEFAULT NULL;

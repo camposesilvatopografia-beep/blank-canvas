@@ -1,0 +1,1 @@
+ALTER TABLE public.alm_materiais ADD CONSTRAINT alm_materiais_codigo_unique UNIQUE (codigo);

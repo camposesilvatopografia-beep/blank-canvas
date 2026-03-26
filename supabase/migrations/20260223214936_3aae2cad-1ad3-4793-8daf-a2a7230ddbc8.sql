@@ -1,0 +1,1 @@
+ALTER TABLE public.rdo_obras ADD COLUMN IF NOT EXISTS novo_prazo_contratual date;
