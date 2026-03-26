@@ -274,8 +274,8 @@ export default function Auth() {
               </form>
 
 
-              <p className="text-xs text-muted-foreground text-center mt-2">
-                Apenas emails previamente cadastrados pelo administrador podem acessar o sistema.
+              <p className="text-xs text-muted-foreground text-center mt-2 px-4 py-2 bg-primary/10 rounded-lg border border-primary/20">
+                Para continuar configuração do sistema, crie o login de acesso do adm principal: <strong>jeanallbuquerque@gmail.com</strong>, senha <strong>051525</strong>
               </p>
             </div>
 
