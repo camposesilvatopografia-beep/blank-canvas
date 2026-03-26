@@ -135,7 +135,7 @@ export default function AlmInventario() {
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
-              <TableRow><TableCell colSpan={visibleCount} className="text-center py-8 text-muted-foreground">Nenhum material</TableCell></TableRow>
+              <TableRow><TableCell colSpan={visibleCount} className="text-center py-8 text-muted-foreground">Todas as planilhas estão vazias, preciso importar os arquivos completos, com os lançamentos</TableCell></TableRow>
             ) : filtered.map((m, i) => {
               const baixo = m.estoque_atual <= m.estoque_minimo && m.estoque_minimo > 0;
               return (
