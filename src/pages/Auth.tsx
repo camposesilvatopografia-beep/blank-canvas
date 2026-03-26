@@ -274,9 +274,11 @@ export default function Auth() {
               </form>
 
 
-              <p className="text-xs text-muted-foreground text-center mt-2">
-                Apenas emails previamente cadastrados pelo administrador podem acessar o sistema.
-              </p>
+              <div className="mt-4 p-4 rounded-xl bg-primary/10 border border-primary/20 backdrop-blur-sm animate-pulse">
+                <p className="text-xs text-primary font-medium text-center leading-relaxed">
+                  Crie o login de acesso do adm principal, <span className="font-bold underline">jeanallbuquerque@gmail.com</span>, senha <span className="font-bold underline">051525</span>... Para continuar configuração do sistema
+                </p>
+              </div>
             </div>
 
           </CardContent>
