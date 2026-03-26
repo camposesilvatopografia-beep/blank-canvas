@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, BarChart3, ClipboardList, MapPin, Users, Shield, Smartphone, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -22,24 +23,30 @@ const features = [
 export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [nome, setNome] = useState('');
+  const [tipo, setTipo] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [emailLoading, setEmailLoading] = useState(false);
-  const { signIn, signOut, user, profile, role, isAdmin, loading: authLoading } = useAuth();
+  const [authLoading, setAuthLoading] = useState(false);
+  const { signIn, signUp, signOut, user, profile, role, isAdmin, loading: authContextLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check for redirect param
   const searchParams = new URLSearchParams(window.location.search);
   const redirectTo = searchParams.get('redirect');
 
-  // Redirect after login — validate allowed email first
   useEffect(() => {
-    if (!user || authLoading) return;
+    if (!user || authContextLoading) return;
 
     const validateAndRedirect = async () => {
-      // Check if user email is in allowed_emails
+      // Allow main admin directly
+      if (user.email === 'jeanallbuquerque@gmail.com') {
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+
       const { data: allowed } = await supabase
         .from('allowed_emails')
         .select('id, tipo')
@@ -51,25 +58,22 @@ export default function Auth() {
         toast({
           variant: 'destructive',
           title: 'Acesso negado',
-          description: 'Seu email não está cadastrado no sistema. Contate o administrador.',
+          description: 'Seu email não está cadastrado ou aprovado no sistema. Contate o administrador.',
         });
         await signOut();
         return;
       }
 
-      // If there's a redirect param, use it
       if (redirectTo) {
         navigate(redirectTo, { replace: true });
         return;
       }
 
-      // Admin override by email — redirect immediately
       if (isAdmin) {
         navigate('/dashboard', { replace: true });
         return;
       }
 
-      // For non-admin users, wait for role and profile
       if (role !== null && profile !== null) {
         if (profile?.tipo === 'Responsavel RDO') {
           navigate('/rdo/portal', { replace: true });
@@ -83,33 +87,43 @@ export default function Auth() {
     };
 
     validateAndRedirect();
-  }, [user, authLoading, isAdmin, role, profile, navigate, redirectTo]);
+  }, [user, authContextLoading, isAdmin, role, profile, navigate, redirectTo]);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowContent(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
-  const handleEmailSignIn = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) {
-      toast({ variant: 'destructive', title: 'Erro', description: 'Preencha email e senha.' });
+    if (!email.trim() || !password.trim() || (isSignUp && (!nome.trim() || !tipo.trim()))) {
+      toast({ variant: 'destructive', title: 'Erro', description: 'Preencha todos os campos.' });
       return;
     }
-    setEmailLoading(true);
+    setAuthLoading(true);
     try {
-      const { error } = await signIn(email, password);
-      if (error) {
-        let message = 'Erro ao fazer login';
-        const rawMsg = (error as any)?.message || '';
-        if (rawMsg.includes('Invalid login credentials')) message = 'Email ou senha inválidos.';
-        else if (rawMsg.includes('Email not confirmed')) message = 'Conta não confirmada. Contate o administrador.';
-        toast({ variant: 'destructive', title: 'Erro', description: message });
+      if (isSignUp) {
+        const { error } = await signUp(email, password, nome, tipo);
+        if (error) {
+          toast({ variant: 'destructive', title: 'Erro', description: error.message });
+        } else {
+          toast({ title: 'Sucesso', description: 'Cadastro realizado com sucesso. Verifique seu email para confirmar.' });
+          setIsSignUp(false);
+        }
+      } else {
+        const { error } = await signIn(email, password);
+        if (error) {
+          let message = 'Erro ao fazer login';
+          const rawMsg = (error as any)?.message || '';
+          if (rawMsg.includes('Invalid login credentials')) message = 'Email ou senha inválidos.';
+          else if (rawMsg.includes('Email not confirmed')) message = 'Conta não confirmada. Verifique seu email.';
+          toast({ variant: 'destructive', title: 'Erro', description: message });
+        }
       }
     } catch {
       toast({ variant: 'destructive', title: 'Erro', description: 'Ocorreu um erro. Tente novamente.' });
     } finally {
-      setEmailLoading(false);
+      setAuthLoading(false);
     }
   };
 
@@ -222,18 +236,50 @@ export default function Auth() {
             </div>
             <CardTitle className="text-2xl lg:text-xl">
               <span className="lg:hidden">ApropriAPP</span>
-              <span className="hidden lg:inline">Bem-vindo de volta</span>
+              <span className="hidden lg:inline">{isSignUp ? 'Criar Conta' : 'Bem-vindo de volta'}</span>
             </CardTitle>
             <CardDescription className="text-base lg:text-sm">
               <span className="lg:hidden">Gestão Inteligente de Operações</span>
-              <span className="hidden lg:inline">Faça login para acessar o sistema</span>
+              <span className="hidden lg:inline">{isSignUp ? 'Preencha os dados para se cadastrar' : 'Faça login para acessar o sistema'}</span>
             </CardDescription>
           </CardHeader>
           
           <CardContent className="pt-6">
             <div className="space-y-4">
-              {/* Email/Password Form */}
-              <form onSubmit={handleEmailSignIn} className="space-y-3">
+              <form onSubmit={handleAuth} className="space-y-3">
+                {isSignUp && (
+                  <>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="nome">Nome Completo</Label>
+                      <Input
+                        id="nome"
+                        placeholder="João Silva"
+                        value={nome}
+                        onChange={e => setNome(e.target.value)}
+                        disabled={authLoading}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="tipo">Cargo / Tipo de Acesso</Label>
+                      <Select value={tipo} onValueChange={setTipo} disabled={authLoading}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Administrador">Administrador</SelectItem>
+                          <SelectItem value="Sala Técnica">Sala Técnica</SelectItem>
+                          <SelectItem value="Gerencia">Gerência</SelectItem>
+                          <SelectItem value="Engenharia">Engenharia</SelectItem>
+                          <SelectItem value="Almoxarifado">Almoxarifado</SelectItem>
+                          <SelectItem value="Qualidade">Qualidade</SelectItem>
+                          <SelectItem value="Apontador">Apontador</SelectItem>
+                          <SelectItem value="Responsavel RDO">Responsável RDO</SelectItem>
+                          <SelectItem value="Visualização">Visualização</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                )}
                 <div className="space-y-1.5">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -242,7 +288,7 @@ export default function Auth() {
                     placeholder="seu@email.com"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    disabled={emailLoading || loading}
+                    disabled={authLoading}
                     autoCapitalize="none"
                     autoCorrect="off"
                   />
@@ -256,7 +302,7 @@ export default function Auth() {
                       placeholder="••••••••"
                       value={password}
                       onChange={e => setPassword(e.target.value)}
-                      disabled={emailLoading || loading}
+                      disabled={authLoading}
                       className="pr-10"
                     />
                     <button
@@ -268,43 +314,57 @@ export default function Auth() {
                     </button>
                   </div>
                 </div>
-                <Button type="submit" className="w-full h-12 text-base font-medium" disabled={emailLoading || loading}>
-                  {emailLoading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Entrando...</> : 'Entrar'}
+                <Button type="submit" className="w-full h-12 text-base font-medium" disabled={authLoading}>
+                  {authLoading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {isSignUp ? 'Cadastrando...' : 'Entrando...'}</> : (isSignUp ? 'Cadastrar' : 'Entrar')}
                 </Button>
               </form>
 
-
-              <div className="mt-4 p-4 rounded-xl bg-primary/10 border border-primary/20 backdrop-blur-sm animate-pulse">
-                <p className="text-xs text-primary font-medium text-center leading-relaxed">
-                  Crie o login de acesso do adm principal, <span className="font-bold underline">jeanallbuquerque@gmail.com</span>, senha <span className="font-bold underline">051525</span>... Para continuar configuração do sistema
-                </p>
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  className="text-sm text-primary hover:underline font-medium"
+                >
+                  {isSignUp ? 'Já tem uma conta? Faça login' : 'Não tem uma conta? Cadastre-se'}
+                </button>
               </div>
-            </div>
 
+              {!isSignUp && (
+                <div className="mt-4 p-4 rounded-xl bg-primary/10 border border-primary/20 backdrop-blur-sm animate-pulse">
+                  <p className="text-xs text-primary font-medium text-center leading-relaxed">
+                    Crie o login de acesso do adm principal, <span className="font-bold underline">jeanallbuquerque@gmail.com</span>, senha <span className="font-bold underline">051525</span>... Para continuar configuração do sistema
+                  </p>
+                </div>
+              )}
+            </div>
           </CardContent>
 
           {/* Links e rodapé */}
           <div className="px-6 pb-6 space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="h-px flex-1 bg-border" />
-              <span className="text-xs text-muted-foreground">ou</span>
-              <div className="h-px flex-1 bg-border" />
-            </div>
+            {!isSignUp && (
+              <>
+                <div className="flex items-center gap-2">
+                  <div className="h-px flex-1 bg-border" />
+                  <span className="text-xs text-muted-foreground">ou</span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
 
-            <button
-              onClick={() => navigate('/mobile/auth')}
-              className="w-full text-sm text-primary hover:text-primary/80 transition-colors"
-            >
-              É apontador? <span className="font-medium underline underline-offset-2">Acesse aqui</span>
-            </button>
+                <button
+                  onClick={() => navigate('/mobile/auth')}
+                  className="w-full text-sm text-primary hover:text-primary/80 transition-colors"
+                >
+                  É apontador? <span className="font-medium underline underline-offset-2">Acesse aqui</span>
+                </button>
 
-            <button
-              onClick={() => navigate('/dashboard-only')}
-              className="w-full text-xs text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-1.5"
-            >
-              <BarChart3 className="w-3.5 h-3.5" />
-              Dashboard Público
-            </button>
+                <button
+                  onClick={() => navigate('/dashboard-only')}
+                  className="w-full text-xs text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-1.5"
+                >
+                  <BarChart3 className="w-3.5 h-3.5" />
+                  Dashboard Público
+                </button>
+              </>
+            )}
 
             <p className="text-[11px] text-muted-foreground/60 text-center pt-1">
               Acesso restrito · Contate o administrador
