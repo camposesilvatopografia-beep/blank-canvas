@@ -274,9 +274,11 @@ export default function Auth() {
               </form>
 
 
-              <p className="text-xs text-muted-foreground text-center mt-2 px-4 py-2 bg-primary/10 rounded-lg border border-primary/20">
-                Para continuar configuração do sistema, crie o login de acesso do adm principal: <strong>jeanallbuquerque@gmail.com</strong>, senha <strong>051525</strong>
-              </p>
+              <div className="mt-4 p-4 rounded-xl bg-primary/10 border border-primary/20 backdrop-blur-sm animate-pulse">
+                <p className="text-xs text-primary font-medium text-center leading-relaxed">
+                  Crie o login de acesso do adm principal, <span className="font-bold underline">jeanallbuquerque@gmail.com</span>, senha <span className="font-bold underline">051525</span>... Para continuar configuração do sistema
+                </p>
+              </div>
             </div>
 
           </CardContent>
