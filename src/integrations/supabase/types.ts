@@ -417,18 +417,24 @@ export type Database = {
       }
       fornecedores_cal: {
         Row: {
+          cnpj: string | null
+          contato: string | null
           created_at: string
           id: string
           nome: string
           status: string
         }
         Insert: {
+          cnpj?: string | null
+          contato?: string | null
           created_at?: string
           id?: string
           nome: string
           status?: string
         }
         Update: {
+          cnpj?: string | null
+          contato?: string | null
           created_at?: string
           id?: string
           nome?: string
@@ -438,18 +444,24 @@ export type Database = {
       }
       fornecedores_pedreira: {
         Row: {
+          cnpj: string | null
+          contato: string | null
           created_at: string
           id: string
           nome: string
           status: string
         }
         Insert: {
+          cnpj?: string | null
+          contato?: string | null
           created_at?: string
           id?: string
           nome: string
           status?: string
         }
         Update: {
+          cnpj?: string | null
+          contato?: string | null
           created_at?: string
           id?: string
           nome?: string
@@ -656,6 +668,7 @@ export type Database = {
           status: string
           tipo: string
           user_id: string
+          usuario: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -666,6 +679,7 @@ export type Database = {
           status?: string
           tipo?: string
           user_id: string
+          usuario?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -676,6 +690,7 @@ export type Database = {
           status?: string
           tipo?: string
           user_id?: string
+          usuario?: string | null
         }
         Relationships: []
       }
@@ -719,31 +734,43 @@ export type Database = {
       }
       rdo_email_logs: {
         Row: {
+          aprovador_num: number | null
+          email: string | null
           error_message: string | null
           id: string
+          obra_nome: string | null
           rdo_id: string | null
           recipient_email: string | null
           recipient_name: string | null
+          resend_id: string | null
           sent_at: string
           status: string | null
           subject: string | null
         }
         Insert: {
+          aprovador_num?: number | null
+          email?: string | null
           error_message?: string | null
           id?: string
+          obra_nome?: string | null
           rdo_id?: string | null
           recipient_email?: string | null
           recipient_name?: string | null
+          resend_id?: string | null
           sent_at?: string
           status?: string | null
           subject?: string | null
         }
         Update: {
+          aprovador_num?: number | null
+          email?: string | null
           error_message?: string | null
           id?: string
+          obra_nome?: string | null
           rdo_id?: string | null
           recipient_email?: string | null
           recipient_name?: string | null
+          resend_id?: string | null
           sent_at?: string
           status?: string | null
           subject?: string | null
