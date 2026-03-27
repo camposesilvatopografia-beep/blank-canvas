@@ -32,7 +32,8 @@ interface PedreiraRecord {
   data: string; hora: string; ordem: string; fornecedor: string; prefixo: string;
   descricao: string; empresa: string; motorista: string; placa: string; material: string;
   pesoVazio: number; pesoFinal: number; pesoLiquido: number; tonelada: number;
-  toneladaTicket?: number; toneladaCalcObra?: number; pesoChegada?: number; fotoChegada?: string;
+  toneladaTicket?: number; toneladaCalcObra?: number; pesoChegada?: number; 
+  fotoChegada?: string; fotoPesagem?: string; fotoVazio?: string;
 }
 
 type ReportSection = 'caminhoes' | 'escavadeiras' | 'pipas' | 'pedreira';
