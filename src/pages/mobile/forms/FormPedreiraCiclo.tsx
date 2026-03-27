@@ -2302,6 +2302,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
     setFormObraExtra({ material: '', pesoVazio: '', pesoFinal: '', numeroPedido: '' });
     setBalancaFotoFile(null);
     setObraVazioFotoFile(null);
+    setSuccessImageUrl(null);
     setHervalFotoFile(null);
     setHervalFotoFile2(null);
     setFormHerval({
