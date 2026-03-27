@@ -286,8 +286,23 @@ const Relatorios = () => {
         pesoLiquido: parseFloat(String(r[getIdx('Peso_Liquido_Cubico')] || 0).replace(/\./g, '').replace(',', '.')),
         tonelada: parseFloat(String(r[getIdx('Tonelada')] || r[getIdx('Tonelada (ticket)')] || r[getIdx('Tonelada_Ticket')] || 0).replace(/\./g, '').replace(',', '.')),
         toneladaTicket: parseFloat(String(r[getIdx('Tonelada (ticket)')] || r[getIdx('Tonelada_Ticket')] || r[getIdx('Tonelada')] || 0).replace(/\./g, '').replace(',', '.')),
-        toneladaCalcObra: parseFloat(String(r[getIdx('Tonelada (Calc Obra)')] || r[getIdx('Tonelada_Calc_Obra')] || 0).replace(/\./g, '').replace(',', '.')) || parseFloat(String(r[getIdx('Tonelada (ticket)')] || r[getIdx('Tonelada_Ticket')] || r[getIdx('Tonelada')] || 0).replace(/\./g, '').replace(',', '.')),
         pesoChegada: parseFloat(String(r[getIdx('Peso Chegada Obra')] || r[getIdx('Peso da Chegada')] || r[getIdx('Peso_Chegada_Obra')] || 0).replace(/\./g, '').replace(',', '.')),
+        toneladaCalcObra: (() => {
+          const tonCalc = parseFloat(String(r[getIdx('Tonelada (Calc Obra)')] || r[getIdx('Tonelada_Calc_Obra')] || 0).replace(/\./g, '').replace(',', '.'));
+          if (tonCalc > 0) return tonCalc;
+          
+          const pVazio = parseFloat(String(r[getIdx('Peso_Vazio')] || 0).replace(/\./g, '').replace(',', '.'));
+          const pChegada = parseFloat(String(r[getIdx('Peso Chegada Obra')] || r[getIdx('Peso da Chegada')] || r[getIdx('Peso_Chegada_Obra')] || 0).replace(/\./g, '').replace(',', '.'));
+          const pVazioObra = parseFloat(String(r[getIdx('Peso Vazio Obra')] || 0).replace(/\./g, '').replace(',', '.'));
+          
+          const pVazioEfetivo = pVazioObra > 0 ? pVazioObra : pVazio;
+          
+          if (pChegada > 0 && pVazioEfetivo > 0) {
+            return (pChegada - pVazioEfetivo) / 1000;
+          }
+          
+          return parseFloat(String(r[getIdx('Tonelada (ticket)')] || r[getIdx('Tonelada_Ticket')] || r[getIdx('Tonelada')] || 0).replace(/\./g, '').replace(',', '.'));
+        })(),
         fotoChegada: r[getIdx('Foto do Peso Chegada Obra')] || r[getIdx('Foto do Peso da Chegada')] || r[getIdx('Foto_Peso_Chegada')] || '',
       }));
 
