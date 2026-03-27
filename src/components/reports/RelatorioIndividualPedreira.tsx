@@ -359,31 +359,63 @@ export async function exportRelatorioIndividualPedreira(
       </div>
     </div>
 
-    <div class="peso-section">
-      <div class="peso-header">⚖️ Dados de Pesagem</div>
-      <div class="peso-grid">
-        <div class="peso-cell">
-          <div class="p-label">Peso Final</div>
-          <div class="p-value">${record.pesoFinal > 0 ? record.pesoFinal.toLocaleString('pt-BR') : '—'}</div>
-          <div class="p-unit">kg</div>
+    <div class="peso-section" style="border-color: #f97316; margin-bottom: 24px;">
+      <div class="peso-header" style="background: #f97316; display: flex; justify-content: space-between; align-items: center;">
+        <span>📊 RESUMO DE PESAGEM</span>
+        ${hasDif ? `<span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; font-size: 10px;">DIFERENÇA: ${difTon > 0 ? '+' : ''}${fmt(difTon)} t</span>` : ''}
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: #fff;">
+        <!-- Coluna ORIGEM (Pedreira) -->
+        <div style="border-right: 1px solid #fed7aa; padding-bottom: 8px;">
+          <div style="background: #fff7ed; padding: 6px 12px; font-size: 10px; font-weight: 800; color: #c2410c; border-bottom: 1px solid #fed7aa; display: flex; align-items: center; gap: 6px;">
+            🏗️ ORIGEM (Pedreira/Ticket)
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 12px;">
+            <div class="peso-cell-small">
+              <div class="p-label">Peso Carregado</div>
+              <div class="p-value" style="font-size: 14px;">${record.pesoFinal > 0 ? record.pesoFinal.toLocaleString('pt-BR') : '—'}</div>
+              <div class="p-unit">kg</div>
+            </div>
+            <div class="peso-cell-small">
+              <div class="p-label">Peso Vazio</div>
+              <div class="p-value" style="font-size: 14px;">${pesoVazioPedreira > 0 ? Math.round(pesoVazioPedreira).toLocaleString('pt-BR') : '—'}</div>
+              <div class="p-unit">kg</div>
+            </div>
+            <div class="peso-cell-small" style="background: #fff7ed; border-radius: 4px;">
+              <div class="p-label" style="color: #c2410c;">Líquido (Ton)</div>
+              <div class="p-value" style="font-size: 16px; color: #c2410c;">${tonTicket > 0 ? fmt(tonTicket) : '—'}</div>
+              <div class="p-unit" style="color: #c2410c;">t</div>
+            </div>
+          </div>
         </div>
-        <div class="peso-cell highlight">
-          <div class="p-label">Ton. Ticket</div>
-          <div class="p-value">${tonTicket > 0 ? fmt(tonTicket) : '—'}</div>
-          <div class="p-unit">t</div>
-        </div>
-        <div class="peso-cell">
-          <div class="p-label">Ton. Calc Obra</div>
-          <div class="p-value">${tonCalcObra > 0 ? fmt(tonCalcObra) : '—'}</div>
-          <div class="p-unit">t</div>
-        </div>
-        <div class="peso-cell ${hasDif ? (difTon > 0 ? 'dif-positiva' : 'dif-negativa') : ''}">
-          <div class="p-label">Diferença</div>
-          <div class="p-value">${hasDif ? `${difTon > 0 ? '+' : ''}${fmt(difTon)}` : '—'}</div>
-          <div class="p-unit">t</div>
+
+        <!-- Coluna DESTINO (Obra) -->
+        <div>
+          <div style="background: #fff7ed; padding: 6px 12px; font-size: 10px; font-weight: 800; color: #c2410c; border-bottom: 1px solid #fed7aa; display: flex; align-items: center; gap: 6px;">
+            🚧 DESTINO (Obra/Controle)
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 12px;">
+            <div class="peso-cell-small">
+              <div class="p-label">Peso Chegada</div>
+              <div class="p-value" style="font-size: 14px;">${record.pesoChegada > 0 ? record.pesoChegada.toLocaleString('pt-BR') : '—'}</div>
+              <div class="p-unit">kg</div>
+            </div>
+            <div class="peso-cell-small">
+              <div class="p-label">Peso Vazio (Saída)</div>
+              <div class="p-value" style="font-size: 14px;">${pesoVazioObra > 0 ? pesoVazioObra.toLocaleString('pt-BR') : '—'}</div>
+              <div class="p-unit">kg</div>
+            </div>
+            <div class="peso-cell-small" style="background: #fff7ed; border-radius: 4px;">
+              <div class="p-label" style="color: #c2410c;">Líquido (Ton)</div>
+              <div class="p-value" style="font-size: 16px; color: #c2410c;">${tonCalcObra > 0 ? fmt(tonCalcObra) : '—'}</div>
+              <div class="p-unit" style="color: #c2410c;">t</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
 
     ${fotosHtml}
 
