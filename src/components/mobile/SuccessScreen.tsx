@@ -14,6 +14,7 @@ interface SuccessScreenProps {
   showNewRecordButton?: boolean;
   autoRedirectDelay?: number;
   accentColor?: string;
+  imageUrl?: string;
 }
 
 export default function SuccessScreen({
