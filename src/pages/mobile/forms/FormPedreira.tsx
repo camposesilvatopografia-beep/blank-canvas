@@ -375,6 +375,7 @@ export default function FormPedreira() {
             volume_total: derived.toneladaNum,
             usuario: effectiveName,
             foto_path: fotoChegadaUrl,
+            nf_foto_path: fotoPesoFinalUrl,
           });
           if (error) console.error('Supabase backup error (Pedreira):', error);
         } catch (e) {
