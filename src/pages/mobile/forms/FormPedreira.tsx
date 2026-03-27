@@ -127,6 +127,26 @@ export default function FormPedreira() {
   const pesoFinalInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (pesoFinalFotoFile) {
+      const url = URL.createObjectURL(pesoFinalFotoFile);
+      setPesoFinalFotoPreview(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setPesoFinalFotoPreview(null);
+    }
+  }, [pesoFinalFotoFile]);
+
+  useEffect(() => {
+    if (ocrFotoFile) {
+      const url = URL.createObjectURL(ocrFotoFile);
+      setOcrFotoPreview(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setOcrFotoPreview(null);
+    }
+  }, [ocrFotoFile]);
+
+  useEffect(() => {
     const loadOptions = async () => {
       // Load materiais from Supabase - using materiais_pedreira table
       const { data: materiaisData } = await supabase
