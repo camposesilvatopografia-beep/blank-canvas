@@ -135,6 +135,8 @@ export default function FormPipas() {
     setSavedOffline(false);
 
     try {
+      const now = new Date();
+      const hora = format(now, 'HH:mm:ss');
       const dataFormatada = format(new Date(formData.data + 'T12:00:00'), 'dd/MM/yyyy');
       const isSalaTecnica = isAdmin || profile?.tipo === 'Sala Técnica';
       const viagens = isSalaTecnica ? formData.viagens : '1';
@@ -153,9 +155,32 @@ export default function FormPipas() {
         formData.localTrabalho || '',            // I: Local de Trabalho (Produção/Recicladora)
       ];
 
+      const supabaseBackup = async () => {
+        try {
+          const capacity = parseNumeric(selectedPipa?.capacidade || '0');
+          const { error } = await supabase.from('movimentacoes_pipas').insert({
+            data: formData.data,
+            hora,
+            prefixo_pipa: formData.veiculo,
+            motorista: selectedPipa?.motorista,
+            empresa: selectedPipa?.empresa,
+            local: formData.localTrabalho,
+            atividade: 'Rega/Umectação',
+            volume: capacity,
+            viagens: parseInt(viagens),
+            volume_total: capacity * parseInt(viagens),
+            usuario: effectiveName,
+          });
+          if (error) console.error('Supabase backup error (Pipas):', error);
+        } catch (e) {
+          console.error('Failed to insert in Supabase (Pipas):', e);
+        }
+      };
+
       // Check if offline
       if (!isOnline) {
-        addPendingRecord('pipas', 'Apontamento_Pipa', pipaRow, { formData });
+        addPendingRecord('pipas', 'Apontamento_Pipa', pipaRow, { ...formData });
+        await supabaseBackup();
         setSavedOffline(true);
         setSubmitted(true);
         playOfflineSound();
@@ -170,26 +195,19 @@ export default function FormPipas() {
       const success = await appendSheet('Apontamento_Pipa', [pipaRow]);
 
       // Backup to Supabase
-      if (success) {
-        supabase.from('movimentacoes_pipas').insert({
-          data: formData.data,
-          hora: format(new Date(), 'HH:mm'),
-          prefixo_pipa: formData.veiculo,
-          motorista: selectedPipa?.motorista,
-          empresa: selectedPipa?.empresa,
-          local: formData.localTrabalho,
-          atividade: 'Rega/Umectação',
-          volume: parseFloat(selectedPipa?.capacidade || '0'),
-          viagens: parseInt(viagens),
-          volume_total: parseFloat(selectedPipa?.capacidade || '0') * parseInt(viagens),
-          usuario: effectiveName,
-        }).then(({ error }) => {
-          if (error) console.error('Supabase backup error (Pipas):', error);
-        });
-      }
+      await supabaseBackup();
 
       if (!success) {
-        throw new Error('Erro ao salvar apontamento');
+        addPendingRecord('pipas', 'Apontamento_Pipa', pipaRow, { ...formData });
+        setSavedOffline(true);
+        setSubmitted(true);
+        playOfflineSound();
+        toast({
+          title: 'Salvo Localmente',
+          description: 'Falha na planilha. Registro salvo no dispositivo e Supabase.',
+        });
+        setLoading(false);
+        return;
       }
 
       setSubmitted(true);
@@ -200,6 +218,7 @@ export default function FormPipas() {
       });
 
     } catch (error: any) {
+      console.error('Pipas submission error:', error);
       // If error, save offline
       const dataFormatada = format(new Date(formData.data + 'T12:00:00'), 'dd/MM/yyyy');
       const isSalaTecnica = isAdmin || profile?.tipo === 'Sala Técnica';
@@ -207,29 +226,30 @@ export default function FormPipas() {
       const generateIdFallback = () => Math.random().toString(36).substring(2, 10);
 
       const pipaRow = [
-        generateIdFallback(),                    // A: ID_Pipa
-        dataFormatada,                           // B: Data
-        formData.veiculo,                        // C: Prefixo
-        selectedPipa?.descricao || '',           // D: Descricao
-        selectedPipa?.empresa || '',             // E: Empresa
-        selectedPipa?.motorista || '',           // F: Motorista
-        selectedPipa?.capacidade || '',          // G: Capacidade
-        viagens,                                 // H: N_Viagens
-        formData.localTrabalho || '',            // I: Local de Trabalho
+        generateIdFallback(),
+        dataFormatada,
+        formData.veiculo,
+        selectedPipa?.descricao || '',
+        selectedPipa?.empresa || '',
+        selectedPipa?.motorista || '',
+        selectedPipa?.capacidade || '',
+        viagens,
+        formData.localTrabalho || '',
       ];
 
-      addPendingRecord('pipas', 'Apontamento_Pipa', pipaRow, { formData });
+      addPendingRecord('pipas', 'Apontamento_Pipa', pipaRow, { ...formData });
       setSavedOffline(true);
       setSubmitted(true);
       playOfflineSound();
       toast({
         title: 'Salvo Localmente',
-        description: 'Erro na conexão. Será sincronizado depois.',
+        description: 'Erro inesperado. Registro salvo offline.',
       });
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleNewRecord = () => {
     setSubmitted(false);
