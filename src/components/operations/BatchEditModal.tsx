@@ -34,6 +34,8 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   Loader2, 
   Edit3, 
