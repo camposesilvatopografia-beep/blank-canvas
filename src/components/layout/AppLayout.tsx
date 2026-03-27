@@ -62,10 +62,7 @@ export const AppLayout = () => {
         </main>
       </div>
       
-      {/* AI Assistant */}
-      <Suspense fallback={null}>
-        <AiAssistantChat />
-      </Suspense>
+      {/* AI Assistant removed */}
 
       {/* Support Chat */}
       <Suspense fallback={null}>

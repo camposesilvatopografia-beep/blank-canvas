@@ -777,8 +777,7 @@ export default function ApontadorDesktop() {
         </main>
       </div>
       
-      {/* AI Assistant */}
-      <AiAssistantChat />
+      {/* AI Assistant removed */}
     </div>
   );
 }
