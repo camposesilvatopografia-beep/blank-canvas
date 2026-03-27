@@ -70,7 +70,7 @@ export function useOfflineCache() {
       ] = await Promise.all([
         supabase.from('locais').select('id, nome').eq('status', 'Ativo').eq('tipo', 'Origem').order('nome'),
         supabase.from('locais').select('id, nome').eq('status', 'Ativo').eq('tipo', 'Destino').order('nome'),
-        supabase.from('materiais').select('id, nome').eq('status', 'Ativo').order('nome'),
+        supabase.from('material').select('id, nome').eq('status', 'Ativo').order('nome'),
         supabase.from('materiais_pedreira').select('id, nome').eq('status', 'Ativo').order('nome'),
         supabase.from('fornecedores_cal').select('id, nome').eq('status', 'Ativo').order('nome'),
         readSheet('Equipamentos').catch(() => []),

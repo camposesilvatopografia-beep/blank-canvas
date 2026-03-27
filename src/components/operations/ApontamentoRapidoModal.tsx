@@ -106,7 +106,7 @@ export function ApontamentoRapidoModal({ open, onOpenChange, onSuccess }: Aponta
 
     // Load materiais from Supabase
     const { data: materiaisData } = await supabase
-      .from('materiais')
+      .from('material')
       .select('id, nome')
       .eq('status', 'Ativo')
       .order('nome');

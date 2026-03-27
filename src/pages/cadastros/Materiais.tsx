@@ -32,7 +32,7 @@ export default function Materiais() {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('materiais')
+        .from('material')
         .select('id, nome')
         .order('nome');
 
@@ -54,7 +54,7 @@ export default function Materiais() {
     try {
       if (selectedMaterial) {
         const { error } = await supabase
-          .from('materiais')
+          .from('material')
           .update({ nome: data.nome })
           .eq('id', selectedMaterial.id);
 
@@ -62,7 +62,7 @@ export default function Materiais() {
         toast({ title: 'Sucesso', description: 'Material atualizado com sucesso' });
       } else {
         const { error } = await supabase
-          .from('materiais')
+          .from('material')
           .insert({ nome: data.nome });
 
         if (error) throw error;
@@ -87,7 +87,7 @@ export default function Materiais() {
     setSaving(true);
     try {
       const { error } = await supabase
-        .from('materiais')
+        .from('material')
         .delete()
         .eq('id', selectedMaterial.id);
 
