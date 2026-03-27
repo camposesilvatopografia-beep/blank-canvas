@@ -843,6 +843,20 @@ _Enviado via ApropriAPP_`;
 
       {/* Categories - Card Grid Style */}
       <div className="px-4 mt-6 flex-1">
+        {/* Info Banner */}
+        <Card className="mb-6 bg-blue-50 border-blue-200 border shadow-sm">
+          <div className="p-4 flex items-start gap-3">
+            <div className="bg-blue-100 p-2 rounded-lg">
+              <FileText className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-900 leading-snug">
+                Cada lançamento (Carga, Descarga, Pedreira, Cal, Pipa) deve ser preenchido nas suas tabelas correspondentes no Supabase e no Google Sheets.
+              </p>
+            </div>
+          </div>
+        </Card>
+
         <h2 className="text-gray-700 font-semibold mb-3">Categorias</h2>
         
         <div className="grid grid-cols-2 gap-3">
