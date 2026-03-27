@@ -2160,9 +2160,10 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
           { label: 'Peso Carregado', value: `${currentRow[fi('Peso_Final')] || '-'} kg` },
           { label: 'Peso Vazio', value: `${formatPesoForSheet(formObraExtra.pesoVazio)} kg` },
           { label: 'Tonelada', value: `${derived.tonelada} t` },
-          { label: 'Status', value: '✅ Finalizado' },
-        ]);
-        setSubmitted(true);
+        { label: 'Status', value: '✅ Finalizado' },
+      ]);
+      setSuccessImageUrl(carregChegadaFotoPreview);
+      setSubmitted(true);
 
       } else {
         // ===== NORMAL FLOW (non-transferred) =====
