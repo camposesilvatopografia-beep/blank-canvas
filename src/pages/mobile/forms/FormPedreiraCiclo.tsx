@@ -4193,7 +4193,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                     const file = e.target.files?.[0];
                     if (!file) return;
                     setOcrLoading(true);
-                    // Always save the photo file regardless of OCR result
+                    // Always save the photo file
                     setFormObra(prev => ({ ...prev, ocrFotoFile: file }));
                     try {
                       const reader = new FileReader();
@@ -4201,20 +4201,10 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                         reader.onload = () => resolve(reader.result as string);
                         reader.readAsDataURL(file);
                       });
-                      const response = await supabase.functions.invoke('ocr-peso', {
-                        body: { imageBase64: base64 },
-                      });
-                      if (response.error) throw response.error;
-                      const { value } = response.data;
-                      if (value && value !== 'ERRO') {
-                        const rawValue = String(parseInt(value, 10));
-                        setFormObra(prev => ({ ...prev, pesoChegada: rawValue }));
-                        toast({ title: '✅ Peso lido com sucesso!', description: `Valor: ${formatBankInput(rawValue)}` });
-                      } else {
-                        toast({ title: 'Foto salva! Digite o peso manualmente', description: 'OCR não conseguiu ler, mas a foto foi capturada', variant: 'default' });
-                      }
+                      setOcrFotoPreview(base64);
+                      toast({ title: '✅ Foto capturada!', description: 'Digite o peso manualmente abaixo.' });
                     } catch (error: any) {
-                      toast({ title: 'Foto salva! Digite o peso manualmente', description: 'OCR indisponível, mas a foto foi capturada', variant: 'default' });
+                      toast({ title: 'Foto capturada!', description: 'Digite o peso manualmente abaixo.', variant: 'default' });
                     } finally {
                       setOcrLoading(false);
                       if (ocrInputRef.current) ocrInputRef.current.value = '';
