@@ -429,15 +429,21 @@ export default function FormPedreira() {
             usuario: effectiveName,
             foto_path: fotoChegadaUrl,
             nf_foto_path: fotoPesoFinalUrl,
+            status: isOnline ? 'Sincronizado' : 'Pendente'
           });
-          if (error) console.error('Supabase backup error (Pedreira):', error);
+          if (error) {
+            console.error('Supabase backup error (Pedreira):', error);
+            return false;
+          }
+          return true;
         } catch (e) {
           console.error('Failed to insert in Supabase (Pedreira):', e);
+          return false;
         }
       };
 
       if (!isOnline) {
-        addPendingRecord('pedreira', 'Apontamento_Pedreira', pedreiraRow, { ...formData });
+        addPendingRecord('pedreira', 'Apontamento_Pedreira', pedreiraRow, { ...formData, toneladaNum: derived.toneladaNum, effectiveName });
         await supabaseBackup();
         setSavedOffline(true);
         setSubmitted(true);
@@ -448,16 +454,14 @@ export default function FormPedreira() {
       }
 
       const success = await appendSheet('Apontamento_Pedreira', [pedreiraRow]);
+      const supSuccess = await supabaseBackup();
 
-      // Backup regardless of sheet success
-      await supabaseBackup();
-
-      if (!success) {
-        addPendingRecord('pedreira', 'Apontamento_Pedreira', pedreiraRow, { ...formData });
+      if (!success || !supSuccess) {
+        addPendingRecord('pedreira', 'Apontamento_Pedreira', pedreiraRow, { ...formData, toneladaNum: derived.toneladaNum, effectiveName });
         setSavedOffline(true);
         setSubmitted(true);
         playOfflineSound();
-        toast({ title: 'Salvo Localmente', description: 'Falha na planilha. Registro salvo offline e Supabase.' });
+        toast({ title: 'Atenção', description: 'Ocorreu uma falha parcial. O registro foi salvo offline para nova tentativa.' });
         return;
       }
 
