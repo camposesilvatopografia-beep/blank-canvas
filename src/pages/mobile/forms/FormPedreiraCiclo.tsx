@@ -534,6 +534,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
   const [successDetails, setSuccessDetails] = useState<{ label: string; value: string }[]>([]);
   const [successTitle, setSuccessTitle] = useState('');
   const [successSubtitle, setSuccessSubtitle] = useState('');
+  const [successImageUrl, setSuccessImageUrl] = useState<string | null>(null);
 
   // Load options + sheet headers
   useEffect(() => {
