@@ -153,6 +153,23 @@ export default function SuccessScreen({
           </div>
         )}
 
+        {/* Image Display */}
+        {imageUrl && (
+          <div
+            className={cn(
+              'mb-6 rounded-lg overflow-hidden border-2 border-white/10 transition-all duration-500 delay-[550ms]',
+              showContent ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+            )}
+          >
+            <img 
+              src={imageUrl} 
+              alt="Comprovante" 
+              className="w-full h-auto object-cover"
+              onError={(e) => (e.currentTarget.style.display = 'none')}
+            />
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div
           className={cn(
