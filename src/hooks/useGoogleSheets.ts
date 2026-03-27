@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-const SPREADSHEET_ID = '1B9-SbnayFySlsITdRqn_2WJNnA9ZHhD0PWYka83581c';
+const SPREADSHEET_ID = '1BP-YmGfi9-kBnc_Gi0JpDHEaTm4_W7FpVRd6pqFhqdE';
 
 interface UseGoogleSheetsReturn {
   loading: boolean;

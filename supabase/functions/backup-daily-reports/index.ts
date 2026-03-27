@@ -5,7 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-const SPREADSHEET_ID = '1B9-SbnayFySlsITdRqn_2WJNnA9ZHhD0PWYka83581c';
+const SPREADSHEET_ID = '1BP-YmGfi9-kBnc_Gi0JpDHEaTm4_W7FpVRd6pqFhqdE';
 const DEFAULT_FOLDER_ID = Deno.env.get('BACKUP_DRIVE_FOLDER_ID') || Deno.env.get('RDO_DRIVE_FOLDER_ID') || 'root';
 
 

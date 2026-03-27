@@ -8,7 +8,7 @@ const corsHeaders = {
 
 // Allowed spreadsheet IDs - only these can be accessed
 const ALLOWED_SPREADSHEET_IDS = [
-  '1B9-SbnayFySlsITdRqn_2WJNnA9ZHhD0PWYka83581c'
+  '1BP-YmGfi9-kBnc_Gi0JpDHEaTm4_W7FpVRd6pqFhqdE'
 ];
 
 // Allowed sheet names for validation

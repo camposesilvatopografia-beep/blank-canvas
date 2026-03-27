@@ -95,7 +95,7 @@ serve(async (req) => {
 
     if (!serviceAccountJson) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON not configured');
 
-    const SPREADSHEET_ID = '1B9-SbnayFySlsITdRqn_2WJNnA9ZHhD0PWYka83581c';
+    const SPREADSHEET_ID = '1BP-YmGfi9-kBnc_Gi0JpDHEaTm4_W7FpVRd6pqFhqdE';
 
     // Supabase client with service role (bypass RLS)
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
