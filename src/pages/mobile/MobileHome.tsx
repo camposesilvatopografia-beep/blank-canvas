@@ -851,7 +851,7 @@ _Enviado via ApropriAPP_`;
             </div>
             <div>
               <p className="text-sm font-medium text-blue-900 leading-snug">
-                Cada lançamento (Carga, Descarga, Pedreira, Cal, Pipa) deve ser preenchido nas suas tabelas correspondentes no Supabase e no Google Sheets.
+                Cada lançamento, Carga, Descarga, Pedreira, Cal, Pipa, devem ser preenchidos nas suas tabelas correspondentes, no supabase e tabelas do google sheets
               </p>
             </div>
           </div>
