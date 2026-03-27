@@ -370,7 +370,44 @@ export function BatchEditModal({ open, onOpenChange, sheetName, onSuccess }: Bat
 
       // Append new row
       const lastRow = allData.length + 1;
-      await writeSheet(sheetName, buildRowRange(lastRow, newRow.length), [newRow]);
+      const success = await writeSheet(sheetName, buildRowRange(lastRow, newRow.length), [newRow]);
+
+      if (success) {
+        if (sheetName === 'Carga') {
+          const volValue = parseFloat(addForm.volume.replace(',', '.')) || 0;
+          const viagensValue = parseInt(addForm.viagens) || 1;
+          const volTotal = volValue * viagensValue;
+          
+          await supabase.from('apontamentos_carga').insert({
+            data: addForm.data,
+            hora: addForm.hora || new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+            prefixo_caminhao: addForm.prefixoCb,
+            motorista: addForm.motorista,
+            material: addForm.material,
+            local: addForm.local,
+            viagens: viagensValue,
+            volume_total: volTotal,
+            created_by: profile?.id
+          });
+        } else {
+          const volValue = parseFloat(addForm.volume.replace(',', '.')) || 0;
+          const viagensValue = parseInt(addForm.viagens) || 1;
+          const volTotal = volValue * viagensValue;
+
+          await supabase.from('apontamentos_descarga').insert({
+            data: addForm.data,
+            hora: addForm.hora || new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+            prefixo_caminhao: addForm.prefixoCb,
+            motorista: addForm.motorista,
+            material: addForm.material,
+            local: addForm.local,
+            volume: volValue,
+            viagens: viagensValue,
+            volume_total: volTotal,
+            usuario: profile?.nome || 'Sistema'
+          });
+        }
+      }
 
       toast({
         title: 'Registro adicionado!',
