@@ -332,7 +332,7 @@ export default function Auth() {
               {!isSignUp && (
                 <div className="mt-4 p-4 rounded-xl bg-primary/10 border border-primary/20 backdrop-blur-sm animate-pulse">
                   <p className="text-xs text-primary font-medium text-center leading-relaxed">
-                    As tabelas do supabase nao estao preenchidas, atualize
+                    O assistente ia não funciona
                   </p>
                 </div>
               )}
