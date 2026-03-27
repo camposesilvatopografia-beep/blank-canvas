@@ -319,7 +319,6 @@ export default function FormPedreira() {
         } catch (e) { console.error('Upload foto peso final erro:', e); }
       }
 
-      let fotoChegadaUrl = '';
       if (ocrFotoFile) {
         try {
           const timestamp = Date.now();
