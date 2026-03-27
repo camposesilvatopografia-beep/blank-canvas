@@ -2124,8 +2124,11 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
 
         const rowNum = foundRecord.rowIndex;
         const range = buildRowRange(rowNum, currentRow.length);
-        const success = await writeSheet('Apontamento_Pedreira', range, [currentRow]);
-        if (!success) throw new Error('Erro ao salvar');
+      const success = await writeSheet('Apontamento_Pedreira', range, [currentRow]);
+      if (!success) throw new Error('Erro ao salvar');
+
+      // Backup to Supabase
+      await supabaseBackupPedreira(currentRow, headers);
 
         // Backup to Supabase
         await supabaseBackupPedreira(currentRow, headers);
