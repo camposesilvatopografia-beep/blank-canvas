@@ -131,6 +131,8 @@ export function PedreiraEditModal({ open, onOpenChange, onSuccess, editData, hea
         pesoVazio: formatPeso(editData.pesoVazio),
         pesoFinal: formatPeso(editData.pesoFinal),
         toneladaTicket: ttVal,
+        pesoChegada: formatPeso(editData.pesoChegada),
+        pesoVazioObra: formatPeso(editData.pesoVazioObra || 0),
       });
     }
   }, [editData, open]);
