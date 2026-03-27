@@ -86,16 +86,16 @@ export default function InstallApp() {
       </div>
 
       {/* Main Card */}
-      <Card className="bg-white/10 backdrop-blur-lg border-white/20 p-6 max-w-md w-full">
+      <Card className="bg-[#1f2937] border-white/10 p-6 max-w-md w-full shadow-2xl">
         {isInstalled ? (
           <div className="text-center">
             <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 className="w-8 h-8 text-green-500" />
             </div>
-            <h2 className="text-xl font-semibold text-white mb-2">App Instalado!</h2>
-            <p className="text-white/60 mb-6">O ApropriAPP já está na sua tela inicial.</p>
-            <Button onClick={goToApp} className="w-full h-12 text-lg gap-2 bg-amber-500 hover:bg-amber-600">
-              Abrir App
+            <h2 className="text-xl font-semibold text-white mb-2">Instalado com Sucesso!</h2>
+            <p className="text-gray-400 mb-6">O ApropriAPP já está pronto para uso na sua tela inicial.</p>
+            <Button onClick={goToApp} className="w-full h-12 text-lg gap-2 bg-amber-500 hover:bg-amber-600 font-bold">
+              Abrir Aplicativo
               <ArrowRight className="w-5 h-5" />
             </Button>
           </div>
@@ -104,14 +104,20 @@ export default function InstallApp() {
             {/* Install Section */}
             <div className="mb-6">
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Smartphone className="w-5 h-5" />
+                <Smartphone className="w-5 h-5 text-amber-500" />
                 Instalar Aplicativo
               </h2>
 
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mb-6">
+                <p className="text-amber-200 text-xs text-center font-medium">
+                  🔒 Acesso direto: Não requer conta Lovable para utilizar.
+                </p>
+              </div>
+
               {deferredPrompt ? (
-                <Button onClick={handleInstall} className="w-full h-12 text-lg gap-2 bg-green-500 hover:bg-green-600">
-                  <Download className="w-5 h-5" />
-                  Instalar Agora
+                <Button onClick={handleInstall} className="w-full h-14 text-xl gap-2 bg-green-500 hover:bg-green-600 font-bold shadow-lg shadow-green-500/20">
+                  <Download className="w-6 h-6" />
+                  INSTALAR AGORA
                 </Button>
               ) : (
                 <div className="space-y-4">
