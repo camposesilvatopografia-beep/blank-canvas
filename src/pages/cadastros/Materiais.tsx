@@ -87,7 +87,7 @@ export default function Materiais() {
     setSaving(true);
     try {
       const { error } = await supabase
-        .from('materiais')
+        .from('material')
         .delete()
         .eq('id', selectedMaterial.id);
 
