@@ -4179,7 +4179,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                   <Input
                     type="text"
                     inputMode="numeric"
-                    placeholder={foundRecord.pesoVazio ? `Usar do ticket: ${foundRecord.pesoVazio}` : 'Digite apenas números'}
+                    placeholder={foundRecord?.pesoVazio ? `Usar do ticket: ${foundRecord.pesoVazio}` : 'Digite apenas números'}
                     value={formObra.pesoVazio}
                     onChange={e => setFormObra({ ...formObra, pesoVazio: e.target.value.replace(/[^0-9]/g, '') })}
                     className="bg-white border-2 border-blue-400 text-gray-900 placeholder:text-gray-400 h-16 text-xl rounded-xl font-medium flex-1"
