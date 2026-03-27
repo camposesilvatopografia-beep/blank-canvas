@@ -851,7 +851,7 @@ _Enviado via ApropriAPP_`;
             </div>
             <div>
               <p className="text-sm font-medium text-blue-900 leading-snug">
-                Qualquer lançamento editado, atualizado ou excluido no supabase ou no google sheets, deve tbm ser atualizado em ambos, imediatamente
+                acabei de fazer lançamento em pedreira, ciclo, mas as fotos nao estão aparecendo no sistema, nem no rel. exportado
               </p>
             </div>
           </div>
