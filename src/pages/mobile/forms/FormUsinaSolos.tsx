@@ -127,14 +127,19 @@ export default function FormUsinaSolos() {
             local: 'Usina',
             usuario: effectiveName,
           });
-          if (error) console.error('Supabase backup error (Usina Solos):', error);
+          if (error) {
+            console.error('Supabase backup error (Usina Solos):', error);
+            return false;
+          }
+          return true;
         } catch (e) {
           console.error('Failed to insert in Supabase (Usina Solos):', e);
+          return false;
         }
       };
 
       if (!isOnline) {
-        addPendingRecord('carga', 'Produção Usina Solos', row, { data, quantidadeReal });
+        addPendingRecord('carga', 'Produção Usina Solos', row, { data, quantidadeReal, usuario: effectiveName });
         await supabaseBackup();
         playSuccessSound();
         setShowSuccess(true);
@@ -146,9 +151,11 @@ export default function FormUsinaSolos() {
       }
 
       const success = await appendSheet('Produção Usina Solos', [row]);
-      
-      // Backup regardless of sheet success
-      await supabaseBackup();
+      const supSuccess = await supabaseBackup();
+
+      if (!success || !supSuccess) {
+        addPendingRecord('carga', 'Produção Usina Solos', row, { data, quantidadeReal, usuario: effectiveName });
+      }
 
       if (success) {
         playSuccessSound();

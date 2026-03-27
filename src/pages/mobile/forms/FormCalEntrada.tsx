@@ -522,25 +522,42 @@ export default function FormCalEntrada() {
       ];
 
       // Backup to Supabase
-      if (navigator.onLine) {
-        supabase.from('movimentacoes_cal').insert({
-          data: formData.data,
-          hora,
-          prefixo_caminhao: formData.prefixoCaminhao,
-          fornecedor: formData.fornecedor,
-          nota_fiscal: formData.notaFiscal,
-          quantidade: parseNumeric(formData.quantidade),
-          local: 'Cebolão',
-          usuario: effectiveName,
-          foto_path: urlChegada,
-          nf_foto_path: urlTicket,
-        }).then(({ error }) => {
-          if (error) console.error('Supabase backup error (Cal Entrada):', error);
-        });
-      }
+      const supBackup = async () => {
+        try {
+          const { error } = await supabase.from('movimentacoes_cal').insert({
+            data: formData.data,
+            hora,
+            prefixo_caminhao: formData.prefixoCaminhao,
+            fornecedor: formData.fornecedor,
+            nota_fiscal: formData.notaFiscal,
+            quantidade: parseNumeric(formData.quantidade),
+            local: 'Cebolão',
+            usuario: effectiveName,
+            foto_path: urlChegada,
+            nf_foto_path: urlTicket,
+          });
+          if (error) {
+            console.error('Supabase backup error (Cal Entrada):', error);
+            return false;
+          }
+          return true;
+        } catch (e) {
+          console.error('Failed to insert in Supabase (Cal Entrada):', e);
+          return false;
+        }
+      };
 
-      if (navigator.onLine) {
-        await appendSheet('Mov_Cal', [partialRow]);
+      if (!navigator.onLine) {
+        addPendingRecord('cal', 'Mov_Cal', partialRow, { formData, usuario: effectiveName });
+        await supBackup();
+        setSavedOffline(true);
+      } else {
+        const success = await appendSheet('Mov_Cal', [partialRow]);
+        const supSuccess = await supBackup();
+        if (!success || !supSuccess) {
+          addPendingRecord('cal', 'Mov_Cal', partialRow, { formData, usuario: effectiveName });
+          setSavedOffline(true);
+        }
       }
 
       const openEntry: OpenCalEntry = {

@@ -339,15 +339,19 @@ export default function FormCarga() {
             material: formData.material,
             status: isOnline ? 'Sincronizado' : 'Pendente'
           });
-          if (error) console.error('Supabase backup error (Carga):', error);
+          if (error) {
+            console.error('Supabase backup error (Carga):', error);
+            return false;
+          }
+          return true;
         } catch (e) {
-          console.error('Failed to insert in Supabase:', e);
+          console.error('Failed to insert in Supabase (Carga):', e);
+          return false;
         }
       };
 
-      // Check if offline
       if (!isOnline) {
-        addPendingRecord('carga', 'Carga', cargaRow, { ...formData, dataFormatada, hora });
+        addPendingRecord('carga', 'Carga', cargaRow, { ...formData, dataFormatada, hora, volumeTotal, selectedCaminhao, selectedEscavadeira, viagens });
         await supabaseBackup();
 
         if (addLancamento && formData.localLancamento) {

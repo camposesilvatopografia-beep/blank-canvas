@@ -840,7 +840,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       const fotoChegada = getVal('Foto do Peso Chegada Obra') || getVal('Foto_Peso_Chegada') || getVal('Foto Peso Chegada') || '';
       const fotoPesagem = getVal('Foto Pesagem Pedreira') || getVal('Foto_Pesagem_Pedreira') || '';
 
-      const { error } = await supabase.from('movimentacoes_pedreira').upsert({
+      const payload = {
         external_id: getVal('ID'),
         data: dataStr ? format(new Date(dataStr.split('/').reverse().join('-')), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
         hora: horaStr || format(new Date(), 'HH:mm:ss'),
@@ -856,11 +856,19 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
         usuario: effectiveName,
         foto_path: fotoChegada,
         nf_foto_path: fotoPesagem,
-      }, { onConflict: 'external_id' });
+        status: isOnline ? 'Sincronizado' : 'Pendente'
+      };
+
+      const { error } = await supabase.from('movimentacoes_pedreira').upsert(payload, { onConflict: 'external_id' });
       
-      if (error) console.error('Supabase backup error (Pedreira Ciclo):', error);
+      if (error) {
+        console.error('Supabase backup error (Pedreira Ciclo):', error);
+        return false;
+      }
+      return true;
     } catch (e) {
       console.error('Failed to insert in Supabase (Pedreira Ciclo):', e);
+      return false;
     }
   };
 
