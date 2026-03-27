@@ -57,6 +57,7 @@ import SupportInbox from "./pages/SupportInbox";
 import ApontadorDesktop from "./pages/ApontadorDesktop";
 import PainelOperacao from "./pages/PainelOperacao";
 import PainelOperacaoAuth from "./pages/PainelOperacaoAuth";
+import ImportacaoSheets from "./pages/ImportacaoSheets";
 // Mobile pages
 import MobileHome from "./pages/mobile/MobileHome";
 import MobileAuth from "./pages/mobile/MobileAuth";
