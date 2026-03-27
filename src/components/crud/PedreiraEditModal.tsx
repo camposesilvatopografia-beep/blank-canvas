@@ -36,6 +36,9 @@ interface PedreiraEditData {
   toneladaCalcObra?: number;
   pesoChegada: number;
   pesoVazioObra?: number;
+  fotoChegada?: string;
+  fotoPesagem?: string;
+  fotoVazio?: string;
   originalRow?: any[];
 }
 
