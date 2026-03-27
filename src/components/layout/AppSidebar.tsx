@@ -10,7 +10,7 @@ import {
   CloudRain, FlaskConical, Settings, Users, MapPin, Package,
   Building2, ChevronDown, ChevronRight, Smartphone, LogOut, Bell,
   ShieldCheck, Clock, ClipboardList, BarChart3, Warehouse, LayoutGrid, Menu, ExternalLink,
-  MessageCircle,
+  MessageCircle, Gauge, Wrench, Fuel,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -46,6 +46,7 @@ const menuColorMap: Record<string, { border: string; bg: string; activeBg: strin
   'Alertas':      { border: 'border-l-red-400',      bg: '',                        activeBg: 'bg-red-500/20',      text: 'text-red-300' },
   'Almoxarifado': { border: 'border-l-yellow-400',   bg: '',                        activeBg: 'bg-yellow-500/20',   text: 'text-yellow-300' },
   'Cadastros':    { border: 'border-l-purple-400',   bg: 'bg-purple-500/5',        activeBg: 'bg-purple-500/20',   text: 'text-purple-300' },
+  'Controle de Manutenção e Abastecimentos': { border: 'border-l-indigo-400', bg: 'bg-indigo-500/5', activeBg: 'bg-indigo-500/20', text: 'text-indigo-300' },
 };
 
 const menuItems: MenuItem[] = [
@@ -82,6 +83,14 @@ const menuItems: MenuItem[] = [
       { title: 'Histórico dos Veículos', icon: Clock, path: '/historico-veiculos', sectionKey: 'frota', menuKey: 'historico_veiculos' },
       { title: 'Caminhões Areia Express', icon: Truck, path: '/sala-tecnica/caminhoes-areia-express', menuKey: 'sala_tecnica_areia_express' },
       { title: 'Caminhões Herval', icon: Truck, path: '/sala-tecnica/caminhoes-herval', menuKey: 'sala_tecnica_herval' },
+    ],
+  },
+  {
+    title: 'Controle de Manutenção e Abastecimentos', icon: Fuel, menuKey: 'manutencao_abastecimento',
+    children: [
+      { title: 'Abastecimentos', icon: Droplets, path: '/manutencao/abastecimentos', menuKey: 'manut_abastecimentos' },
+      { title: 'Horímetros', icon: Gauge, path: '/manutencao/horimetros', menuKey: 'manut_horimetros' },
+      { title: 'Manutenções', icon: Wrench, path: '/manutencao/manutencoes', menuKey: 'manut_manutencoes' },
     ],
   },
   { title: 'Frota Geral', icon: Truck, path: '/frota', sectionKey: 'frota', menuKey: 'frota_geral' },
@@ -126,8 +135,6 @@ export const AppSidebar = () => {
       prev.includes(title) ? prev.filter(t => t !== title) : [...prev, title]
     );
   };
-
-  
 
   const isActive = (path?: string) => path && location.pathname === path;
   const isChildActive = (children?: MenuItem[]) =>
