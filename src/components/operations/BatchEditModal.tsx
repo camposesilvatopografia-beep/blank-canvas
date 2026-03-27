@@ -74,6 +74,7 @@ interface RecordItem {
 export function BatchEditModal({ open, onOpenChange, sheetName, onSuccess }: BatchEditModalProps) {
   const { toast } = useToast();
   const { readSheet, writeSheet, loading } = useGoogleSheets();
+  const { profile } = useAuth();
   
   const [allData, setAllData] = useState<any[][]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
