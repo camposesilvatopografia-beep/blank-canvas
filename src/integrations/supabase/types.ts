@@ -331,6 +331,69 @@ export type Database = {
         }
         Relationships: []
       }
+      apontamentos_descarga: {
+        Row: {
+          created_at: string | null
+          data: string
+          descricao_caminhao: string | null
+          empresa_caminhao: string | null
+          encarregado: string | null
+          estaca: string | null
+          external_id: string | null
+          hora: string | null
+          id: string
+          local: string | null
+          material: string | null
+          motorista: string | null
+          prefixo_caminhao: string | null
+          updated_at: string | null
+          usuario: string | null
+          viagens: number | null
+          volume: number | null
+          volume_total: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          data: string
+          descricao_caminhao?: string | null
+          empresa_caminhao?: string | null
+          encarregado?: string | null
+          estaca?: string | null
+          external_id?: string | null
+          hora?: string | null
+          id?: string
+          local?: string | null
+          material?: string | null
+          motorista?: string | null
+          prefixo_caminhao?: string | null
+          updated_at?: string | null
+          usuario?: string | null
+          viagens?: number | null
+          volume?: number | null
+          volume_total?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          data?: string
+          descricao_caminhao?: string | null
+          empresa_caminhao?: string | null
+          encarregado?: string | null
+          estaca?: string | null
+          external_id?: string | null
+          hora?: string | null
+          id?: string
+          local?: string | null
+          material?: string | null
+          motorista?: string | null
+          prefixo_caminhao?: string | null
+          updated_at?: string | null
+          usuario?: string | null
+          viagens?: number | null
+          volume?: number | null
+          volume_total?: number | null
+        }
+        Relationships: []
+      }
       avatars: {
         Row: {
           created_at: string
@@ -538,6 +601,234 @@ export type Database = {
           material?: string | null
           nome?: string
           status?: string
+        }
+        Relationships: []
+      }
+      movimentacoes_cal: {
+        Row: {
+          created_at: string | null
+          data: string
+          estaca: string | null
+          external_id: string | null
+          fornecedor: string | null
+          foto_path: string | null
+          hora: string | null
+          id: string
+          local: string | null
+          motorista: string | null
+          nf_foto_path: string | null
+          nota_fiscal: string | null
+          prefixo_caminhao: string | null
+          quantidade: number | null
+          updated_at: string | null
+          usuario: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data: string
+          estaca?: string | null
+          external_id?: string | null
+          fornecedor?: string | null
+          foto_path?: string | null
+          hora?: string | null
+          id?: string
+          local?: string | null
+          motorista?: string | null
+          nf_foto_path?: string | null
+          nota_fiscal?: string | null
+          prefixo_caminhao?: string | null
+          quantidade?: number | null
+          updated_at?: string | null
+          usuario?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data?: string
+          estaca?: string | null
+          external_id?: string | null
+          fornecedor?: string | null
+          foto_path?: string | null
+          hora?: string | null
+          id?: string
+          local?: string | null
+          motorista?: string | null
+          nf_foto_path?: string | null
+          nota_fiscal?: string | null
+          prefixo_caminhao?: string | null
+          quantidade?: number | null
+          updated_at?: string | null
+          usuario?: string | null
+        }
+        Relationships: []
+      }
+      movimentacoes_pedreira: {
+        Row: {
+          created_at: string | null
+          data: string
+          empresa_caminhao: string | null
+          encarregado: string | null
+          estaca: string | null
+          external_id: string | null
+          fornecedor: string | null
+          foto_path: string | null
+          hora: string | null
+          id: string
+          local: string | null
+          material: string | null
+          motorista: string | null
+          nf_foto_path: string | null
+          nota_fiscal: string | null
+          prefixo_caminhao: string | null
+          updated_at: string | null
+          usuario: string | null
+          viagens: number | null
+          volume: number | null
+          volume_total: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          data: string
+          empresa_caminhao?: string | null
+          encarregado?: string | null
+          estaca?: string | null
+          external_id?: string | null
+          fornecedor?: string | null
+          foto_path?: string | null
+          hora?: string | null
+          id?: string
+          local?: string | null
+          material?: string | null
+          motorista?: string | null
+          nf_foto_path?: string | null
+          nota_fiscal?: string | null
+          prefixo_caminhao?: string | null
+          updated_at?: string | null
+          usuario?: string | null
+          viagens?: number | null
+          volume?: number | null
+          volume_total?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          data?: string
+          empresa_caminhao?: string | null
+          encarregado?: string | null
+          estaca?: string | null
+          external_id?: string | null
+          fornecedor?: string | null
+          foto_path?: string | null
+          hora?: string | null
+          id?: string
+          local?: string | null
+          material?: string | null
+          motorista?: string | null
+          nf_foto_path?: string | null
+          nota_fiscal?: string | null
+          prefixo_caminhao?: string | null
+          updated_at?: string | null
+          usuario?: string | null
+          viagens?: number | null
+          volume?: number | null
+          volume_total?: number | null
+        }
+        Relationships: []
+      }
+      movimentacoes_pipas: {
+        Row: {
+          atividade: string | null
+          created_at: string | null
+          data: string
+          empresa: string | null
+          external_id: string | null
+          hora: string | null
+          id: string
+          local: string | null
+          motorista: string | null
+          prefixo_pipa: string | null
+          updated_at: string | null
+          usuario: string | null
+          viagens: number | null
+          volume: number | null
+          volume_total: number | null
+        }
+        Insert: {
+          atividade?: string | null
+          created_at?: string | null
+          data: string
+          empresa?: string | null
+          external_id?: string | null
+          hora?: string | null
+          id?: string
+          local?: string | null
+          motorista?: string | null
+          prefixo_pipa?: string | null
+          updated_at?: string | null
+          usuario?: string | null
+          viagens?: number | null
+          volume?: number | null
+          volume_total?: number | null
+        }
+        Update: {
+          atividade?: string | null
+          created_at?: string | null
+          data?: string
+          empresa?: string | null
+          external_id?: string | null
+          hora?: string | null
+          id?: string
+          local?: string | null
+          motorista?: string | null
+          prefixo_pipa?: string | null
+          updated_at?: string | null
+          usuario?: string | null
+          viagens?: number | null
+          volume?: number | null
+          volume_total?: number | null
+        }
+        Relationships: []
+      }
+      movimentacoes_usina_solos: {
+        Row: {
+          created_at: string | null
+          data: string
+          external_id: string | null
+          hora: string | null
+          id: string
+          local: string | null
+          material: string | null
+          quantidade: number | null
+          umidade: number | null
+          updated_at: string | null
+          usina: string | null
+          usuario: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data: string
+          external_id?: string | null
+          hora?: string | null
+          id?: string
+          local?: string | null
+          material?: string | null
+          quantidade?: number | null
+          umidade?: number | null
+          updated_at?: string | null
+          usina?: string | null
+          usuario?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data?: string
+          external_id?: string | null
+          hora?: string | null
+          id?: string
+          local?: string | null
+          material?: string | null
+          quantidade?: number | null
+          umidade?: number | null
+          updated_at?: string | null
+          usina?: string | null
+          usuario?: string | null
         }
         Relationships: []
       }
