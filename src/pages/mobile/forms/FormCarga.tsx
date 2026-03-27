@@ -414,7 +414,7 @@ export default function FormCarga() {
       localStorage.setItem('apropriapp_last_local_carga', formData.local);
       toast({
         title: '✅ Sucesso!',
-        description: 'Apontamento registrado e sincronizado.',
+        description: 'Apontamento registrado na planilha e Supabase.',
       });
 
     } catch (error: any) {
