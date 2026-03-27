@@ -710,9 +710,15 @@ export default function Apontadores() {
               </div>
               <div>
                 <h3 className="font-semibold">Link do App Mobile</h3>
-                <p className="text-sm text-muted-foreground">Compartilhe com os apontadores para instalação</p>
+                <p className="text-sm text-muted-foreground">Compartilhe o link oficial para instalação (não requer conta Lovable)</p>
               </div>
             </div>
+            {isPreview && (
+              <div className="bg-amber-100 border border-amber-200 text-amber-800 text-[10px] px-2 py-1 rounded-md font-medium uppercase tracking-wider flex items-center gap-1">
+                <Shield className="w-3 h-3" />
+                Preview Mode - Link oficial habilitado
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <Input
                 value={appUrl}
