@@ -1153,6 +1153,9 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
           success = await appendSheet('Apontamento_Pedreira', [pedreiraRow]);
         }
         if (!success) throw new Error('Erro ao salvar');
+
+        // Backup to Supabase
+        await supabaseBackupPedreira(pedreiraRow, headers);
         // Signal desktop tabs to refresh
         localStorage.setItem('pedreira_data_updated', Date.now().toString());
         playSuccessSound();
