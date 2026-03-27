@@ -134,6 +134,13 @@ export async function exportRelatorioIndividualPedreira(
   const difTon = tonCalcObra > 0 && tonTicket > 0 ? (tonCalcObra - tonTicket) : 0;
   const hasDif = Math.abs(difTon) > 0.0005;
 
+  const pesoBrutoPedreira = record.pesoFinal || 0;
+  const pesoVazioPedreira = record.pesoVazio || (pesoBrutoPedreira > 0 && tonTicket > 0 ? (pesoBrutoPedreira - (tonTicket * 1000)) : 0);
+  
+  const pesoBrutoObra = record.pesoChegada || 0;
+  const pesoVazioObra = record.pesoVazio || 0; // Using record.pesoVazio as a general truck weight if specific one not available
+
+
   const html = `<!DOCTYPE html><html><head>
     <meta charset="UTF-8" />
     <meta name="referrer" content="no-referrer" />
