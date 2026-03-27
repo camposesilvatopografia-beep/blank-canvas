@@ -8,6 +8,8 @@ import { useOfflineCache } from '@/hooks/useOfflineCache';
 import { supabase } from '@/integrations/supabase/client';
 import { useEquipmentPermissions } from '@/hooks/useEquipmentPermissions';
 import { useLocalPermissions } from '@/hooks/useLocalPermissions';
+import { parseNumeric } from '@/utils/masks';
+
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
