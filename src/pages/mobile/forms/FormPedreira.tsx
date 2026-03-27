@@ -466,31 +466,46 @@ export default function FormPedreira() {
       // Fallback
       const dataFormatada = format(new Date(formData.data + 'T12:00:00'), 'dd/MM/yyyy');
       const derived = calculateDerivedValues(formData.pesoFinal || '0', getEffectivePesoVazio() || '0');
-      const pedreiraRowFallback = [
-        Math.random().toString(36).substring(2, 10),
-        dataFormatada,
-        formData.horaCarregamento,
-        formData.numeroPedido || '',
-        formData.fornecedor || '',
-        formData.caminhao,
-        selectedCaminhao?.descricao || '',
-        selectedCaminhao?.empresa || '',
-        selectedCaminhao?.motorista || '',
-        selectedCaminhao?.placa || '',
-        formData.material,
-        formatPesoForSheet(getEffectivePesoVazio()),
-        formatPesoForSheet(formData.pesoFinal),
-        derived.pesoLiquido,
-        derived.metroCubico,
-        derived.densidade,
-        derived.tonelada,
-        effectiveName || '',
-        format(new Date(), 'HH:mm'),
-        formatPesoForSheet(formData.pesoChegada),
-        'Finalizado',
-        fotoChegadaUrl,
-        fotoPesoFinalUrl,
-      ];
+      
+      let headers = sheetHeaders;
+      const fi = (name: string) => headers.indexOf(name);
+      const colCount = headers.length > 0 ? headers.length : 23;
+      const pedreiraRowFallback: string[] = new Array(colCount).fill('');
+
+      const sv = (name: string, fallbackIdx: number, value: string) => {
+        const idx = fi(name);
+        if (idx !== -1) pedreiraRowFallback[idx] = value;
+        else if (fallbackIdx < colCount) pedreiraRowFallback[fallbackIdx] = value;
+      };
+
+      sv('ID', 0, Math.random().toString(36).substring(2, 10));
+      sv('Data', 1, dataFormatada);
+      sv('Hora', 2, formData.horaCarregamento);
+      sv('Ordem_Carregamento', 3, formData.numeroPedido || '');
+      sv('Fornecedor', 4, formData.fornecedor || '');
+      sv('Prefixo_Eq', 5, formData.caminhao);
+      sv('Descricao_Eq', 6, selectedCaminhao?.descricao || '');
+      sv('Empresa_Eq', 7, selectedCaminhao?.empresa || '');
+      sv('Motorista', 8, selectedCaminhao?.motorista || '');
+      sv('Placa', 9, selectedCaminhao?.placa || '');
+      sv('Material', 10, formData.material);
+      sv('Peso_Vazio', 11, formatPesoForSheet(getEffectivePesoVazio()));
+      sv('Peso_Final', 12, formatPesoForSheet(formData.pesoFinal));
+      sv('Peso_Liquido', 13, derived.pesoLiquido);
+      sv('Metro_Cubico', 14, derived.metroCubico);
+      sv('Densidade', 15, derived.densidade);
+      sv('Tonelada', 16, derived.tonelada);
+      sv('Usuario', 17, effectiveName || '');
+      sv('Hora_Chegada_Obra', 18, format(new Date(), 'HH:mm'));
+      sv('Peso_Chegada_Obra', 19, formatPesoForSheet(formData.pesoChegada));
+      sv('Status', 20, 'Finalizado');
+      
+      const fotoChegadaIdx = fi('Foto do Peso Chegada Obra') !== -1 ? fi('Foto do Peso Chegada Obra') : (fi('Foto') !== -1 ? fi('Foto') : 21);
+      if (fotoChegadaIdx !== -1 && fotoChegadaIdx < colCount) pedreiraRowFallback[fotoChegadaIdx] = fotoChegadaUrl;
+      
+      const fotoPesagemIdx = fi('Foto Pesagem Pedreira') !== -1 ? fi('Foto Pesagem Pedreira') : (fi('Foto_Pesagem_Pedreira') !== -1 ? fi('Foto_Pesagem_Pedreira') : 22);
+      if (fotoPesagemIdx !== -1 && fotoPesagemIdx < colCount) pedreiraRowFallback[fotoPesagemIdx] = fotoPesoFinalUrl;
+
       addPendingRecord('pedreira', 'Apontamento_Pedreira', pedreiraRowFallback, { ...formData });
       setSavedOffline(true);
       setSubmitted(true);
