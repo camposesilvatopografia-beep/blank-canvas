@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -117,7 +117,7 @@ const ImportacaoSheets = () => {
   }
 
   const addLog = (message: string) => {
-    setLogs(prev => [...prev, \`[\${new Date().toLocaleTimeString()}] \${message}\`]);
+    setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${message}`]);
   };
 
   const parseNumber = (value: any) => {
@@ -131,8 +131,6 @@ const ImportacaoSheets = () => {
 
   const formatDate = (value: any) => {
     if (!value) return null;
-    // Se for um número (formato Excel/Sheets), converter? Geralmente o CSV exporta como string
-    // Tentamos parsear datas comuns
     try {
       const date = new Date(value);
       if (!isNaN(date.getTime())) {
@@ -151,7 +149,6 @@ const ImportacaoSheets = () => {
     config.columns.forEach(col => {
       let val = row[col];
       
-      // Conversões específicas por nome de coluna ou tipo esperado
       if (col.includes("data")) {
         val = formatDate(val);
       } else if (["quantidade", "volume_total", "viagens", "estoque_minimo", "estoque_atual", "saldo_apos", "preco_unitario", "preco_total", "temperatura_manha", "temperatura_tarde", "precipitacao_dia", "prazo_contratual_dias"].includes(col)) {
@@ -160,7 +157,6 @@ const ImportacaoSheets = () => {
 
       processed[col] = val;
 
-      // Validação básica de campos obrigatórios se for chave de upsert
       const isKey = Array.isArray(config.upsertKey) ? config.upsertKey.includes(col) : config.upsertKey === col;
       if (isKey && (val === null || val === undefined || val === "")) {
         hasRequiredFields = false;
@@ -171,19 +167,19 @@ const ImportacaoSheets = () => {
   };
 
   const importTable = async (config: TableConfig, sheetId: string) => {
-    const url = \`https://docs.google.com/spreadsheets/d/\${sheetId}/gviz/tq?tqx=out:csv&sheet=\${encodeURIComponent(config.sheetName)}\`;
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(config.sheetName)}`;
     
-    addLog(\`Iniciando importação da tabela \${config.name}...\`);
+    addLog(`Iniciando importação da tabela ${config.name}...`);
 
     try {
       const response = await fetch(url);
-      if (!response.ok) throw new Error(\`Erro ao buscar dados: \${response.statusText}\`);
+      if (!response.ok) throw new Error(`Erro ao buscar dados: ${response.statusText}`);
       
       const csvText = await response.text();
       const { data, errors } = Papa.parse(csvText, { header: true, skipEmptyLines: true });
 
       if (errors.length > 0) {
-        addLog(\`⚠️ Avisos no parse CSV para \${config.name}: \${errors.length} erros detectados.\`);
+        addLog(`⚠️ Avisos no parse CSV para ${config.name}: ${errors.length} erros detectados.`);
       }
 
       const processedData = data
@@ -191,39 +187,40 @@ const ImportacaoSheets = () => {
         .filter(row => row !== null);
 
       if (processedData.length === 0) {
-        addLog(\`❌ Nenhum dado válido encontrado para \${config.name}.\`);
+        addLog(`❌ Nenhum dado válido encontrado para ${config.name}.`);
         return 0;
       }
 
-      addLog(\`Importando \${processedData.length} registros para \${config.name}...\`);
+      addLog(`Importando ${processedData.length} registros para ${config.name}...`);
 
-      // Batch upsert to avoid too many requests
       const batchSize = 100;
       let count = 0;
       let tableErrors = 0;
 
       for (let i = 0; i < processedData.length; i += batchSize) {
         const batch = processedData.slice(i, i + batchSize);
+        const onConflictColumns = Array.isArray(config.upsertKey) ? config.upsertKey.join(",") : config.upsertKey;
+        
         const { error } = await supabase
           .from(config.id as any)
-          .upsert(batch, { onConflict: Array.isArray(config.upsertKey) ? config.upsertKey.join(",") : config.upsertKey });
+          .upsert(batch, { onConflict: onConflictColumns });
 
         if (error) {
-          console.error(\`Erro no upsert (\${config.id}):\`, error);
-          addLog(\`❌ Erro no lote \${i/batchSize + 1} de \${config.name}: \${error.message}\`);
+          console.error(`Erro no upsert (${config.id}):`, error);
+          addLog(`❌ Erro no lote ${Math.floor(i/batchSize) + 1} de ${config.name}: ${error.message}`);
           tableErrors += batch.length;
         } else {
           count += batch.length;
           if (processedData.length > batchSize) {
-            addLog(\`... \${count}/\${processedData.length} registros importados\`);
+            addLog(`... ${count}/${processedData.length} registros importados`);
           }
         }
       }
 
-      addLog(\`✅ \${config.name}: \${count} registros importados / \${tableErrors} erros.\`);
+      addLog(`✅ ${config.name}: ${count} registros importados / ${tableErrors} erros.`);
       return count;
     } catch (error: any) {
-      addLog(\`❌ Erro crítico em \${config.name}: \${error.message}\`);
+      addLog(`❌ Erro crítico em ${config.name}: ${error.message}`);
       return -1;
     }
   };
