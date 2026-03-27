@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
-import { Users, Plus, Search, Pencil, UserX, Loader2, Shield, Copy, Share2, Smartphone, Settings, Key, MapPin, Eye, Edit3, Trash2, RotateCcw } from 'lucide-react';
+import { Users, Plus, Search, Pencil, UserX, Loader2, Shield, Copy, Share2, Smartphone, Settings, Key, MapPin, Eye, EyeOff, Edit3, Trash2, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { DeleteConfirmDialog } from '@/components/crud/DeleteConfirmDialog';
