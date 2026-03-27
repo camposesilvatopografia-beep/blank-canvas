@@ -487,21 +487,24 @@ export function PedreiraEditModal({ open, onOpenChange, onSuccess, editData, hea
             </div>
           </div>
 
-          {/* Calculated Values */}
-          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg space-y-2">
-            <p className="font-medium text-sm text-amber-700 dark:text-amber-400">Valores Calculados:</p>
-            <div className="grid grid-cols-3 gap-4 text-sm">
+          <div className="p-4 bg-primary/10 rounded-lg space-y-2">
+            <p className="font-medium text-sm text-primary">Valores Calculados:</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <span className="text-muted-foreground">Peso Líquido:</span>
-                <span className="font-bold ml-2">{derived.pesoLiquido.toLocaleString('pt-BR')} kg</span>
+                <span className="text-muted-foreground">Peso Líq. Origem:</span>
+                <p className="font-bold">{derived.pesoLiquido.toLocaleString('pt-BR')} kg</p>
               </div>
               <div>
-                <span className="text-muted-foreground">Tonelada:</span>
-                <span className="font-bold ml-2">{derived.tonelada.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} t</span>
+                <span className="text-muted-foreground">Ton. Origem:</span>
+                <p className="font-bold">{derived.tonelada.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} t</p>
               </div>
               <div>
-                <span className="text-muted-foreground">m³:</span>
-                <span className="font-bold ml-2">{derived.metroCubico.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                <span className="text-muted-foreground">Ton. Calc Obra:</span>
+                <p className="font-bold text-blue-600">{derived.toneladaCalcObra.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} t</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Volume (m³):</span>
+                <p className="font-bold">{derived.metroCubico.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
               </div>
             </div>
           </div>
