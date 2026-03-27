@@ -85,6 +85,7 @@ export default function Apontadores() {
   const [permissionsLoading, setPermissionsLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isNew, setIsNew] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const { toast } = useToast();
   const { isAdmin, profile } = useAuth();
