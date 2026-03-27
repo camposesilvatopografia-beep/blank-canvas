@@ -24,6 +24,9 @@ interface DayRecord {
   ordem: string;
   pesoFinal?: number;
   pesoChegada?: number;
+  toneladaTicket?: number;
+  toneladaCalcObra?: number;
+  pesoVazioObra?: number;
 }
 
 interface DetalhamentoViagemTabProps {
@@ -272,12 +275,26 @@ export function DetalhamentoViagemTab({
           <thead><tr>
             <th>Data</th><th>Hora</th><th>Prefixo</th>
             <th>Fornecedor</th><th>Nº Pedido/Nota</th><th>Descrição</th>
-            <th>Material</th><th class="text-right">Peso Bruto (t)</th>
+            <th>Material</th>
+            <th class="text-right">Peso Ped. (t)</th>
+            <th class="text-right">Peso Cheg. (kg)</th>
+            <th class="text-right">Ton. Obra (t)</th>
+            <th class="text-right">Dif. (t)</th>
           </tr></thead>
           <tbody>${sortedRecords.map(r => `<tr>
             <td>${r.data || activeDate}</td><td>${r.hora}</td><td class="bold" style="color:#c2410c">${r.prefixo}</td>
             <td>${r.fornecedor}</td><td>${r.ordem || '—'}</td><td>${r.descricao}</td>
-            <td>${r.material}</td><td class="text-right bold">${fmt(r.tonelada)}</td>
+            <td>${r.material}</td>
+            <td class="text-right">${fmt(r.tonelada)}</td>
+            <td class="text-right">${r.pesoChegada && r.pesoChegada > 0 ? r.pesoChegada.toLocaleString('pt-BR') : '—'}</td>
+            <td class="text-right bold">${r.toneladaCalcObra && r.toneladaCalcObra > 0 ? fmt(r.toneladaCalcObra) : '—'}</td>
+            <td class="text-right">
+              ${r.toneladaCalcObra && r.toneladaCalcObra > 0 ? (() => {
+                const d = r.toneladaCalcObra - r.tonelada;
+                if (Math.abs(d) < 0.0005) return '—';
+                return `<span style="color:${d > 0 ? '#2563eb' : '#dc2626'}">${d > 0 ? '+' : ''}${fmt(d)}</span>`;
+              })() : '—'}
+            </td>
           </tr>`).join('')}</tbody>
           <tfoot><tr><td colspan="7" class="bold">TOTAL</td><td class="text-right bold">${fmt(totalTon)}</td></tr></tfoot>
         </table>
@@ -522,8 +539,17 @@ export function DetalhamentoViagemTab({
                     <TableHead className="py-2 text-xs font-bold cursor-pointer hover:text-primary select-none" onClick={() => setSortBy('material')}>
                       Material {sortBy === 'material' && '▾'}
                     </TableHead>
-                    <TableHead className="py-2 text-xs font-bold text-right cursor-pointer hover:text-primary select-none" onClick={() => setSortBy('tonelada')}>
-                      Peso Bruto (t) {sortBy === 'tonelada' && '▾'}
+                    <TableHead className="py-2 text-xs font-bold text-right cursor-pointer hover:text-primary select-none bg-amber-50/50" onClick={() => setSortBy('tonelada')}>
+                      Ton. Ped. (t) {sortBy === 'tonelada' && '▾'}
+                    </TableHead>
+                    <TableHead className="py-2 text-xs font-bold text-right bg-blue-50/50">
+                      P. Chegada (kg)
+                    </TableHead>
+                    <TableHead className="py-2 text-xs font-bold text-right bg-blue-50/50">
+                      Ton. Obra (t)
+                    </TableHead>
+                    <TableHead className="py-2 text-xs font-bold text-right">
+                      Dif. (t)
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -538,7 +564,18 @@ export function DetalhamentoViagemTab({
                       <TableCell className="py-1.5 text-sm">{r.fornecedor}</TableCell>
                       <TableCell className="py-1.5 text-sm">{r.descricao}</TableCell>
                       <TableCell className="py-1.5 text-sm">{r.material}</TableCell>
-                      <TableCell className="py-1.5 text-sm text-right font-medium">{fmt(r.tonelada)}</TableCell>
+                      <TableCell className="py-1.5 text-sm text-right font-medium bg-amber-50/20">{fmt(r.tonelada)}</TableCell>
+                      <TableCell className="py-1.5 text-sm text-right bg-blue-50/20">{r.pesoChegada && r.pesoChegada > 0 ? r.pesoChegada.toLocaleString('pt-BR') : '—'}</TableCell>
+                      <TableCell className="py-1.5 text-sm text-right font-medium bg-blue-50/20">{r.toneladaCalcObra && r.toneladaCalcObra > 0 ? fmt(r.toneladaCalcObra) : '—'}</TableCell>
+                      <TableCell className="py-1.5 text-sm text-right">
+                        {r.toneladaCalcObra && r.toneladaCalcObra > 0 ? (() => {
+                          const dif = r.toneladaCalcObra - r.tonelada;
+                          if (Math.abs(dif) < 0.0005) return <span className="text-muted-foreground">—</span>;
+                          return <span className={dif > 0 ? 'text-blue-600 font-bold' : 'text-red-600 font-bold'}>
+                            {dif > 0 ? '+' : ''}{fmt(dif)}
+                          </span>;
+                        })() : '—'}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -547,7 +584,13 @@ export function DetalhamentoViagemTab({
                     <TableCell className="py-2 font-bold text-sm"></TableCell>
                     <TableCell colSpan={2} className="py-2 font-bold text-sm">Total geral</TableCell>
                     <TableCell colSpan={5} className="py-2 font-bold text-sm">{totalViagens} viagens</TableCell>
-                    <TableCell className="py-2 text-right font-bold text-sm">{fmt(totalTon)}</TableCell>
+                    <TableCell className="py-2 text-right font-bold text-sm bg-amber-50/20">{fmt(totalTon)}</TableCell>
+                    <TableCell className="py-2 text-right font-bold text-sm bg-blue-50/20" colSpan={2}>
+                      {fmt(activeRecords.reduce((s, r) => s + (r.toneladaCalcObra || 0), 0))} t (Obra)
+                    </TableCell>
+                    <TableCell className="py-2 text-right font-bold text-sm">
+                      {fmt(activeRecords.reduce((s, r) => s + ((r.toneladaCalcObra || 0) - r.tonelada), 0))} t (Dif)
+                    </TableCell>
                   </TableRow>
                 </TableFooter>
               </Table>

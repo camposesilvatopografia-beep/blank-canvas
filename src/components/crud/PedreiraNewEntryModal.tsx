@@ -196,8 +196,8 @@ export function PedreiraNewEntryModal({ open, onOpenChange, onSuccess, headers }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.data || !formData.prefixo || !formData.material) {
-      toast({ title: 'Campos obrigatórios', description: 'Preencha Data, Veículo e Material.', variant: 'destructive' });
+    if (!formData.data || !formData.prefixo || !formData.material || !formData.pesoChegada) {
+      toast({ title: 'Campos obrigatórios', description: 'Preencha Data, Veículo, Material e Peso de Chegada.', variant: 'destructive' });
       return;
     }
 
@@ -453,7 +453,7 @@ export function PedreiraNewEntryModal({ open, onOpenChange, onSuccess, headers }
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading || sheetLoading} className="flex-1 bg-amber-500 hover:bg-amber-600">
+            <Button type="submit" disabled={loading || sheetLoading || !formData.prefixo || !formData.material || !formData.pesoChegada} className="flex-1 bg-amber-500 hover:bg-amber-600">
               {loading || sheetLoading ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Salvando...</>
               ) : (

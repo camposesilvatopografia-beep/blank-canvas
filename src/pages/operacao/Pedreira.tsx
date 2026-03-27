@@ -763,6 +763,10 @@ export default function Pedreira() {
               <Building2 className="w-3.5 h-3.5" />
               Rel. Fornecedor
             </TabsTrigger>
+            <TabsTrigger value="detalhamento" className="flex items-center gap-1 text-xs">
+              <ClipboardList className="w-3.5 h-3.5" />
+              Detalhamento
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="diario" className="space-y-4">
@@ -862,6 +866,14 @@ export default function Pedreira() {
               <Badge variant="outline">{dateRange.start} → {dateRange.end}</Badge>
             </div>
             <RelatorioFornecedorPedreira records={allRecordsForReport as any} dateRange={dateRange} />
+          </TabsContent>
+          <TabsContent value="detalhamento" className="space-y-4">
+            <DetalhamentoViagemTab
+              records={records as any}
+              selectedDate={selectedDate}
+              allRecords={allRecordsForReport as any}
+              availableDates={availableDates}
+            />
           </TabsContent>
         </Tabs>
       </TabsContent>
