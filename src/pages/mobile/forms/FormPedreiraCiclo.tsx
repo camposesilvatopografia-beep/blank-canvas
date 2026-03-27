@@ -1998,6 +1998,9 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
               const { data: urlData } = supabase.storage.from('pedreira-ocr-fotos').getPublicUrl(filePath);
               currentRow[fotoVazioIdx] = urlData?.publicUrl || '';
               await writeSheet('Apontamento_Pedreira', `A${rec.sheetRowIndex}:${lastCol}${rec.sheetRowIndex}`, [currentRow]);
+              
+              // Backup to Supabase
+              await supabaseBackupPedreira(currentRow, headers);
             }
             console.log('[CarregSaida] Photo uploaded');
           }
