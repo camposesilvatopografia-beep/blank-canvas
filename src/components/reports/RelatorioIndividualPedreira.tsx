@@ -163,8 +163,9 @@ export async function exportRelatorioIndividualPedreira(
       }
       .header img.logo { height: 50px; border-radius: 8px; background: rgba(255,255,255,0.15); padding: 4px; }
       .header .title-area { flex: 1; }
-      .header h1 { font-size: 16px; font-weight: 800; }
-      .header p { font-size: 10px; opacity: 0.85; margin-top: 2px; }
+      .header h1 { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
+      .header p { font-size: 11px; opacity: 0.95; margin-top: 4px; font-weight: 600; }
+
       .header .date-badge {
         background: rgba(255,255,255,0.2);
         padding: 8px 14px;
