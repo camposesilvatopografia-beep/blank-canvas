@@ -311,8 +311,9 @@ export default function FormCal() {
 
     try {
       const now = new Date();
-      const hora = format(now, 'HH:mm');
+      const hora = format(now, 'HH:mm:ss');
       const dataFormatada = format(new Date(formData.data + 'T12:00:00'), 'dd/MM/yyyy');
+
       const generateId = () => Math.random().toString(36).substring(2, 10);
       
       const quantidadeFormatted = formatForSheet(formData.quantidade);
