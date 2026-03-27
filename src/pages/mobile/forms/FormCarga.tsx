@@ -490,7 +490,6 @@ export default function FormCarga() {
     setAddLancamento(false);
   };
 
-  const isSalaTecnica = isAdmin || profile?.tipo === 'Sala Técnica';
 
   if (submitted) {
     const successDetails = [
