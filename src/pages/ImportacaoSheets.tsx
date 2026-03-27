@@ -281,7 +281,7 @@ const ImportacaoSheets = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Importação de Tabelas</h1>
-          <p className="text-muted-foreground">Popule o banco de dados importando tabelas de dados.</p>
+          <p className="text-muted-foreground">Certifique que o mapeamento está correto e que a sincronização está perfeita.</p>
         </div>
       </div>
 
