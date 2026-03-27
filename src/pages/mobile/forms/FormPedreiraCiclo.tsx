@@ -2084,14 +2084,19 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
 
       } else if (isTransferred && isStep2) {
         // ===== STEP 2: Truck returns empty → fill peso vazio, calculate, finalize =====
-        if (!formObraExtra.pesoVazio) {
-          toast({ title: 'Informe o peso vazio', variant: 'destructive' });
+        // Write peso vazio - use form field or fallback to ticket weight if missing
+        let effectivePesoVazioStep2 = formObraExtra.pesoVazio;
+        if (!effectivePesoVazioStep2) {
+          effectivePesoVazioStep2 = (currentRow[fi('Peso_Vazio')] || '').replace(/\./g, '').replace(',', '.');
+        }
+
+        if (!effectivePesoVazioStep2) {
+          toast({ title: 'Informe o peso vazio', description: 'Nenhum peso vazio encontrado no ticket ou local.', variant: 'destructive' });
           setLoading(false);
           return;
         }
 
-        // Write peso vazio
-        currentRow[fi('Peso_Vazio')] = formatPesoForSheet(formObraExtra.pesoVazio);
+        currentRow[fi('Peso_Vazio')] = formatPesoForSheet(effectivePesoVazioStep2);
 
         // The peso final (carregado) is already saved from step 1
         const pesoFinalRaw = currentRow[fi('Peso_Final')] || '0';
