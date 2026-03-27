@@ -57,6 +57,7 @@ import SupportInbox from "./pages/SupportInbox";
 import ApontadorDesktop from "./pages/ApontadorDesktop";
 import PainelOperacao from "./pages/PainelOperacao";
 import PainelOperacaoAuth from "./pages/PainelOperacaoAuth";
+import ImportacaoSheets from "./pages/ImportacaoSheets";
 // Mobile pages
 import MobileHome from "./pages/mobile/MobileHome";
 import MobileAuth from "./pages/mobile/MobileAuth";
@@ -180,6 +181,7 @@ const App = () => (
                   <Route path="/cadastros/equipamentos" element={<Equipamentos />} />
                   <Route path="/cadastros/configuracao-colunas" element={<ConfiguracaoColunas />} />
                   <Route path="/cadastros/configuracao-layout" element={<ConfiguracaoLayout />} />
+                  <Route path="/importacao-sheets" element={<ImportacaoSheets />} />
                   <Route path="/painel-apontador" element={<PainelApontador />} />
                   <Route path="/engenharia/rdo" element={<RDO />} />
                   <Route path="/engenharia/rdo/etapas" element={<RDOEtapas />} />

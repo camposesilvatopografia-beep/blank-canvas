@@ -102,6 +102,7 @@ const menuItems: MenuItem[] = [
       { title: 'Equipamentos', icon: Truck, path: '/cadastros/equipamentos', menuKey: 'cad_equipamentos' },
       { title: 'Config. Colunas', icon: Settings, path: '/cadastros/configuracao-colunas', adminOnly: true, menuKey: 'cad_config_colunas' },
       { title: 'Config. Layout', icon: LayoutGrid, path: '/cadastros/configuracao-layout', adminOnly: true, menuKey: 'cad_config_layout' },
+      { title: 'Importação Sheets', icon: Download, path: '/importacao-sheets', adminOnly: true, menuKey: 'importacao_sheets' },
     ],
   },
 ];
