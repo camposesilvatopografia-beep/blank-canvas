@@ -837,10 +837,8 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       const pesoFinal = getVal('Peso_Final');
       const tonelada = getVal('Tonelada');
       
-      // Map photos
       const fotoChegada = getVal('Foto do Peso Chegada Obra') || getVal('Foto_Peso_Chegada') || getVal('Foto Peso Chegada') || '';
       const fotoPesagem = getVal('Foto Pesagem Pedreira') || getVal('Foto_Pesagem_Pedreira') || '';
-      const fotoVazio = getVal('Foto do Peso Saida Obra') || getVal('Foto_Peso_Vazio_Obra') || '';
 
       const { error } = await supabase.from('movimentacoes_pedreira').upsert({
         external_id: getVal('ID'),
@@ -853,8 +851,8 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
         material: material,
         nota_fiscal: getVal('Ordem_Carregamento'),
         viagens: 1,
-        volume: parseNumeric(pesoFinal),
-        volume_total: parseNumeric(tonelada),
+        volume: parseBRNumber(pesoFinal),
+        volume_total: parseBRNumber(tonelada),
         usuario: effectiveName,
         foto_path: fotoChegada,
         nf_foto_path: fotoPesagem,
