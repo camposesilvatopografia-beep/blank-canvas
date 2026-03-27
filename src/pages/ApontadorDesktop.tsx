@@ -223,20 +223,33 @@ export default function ApontadorDesktop() {
 
       const results: typeof registrosData = [];
 
+      // Helper for case-insensitive column finding
+      const findColIdx = (headers: string[], name: string) => {
+        const hLower = headers.map(h => h.trim().toLowerCase());
+        const nLower = name.toLowerCase();
+        return hLower.indexOf(nLower);
+      };
+
       // Parse Pedreira
       if (pedreiraData && pedreiraData.length > 1) {
         const h = pedreiraData[0] as string[];
-        const fi = (n: string) => h.indexOf(n);
+        const dateIdx = findColIdx(h, 'Data');
+        const prefixIdx = findColIdx(h, 'Prefixo_Eq') !== -1 ? findColIdx(h, 'Prefixo_Eq') : findColIdx(h, 'Prefixo');
+        const motoristaIdx = findColIdx(h, 'Motorista');
+        const materialIdx = findColIdx(h, 'Material');
+        const pesoIdx = findColIdx(h, 'Peso_Final');
+        const statusIdx = findColIdx(h, 'Status');
+
         for (let i = 1; i < pedreiraData.length; i++) {
           const row = pedreiraData[i];
-          if ((row[fi('Data')] || '') !== todayStr) continue;
+          if ((row[dateIdx] || '') !== todayStr) continue;
           results.push({
-            data: row[fi('Data')] || '',
-            veiculo: row[fi('Prefixo_Eq')] || row[fi('Prefixo')] || '',
-            motorista: row[fi('Motorista')] || '',
-            material: row[fi('Material')] || '',
-            pesoBruto: row[fi('Peso_Final')] || '',
-            status: row[fi('Status')] || '',
+            data: row[dateIdx] || '',
+            veiculo: row[prefixIdx] || '',
+            motorista: row[motoristaIdx] || '',
+            material: row[materialIdx] || '',
+            pesoBruto: row[pesoIdx] || '',
+            status: row[statusIdx] || '',
           });
         }
       }
@@ -244,17 +257,23 @@ export default function ApontadorDesktop() {
       // Parse Carga
       if (cargaData && cargaData.length > 1) {
         const h = cargaData[0] as string[];
-        const fi = (n: string) => h.indexOf(n);
+        const dateIdx = findColIdx(h, 'Data');
+        const prefixIdx = findColIdx(h, 'Prefixo_Eq') !== -1 ? findColIdx(h, 'Prefixo_Eq') : findColIdx(h, 'Prefixo');
+        const motoristaIdx = findColIdx(h, 'Motorista');
+        const materialIdx = findColIdx(h, 'Material');
+        const pesoIdx = findColIdx(h, 'Peso_Final') !== -1 ? findColIdx(h, 'Peso_Final') : findColIdx(h, 'Peso');
+        const statusIdx = findColIdx(h, 'Status');
+
         for (let i = 1; i < cargaData.length; i++) {
           const row = cargaData[i];
-          if ((row[fi('Data')] || '') !== todayStr) continue;
+          if ((row[dateIdx] || '') !== todayStr) continue;
           results.push({
-            data: row[fi('Data')] || '',
-            veiculo: row[fi('Prefixo_Eq')] || row[fi('Prefixo')] || '',
-            motorista: row[fi('Motorista')] || '',
-            material: row[fi('Material')] || '',
-            pesoBruto: row[fi('Peso_Final')] || row[fi('Peso')] || '',
-            status: row[fi('Status')] || '',
+            data: row[dateIdx] || '',
+            veiculo: row[prefixIdx] || '',
+            motorista: row[motoristaIdx] || '',
+            material: row[materialIdx] || '',
+            pesoBruto: row[pesoIdx] || '',
+            status: row[statusIdx] || '',
           });
         }
       }
@@ -262,17 +281,21 @@ export default function ApontadorDesktop() {
       // Parse Pipas
       if (pipasData && pipasData.length > 1) {
         const h = pipasData[0] as string[];
-        const fi = (n: string) => h.indexOf(n);
+        const dateIdx = findColIdx(h, 'Data');
+        const prefixIdx = findColIdx(h, 'Prefixo');
+        const motoristaIdx = findColIdx(h, 'Motorista');
+        const statusIdx = findColIdx(h, 'Status');
+
         for (let i = 1; i < pipasData.length; i++) {
           const row = pipasData[i];
-          if ((row[fi('Data')] || '') !== todayStr) continue;
+          if ((row[dateIdx] || '') !== todayStr) continue;
           results.push({
-            data: row[fi('Data')] || '',
-            veiculo: row[fi('Prefixo')] || '',
-            motorista: row[fi('Motorista')] || '',
+            data: row[dateIdx] || '',
+            veiculo: row[prefixIdx] || '',
+            motorista: row[motoristaIdx] || '',
             material: 'Água',
             pesoBruto: '',
-            status: row[fi('Status')] || '',
+            status: row[statusIdx] || '',
           });
         }
       }
@@ -280,17 +303,22 @@ export default function ApontadorDesktop() {
       // Parse Cal
       if (calData && calData.length > 1) {
         const h = calData[0] as string[];
-        const fi = (n: string) => h.indexOf(n);
+        const dateIdx = findColIdx(h, 'Data');
+        const prefixIdx = findColIdx(h, 'Placa') !== -1 ? findColIdx(h, 'Placa') : findColIdx(h, 'Prefixo');
+        const motoristaIdx = findColIdx(h, 'Motorista');
+        const qtyIdx = findColIdx(h, 'Quantidade');
+        const statusIdx = findColIdx(h, 'Status');
+
         for (let i = 1; i < calData.length; i++) {
           const row = calData[i];
-          if ((row[fi('Data')] || '') !== todayStr) continue;
+          if ((row[dateIdx] || '') !== todayStr) continue;
           results.push({
-            data: row[fi('Data')] || '',
-            veiculo: row[fi('Placa')] || row[fi('Prefixo')] || '',
-            motorista: row[fi('Motorista')] || '',
+            data: row[dateIdx] || '',
+            veiculo: row[prefixIdx] || '',
+            motorista: row[motoristaIdx] || '',
             material: 'Cal',
-            pesoBruto: row[fi('Quantidade')] || '',
-            status: row[fi('Status')] || '',
+            pesoBruto: row[qtyIdx] || '',
+            status: row[statusIdx] || '',
           });
         }
       }
