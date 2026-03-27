@@ -257,24 +257,35 @@ export default function FormCalSaida() {
 
       let rowSynced = false;
       if (navigator.onLine) {
-        await appendSheet('Mov_Cal', [calRow]);
-        rowSynced = true;
+        const success = await appendSheet('Mov_Cal', [calRow]);
+        
+        const supBackup = async () => {
+          try {
+            const { error } = await supabase.from('movimentacoes_cal').insert({
+              data: dataStep1,
+              hora,
+              prefixo_caminhao: defaultPrefixoEq,
+              fornecedor: defaultFornecedor,
+              quantidade: parseNumeric(pesoVazio),
+              local: 'Cebolão',
+              usuario: effectiveName,
+              foto_path: urlPesoVazio,
+            });
+            return !error;
+          } catch (e) {
+            return false;
+          }
+        };
 
-        // Backup to Supabase (Step 1)
-        supabase.from('movimentacoes_cal').insert({
-          data: dataStep1,
-          hora,
-          prefixo_caminhao: defaultPrefixoEq,
-          fornecedor: defaultFornecedor,
-          quantidade: parseNumeric(pesoVazio),
-          local: 'Cebolão',
-          usuario: effectiveName,
-          foto_path: urlPesoVazio,
-        }).then(({ error }) => {
-          if (error) console.error('Supabase backup error (Cal Saida Step 1):', error);
-        });
+        const supSuccess = await supBackup();
+        if (!success || !supSuccess) {
+          addPendingRecord('cal', 'Mov_Cal', calRow, { formData: { pesoVazio, data: dataStep1 }, usuario: effectiveName });
+          rowSynced = false;
+        } else {
+          rowSynced = true;
+        }
       } else {
-        addPendingRecord('cal', 'Mov_Cal', calRow, { formData: { pesoVazio, data: dataStep1 } });
+        addPendingRecord('cal', 'Mov_Cal', calRow, { formData: { pesoVazio, data: dataStep1 }, usuario: effectiveName });
         rowSynced = false;
       }
 
