@@ -982,11 +982,6 @@ export default function FormPedreira() {
                 const file = e.target.files?.[0];
                 if (!file) return;
                 const reader = new FileReader();
-                const base64 = await new Promise<string>((resolve) => {
-                  reader.onload = () => resolve(reader.result as string);
-                  reader.readAsDataURL(file);
-                });
-                setPesoFinalFotoPreview(base64);
                 setPesoFinalFotoFile(file);
                 toast({ title: '📸 Foto capturada!' });
                 if (pesoFinalInputRef.current) pesoFinalInputRef.current.value = '';
