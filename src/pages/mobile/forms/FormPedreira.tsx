@@ -306,7 +306,6 @@ export default function FormPedreira() {
 
 
       // Photo upload logic
-      let fotoPesoFinalUrl = '';
       if (pesoFinalFotoFile) {
         try {
           const timestamp = Date.now();
