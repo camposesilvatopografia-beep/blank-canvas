@@ -361,9 +361,8 @@ export default function FormCalEntrada() {
   const pesoVazioTon = pesoVazioRaw;
 
   // Photo helpers
-  const handlePhotoCapture = (setter: (f: File | null) => void, previewSetter: (s: string | null) => void) => (file: File) => {
+  const handlePhotoCapture = (setter: (f: File | null) => void, previewSetter: (s: string | null) => void) => (file: File, url: string) => {
     setter(file);
-    const url = URL.createObjectURL(file);
     previewSetter(url);
   };
 
