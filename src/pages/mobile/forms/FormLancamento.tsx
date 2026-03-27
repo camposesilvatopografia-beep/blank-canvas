@@ -233,7 +233,7 @@ export default function FormLancamento() {
       setSubmitted(true);
       playSuccessSound();
       localStorage.setItem('apropriapp_last_local_lancamento', formData.local);
-      toast({ title: 'Sucesso!', description: 'Lançamento registrado com sucesso.' });
+      toast({ title: 'Sucesso!', description: 'Lançamento registrado na planilha e no Supabase.' });
 
     } catch (error: any) {
       const now = new Date();
