@@ -120,8 +120,13 @@ export const useGoogleSheets = (): UseGoogleSheetsReturn => {
       
       if (!data.success) {
         console.error('[appendSheet] Function returned error:', data.error);
-        throw new Error(data.error || 'Erro desconhecido');
+        let errorMsg = data.error || 'Erro desconhecido';
+        if (errorMsg.toLowerCase().includes('permission')) {
+          errorMsg = 'Permissão negada no Google Sheets. Verifique se a planilha está compartilhada com o e-mail do sistema.';
+        }
+        throw new Error(errorMsg);
       }
+
 
       console.log(`[appendSheet] SUCCESS - appended to ${sheetName}`, data.updates);
       return true;
