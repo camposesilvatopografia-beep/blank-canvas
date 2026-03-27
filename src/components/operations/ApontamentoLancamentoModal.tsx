@@ -148,16 +148,46 @@ export function ApontamentoLancamentoModal({ open, onOpenChange, onSuccess }: Ap
         '',
       ];
 
+      // Backup to Supabase
+      const supabaseBackup = async () => {
+        try {
+          await supabase.from('apontamentos_descarga').insert({
+            data: formData.data,
+            hora,
+            prefixo_caminhao: formData.caminhao,
+            descricao_caminhao: selectedCaminhao?.descricao,
+            empresa_caminhao: selectedCaminhao?.empresa,
+            motorista: selectedCaminhao?.motorista,
+            volume: volumeUnitario,
+            volume_total: volumeTotal,
+            viagens: numViagens,
+            local: formData.local,
+            material: formData.material,
+            usuario: profile?.nome || 'Sistema',
+            encarregado: selectedCaminhao?.encarregado,
+          });
+        } catch (e) {
+          console.error('Supabase backup error:', e);
+        }
+      };
+
+      // Always backup to Supabase
+      await supabaseBackup();
+
       const success = await appendSheet('Descarga', [descargaRow]);
 
       if (!success) {
-        throw new Error('Falha ao salvar lançamento');
+        toast({
+          title: 'Aviso',
+          description: 'Salvo no banco de dados, mas houve erro ao sincronizar com a planilha.',
+          variant: 'default',
+        });
+      } else {
+        toast({
+          title: '✅ Lançamento Registrado!',
+          description: `${formData.viagens} viagem(s) adicionada(s) com sucesso na planilha e banco de dados.`,
+        });
       }
-
-      toast({
-        title: '✅ Lançamento Registrado!',
-        description: `${formData.viagens} viagem(s) adicionada(s) com sucesso.`,
-      });
 
       // Reset form
       setFormData({
