@@ -321,7 +321,7 @@ export function useOfflineSync() {
     type: PendingRecord['type'], 
     sheetName: string,
     rowData: string[],
-    data: Record<string, unknown>
+    data: Record<string, any>
   ) => {
     const record: PendingRecord = {
       id: crypto.randomUUID(),
@@ -331,16 +331,13 @@ export function useOfflineSync() {
       data,
       createdAt: new Date().toISOString(),
       retryCount: 0,
+      syncedToSheets: false,
+      syncedToSupabase: false,
     };
     setPendingRecords(prev => [...prev, record]);
     
-    toast({
-      title: '💾 Salvo localmente',
-      description: 'Será sincronizado quando a conexão voltar.',
-    });
-    
     return record.id;
-  }, [toast]);
+  }, []);
 
   // Remove a record from pending queue
   const removePendingRecord = useCallback((id: string) => {
