@@ -141,16 +141,24 @@ export function PedreiraEditModal({ open, onOpenChange, onSuccess, editData, hea
   const calculateDerivedValues = () => {
     const pesoFinalNum = parseFloat(formData.pesoFinal.replace(/\./g, '').replace(',', '.') || '0');
     const pesoVazioNum = parseFloat(formData.pesoVazio.replace(/\./g, '').replace(',', '.') || '0');
+    const pesoChegadaNum = parseFloat(formData.pesoChegada.replace(/\./g, '').replace(',', '.') || '0');
+    const pesoVazioObraNum = parseFloat(formData.pesoVazioObra.replace(/\./g, '').replace(',', '.') || '0');
     
     if (isNaN(pesoFinalNum) || isNaN(pesoVazioNum)) {
-      return { pesoLiquido: 0, tonelada: 0, metroCubico: 0 };
+      return { pesoLiquido: 0, tonelada: 0, metroCubico: 0, toneladaCalcObra: 0 };
     }
     
     const pesoLiquido = pesoFinalNum - pesoVazioNum;
     const tonelada = pesoLiquido / 1000;
     const metroCubico = tonelada / 1.52;
     
-    return { pesoLiquido, tonelada, metroCubico };
+    // Tonelada Calc Obra: pesoChegada - (pesoVazioObra se informado, senão pesoVazio)
+    const pesoVazioEfetivoObra = (pesoVazioObraNum && pesoVazioObraNum > 0) ? pesoVazioObraNum : pesoVazioNum;
+    const toneladaCalcObra = (pesoChegadaNum > 0 && pesoVazioEfetivoObra > 0)
+      ? (pesoChegadaNum - pesoVazioEfetivoObra) / 1000
+      : tonelada;
+    
+    return { pesoLiquido, tonelada, metroCubico, toneladaCalcObra };
   };
 
   const derived = calculateDerivedValues();
