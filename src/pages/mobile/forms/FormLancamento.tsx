@@ -179,12 +179,12 @@ export default function FormLancamento() {
 
     try {
       const now = new Date();
-      const hora = format(now, 'HH:mm');
+      const hora = format(now, 'HH:mm:ss');
       const dataFormatada = format(new Date(formData.data + 'T12:00:00'), 'dd/MM/yyyy');
       const isSalaTecnica = isAdmin || profile?.tipo === 'Sala Técnica';
       const viagens = isSalaTecnica ? formData.viagens : '1';
       const generateId = () => Math.random().toString(36).substring(2, 10);
-      const volumeUnitario = parseFloat(selectedCaminhao?.volume || '0');
+      const volumeUnitario = parseNumeric(selectedCaminhao?.volume || '0');
       const numViagens = parseInt(viagens) || 1;
       const volumeTotal = volumeUnitario * numViagens;
 
@@ -197,40 +197,53 @@ export default function FormLancamento() {
           })
         : buildDescargaRowFallback(generateId(), dataFormatada, hora, viagens, volumeTotal);
 
+      const supabaseBackup = async () => {
+        try {
+          const { error } = await supabase.from('apontamentos_descarga').insert({
+            data: formData.data,
+            hora,
+            prefixo_caminhao: formData.caminhao,
+            descricao_caminhao: selectedCaminhao?.descricao,
+            empresa_caminhao: selectedCaminhao?.empresa,
+            motorista: selectedCaminhao?.motorista,
+            volume: volumeUnitario,
+            volume_total: volumeTotal,
+            viagens: parseInt(viagens),
+            local: formData.local,
+            estaca: formData.estaca,
+            material: formData.material,
+            usuario: effectiveName,
+          });
+          if (error) console.error('Supabase backup error (Descarga):', error);
+        } catch (e) {
+          console.error('Failed to insert in Supabase (Descarga):', e);
+        }
+      };
+
       if (!isOnline) {
-        addPendingRecord('lancamento', 'Descarga', descargaRow, { formData });
+        addPendingRecord('lancamento', 'Descarga', descargaRow, { ...formData });
+        await supabaseBackup();
         setSavedOffline(true);
         setSubmitted(true);
         playOfflineSound();
         toast({ title: 'Salvo Localmente', description: 'Será sincronizado quando a conexão voltar.' });
-        setLoading(false);
         return;
       }
 
       console.log('[FormLancamento] Sending descarga data, row length:', descargaRow.length);
       const success = await appendSheet('Descarga', [descargaRow]);
       
-      // Backup to Supabase
-      if (success) {
-        supabase.from('apontamentos_descarga').insert({
-          data: formData.data,
-          hora,
-          prefixo_caminhao: formData.caminhao,
-          descricao_caminhao: selectedCaminhao?.descricao,
-          empresa_caminhao: selectedCaminhao?.empresa,
-          motorista: selectedCaminhao?.motorista,
-          volume_total: volumeTotal,
-          viagens: parseInt(viagens),
-          local: formData.local,
-          estaca: formData.estaca,
-          material: formData.material,
-        }).then(({ error }) => {
-          if (error) console.error('Supabase backup error (Descarga):', error);
-        });
-      }
+      // Backup to Supabase regardless of sheet success
+      await supabaseBackup();
 
-      console.log('[FormLancamento] appendSheet result:', success);
-      if (!success) throw new Error('Erro ao salvar lançamento');
+      if (!success) {
+        addPendingRecord('lancamento', 'Descarga', descargaRow, { ...formData });
+        setSavedOffline(true);
+        setSubmitted(true);
+        playOfflineSound();
+        toast({ title: 'Salvo Localmente', description: 'Erro na conexão com a planilha. Dados salvos no dispositivo e Supabase.' });
+        return;
+      }
 
       setSubmitted(true);
       playSuccessSound();
@@ -238,13 +251,14 @@ export default function FormLancamento() {
       toast({ title: 'Sucesso!', description: 'Lançamento registrado na planilha e no Supabase.' });
 
     } catch (error: any) {
+      console.error('FormLancamento submission error:', error);
       const now = new Date();
-      const hora = format(now, 'HH:mm');
+      const hora = format(now, 'HH:mm:ss');
       const dataFormatada = format(new Date(formData.data + 'T12:00:00'), 'dd/MM/yyyy');
       const isSalaTecnica = isAdmin || profile?.tipo === 'Sala Técnica';
       const viagens = isSalaTecnica ? formData.viagens : '1';
       const generateIdFallback = () => Math.random().toString(36).substring(2, 10);
-      const volumeUnitarioFallback = parseFloat(selectedCaminhao?.volume || '0');
+      const volumeUnitarioFallback = parseNumeric(selectedCaminhao?.volume || '0');
       const numViagensFallback = parseInt(viagens) || 1;
       const volumeTotalFallback = volumeUnitarioFallback * numViagensFallback;
 
@@ -257,15 +271,16 @@ export default function FormLancamento() {
           })
         : buildDescargaRowFallback(generateIdFallback(), dataFormatada, hora, viagens, volumeTotalFallback);
 
-      addPendingRecord('lancamento', 'Descarga', descargaRow, { formData });
+      addPendingRecord('lancamento', 'Descarga', descargaRow, { ...formData });
       setSavedOffline(true);
       setSubmitted(true);
       playOfflineSound();
-      toast({ title: 'Salvo Localmente', description: 'Erro na conexão. Será sincronizado depois.' });
+      toast({ title: 'Salvo Localmente', description: 'Erro inesperado. Registro salvo offline.' });
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleNewRecord = () => {
     setSubmitted(false);
