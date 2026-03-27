@@ -2028,7 +2028,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
         }
 
         // Upload OCR photo if available
-        if (formObra.ocrFotoFile && foundRecord.ordem) {
+        if (formObra.ocrFotoFile) {
           try {
             const timestamp = Date.now();
             const ext = formObra.ocrFotoFile.name.split('.').pop() || 'jpg';
