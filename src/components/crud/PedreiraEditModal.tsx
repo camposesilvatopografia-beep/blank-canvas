@@ -32,6 +32,10 @@ interface PedreiraEditData {
   pesoFinal: number;
   pesoLiquido: number;
   tonelada: number;
+  toneladaTicket?: number;
+  toneladaCalcObra?: number;
+  pesoChegada: number;
+  pesoVazioObra?: number;
   originalRow?: any[];
 }
 
