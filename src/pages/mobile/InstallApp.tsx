@@ -73,14 +73,16 @@ export default function InstallApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2d3e50] via-[#1a2634] to-[#0f1419] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[#111827] flex flex-col items-center justify-center p-4">
       {/* Logo and Title */}
-      <div className="text-center mb-8">
-        <div className="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-amber-500/30 backdrop-blur-sm border border-white/20">
-          <img src={logoApropriapp} alt="ApropriAPP" className="w-16 h-16 object-contain" />
+      <div className="text-center mb-10">
+        <div className="w-28 h-28 bg-[#1f2937] rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-xl border border-white/10 overflow-hidden">
+          <img src={logoApropriapp} alt="ApropriAPP" className="w-20 h-20 object-contain" />
         </div>
-        <h1 className="text-3xl font-bold text-white mb-2">ApropriAPP</h1>
-        <p className="text-white/60">Sistema de Apontamento em Campo</p>
+        <h1 className="text-3xl font-bold text-white mb-2">ApropriAPP Mobile</h1>
+        <p className="text-gray-400 max-w-xs mx-auto">
+          Instale o aplicativo oficial para realizar apontamentos em campo, mesmo sem internet.
+        </p>
       </div>
 
       {/* Main Card */}
