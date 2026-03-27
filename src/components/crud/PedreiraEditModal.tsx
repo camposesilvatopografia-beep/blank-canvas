@@ -221,7 +221,20 @@ export function PedreiraEditModal({ open, onOpenChange, onSuccess, editData, hea
       const tcoIdx = getIdx('Tonelada (Calc Obra)');
       const tcoIdx2 = tcoIdx !== -1 ? tcoIdx : getIdx('Tonelada_Calc_Obra');
       if (tcoIdx2 !== -1) {
-        row[tcoIdx2] = derived.tonelada.toFixed(2).replace('.', ',');
+        row[tcoIdx2] = derived.toneladaCalcObra.toFixed(2).replace('.', ',');
+      }
+
+      // Write Peso Chegada
+      const pcIdx = getIdx('Peso Chegada Obra');
+      const pcIdx2 = pcIdx !== -1 ? pcIdx : getIdx('Peso da Chegada');
+      if (pcIdx2 !== -1 && formData.pesoChegada) {
+        row[pcIdx2] = formData.pesoChegada.replace(/\./g, '');
+      }
+
+      // Write Peso Vazio Obra
+      const pvoIdx = getIdx('Peso Vazio Obra');
+      if (pvoIdx !== -1 && formData.pesoVazioObra) {
+        row[pvoIdx] = formData.pesoVazioObra.replace(/\./g, '');
       }
 
       const success = await writeSheet('Apontamento_Pedreira', buildRowRange(editData.rowIndex, headers.length), [row]);
