@@ -39,6 +39,8 @@ interface ModuleWindow {
   reportPath?: string;
 }
 
+import AiAssistantChat from '@/components/ai/AiAssistantChat';
+
 export default function ApontadorDesktop() {
   const navigate = useNavigate();
   const { profile, signOut, isAdmin } = useAuth();
@@ -774,6 +776,9 @@ export default function ApontadorDesktop() {
           )}
         </main>
       </div>
+      
+      {/* AI Assistant */}
+      <AiAssistantChat />
     </div>
   );
 }
