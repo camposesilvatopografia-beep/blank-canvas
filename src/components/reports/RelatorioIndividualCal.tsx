@@ -95,19 +95,20 @@ export async function exportRelatorioIndividualCal(
         <div class="fotos-grid" style="grid-template-columns: ${gridCols}">
           ${hasFotoCarregado ? `
           <div class="foto-item">
-            <div class="foto-label">🏢 Peso Carregado</div>
+            <div class="foto-label">🏗️ PESAGEM ORIGEM (Carregado)</div>
             <img src="${finalFotoCarregado}" alt="Foto peso carregado" class="foto-img" referrerpolicy="no-referrer" onerror="this.onerror=null;tryAltSrc(this,'${record.fotoPesoCarregado.replace(/'/g, "\\'")}')" />
           </div>
           ` : ''}
           ${hasFotoDistribuido ? `
           <div class="foto-item">
-            <div class="foto-label">🚛 Peso Distribuído (Obra)</div>
+            <div class="foto-label">🚧 PESAGEM DESTINO (Obra)</div>
             <img src="${finalFotoDistribuido}" alt="Foto peso distribuído" class="foto-img" referrerpolicy="no-referrer" onerror="this.onerror=null;tryAltSrc(this,'${record.fotoPesoDistribuido.replace(/'/g, "\\'")}')" />
           </div>
           ` : ''}
           ${hasFotoVazio ? `
           <div class="foto-item">
-            <div class="foto-label">⚖️ Peso Vazio</div>
+            <div class="foto-label">🚛 TARA (Peso Vazio)</div>
+
             <img src="${fotoVazioSrc}" alt="Foto peso vazio" class="foto-img" referrerpolicy="no-referrer" onerror="this.onerror=null;tryAltSrc(this,'${record.fotoPesoVazio.replace(/'/g, "\\'")}')" />
           </div>
           ` : ''}
