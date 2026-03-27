@@ -158,6 +158,7 @@ export default function FormPipas() {
       const supabaseBackup = async () => {
         try {
           const capacity = parseNumeric(selectedPipa?.capacidade || '0');
+          const trips = parseInt(viagens) || 1;
           const { error } = await supabase.from('movimentacoes_pipas').insert({
             data: formData.data,
             hora,
@@ -167,45 +168,41 @@ export default function FormPipas() {
             local: formData.localTrabalho,
             atividade: 'Rega/Umectação',
             volume: capacity,
-            viagens: parseInt(viagens),
-            volume_total: capacity * parseInt(viagens),
+            viagens: trips,
+            volume_total: capacity * trips,
             usuario: effectiveName,
           });
-          if (error) console.error('Supabase backup error (Pipas):', error);
+          if (error) {
+            console.error('Supabase backup error (Pipas):', error);
+            return false;
+          }
+          return true;
         } catch (e) {
           console.error('Failed to insert in Supabase (Pipas):', e);
+          return false;
         }
       };
 
-      // Check if offline
       if (!isOnline) {
-        addPendingRecord('pipas', 'Apontamento_Pipa', pipaRow, { ...formData });
+        addPendingRecord('pipas', 'Apontamento_Pipa', pipaRow, { ...formData, volume_total: (parseNumeric(selectedPipa?.capacidade || '0') * (parseInt(viagens) || 1)) });
         await supabaseBackup();
         setSavedOffline(true);
         setSubmitted(true);
         playOfflineSound();
-        toast({
-          title: 'Salvo Localmente',
-          description: 'Será sincronizado quando a conexão voltar.',
-        });
+        toast({ title: 'Salvo Localmente', description: 'Será sincronizado quando a conexão voltar.' });
         setLoading(false);
         return;
       }
 
       const success = await appendSheet('Apontamento_Pipa', [pipaRow]);
+      const supSuccess = await supabaseBackup();
 
-      // Backup to Supabase
-      await supabaseBackup();
-
-      if (!success) {
-        addPendingRecord('pipas', 'Apontamento_Pipa', pipaRow, { ...formData });
+      if (!success || !supSuccess) {
+        addPendingRecord('pipas', 'Apontamento_Pipa', pipaRow, { ...formData, volume_total: (parseNumeric(selectedPipa?.capacidade || '0') * (parseInt(viagens) || 1)) });
         setSavedOffline(true);
         setSubmitted(true);
         playOfflineSound();
-        toast({
-          title: 'Salvo Localmente',
-          description: 'Falha na planilha. Registro salvo no dispositivo e Supabase.',
-        });
+        toast({ title: 'Atenção', description: 'Ocorreu uma falha parcial. Registro salvo para sincronização posterior.' });
         setLoading(false);
         return;
       }
