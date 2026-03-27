@@ -428,6 +428,7 @@ export default function FormCal() {
     } finally {
       setLoading(false);
     }
+  };
 
   const handleNewRecord = () => {
     setSubmitted(false);
