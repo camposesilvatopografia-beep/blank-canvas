@@ -68,6 +68,8 @@ export function PedreiraEditModal({ open, onOpenChange, onSuccess, editData, hea
     pesoVazio: '',
     pesoFinal: '',
     toneladaTicket: '',
+    pesoChegada: '',
+    pesoVazioObra: '',
   });
 
   // Load materials
