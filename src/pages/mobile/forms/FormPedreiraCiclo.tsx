@@ -1361,6 +1361,9 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       const success = await writeSheet('Apontamento_Pedreira', buildRowRange(rowNum, currentRow.length), [currentRow]);
       if (!success) throw new Error('Erro ao transferir');
 
+      // Backup to Supabase
+      await supabaseBackupPedreira(currentRow, headers);
+
       localStorage.setItem('pedreira_data_updated', Date.now().toString());
       playSuccessSound();
       setSuccessTitle('Transferido para Obra!');
