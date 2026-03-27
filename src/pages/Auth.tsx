@@ -329,13 +329,6 @@ export default function Auth() {
                 </button>
               </div>
 
-              {!isSignUp && (
-                <div className="mt-4 p-4 rounded-xl bg-primary/10 border border-primary/20 backdrop-blur-sm">
-                  <p className="text-xs text-primary font-medium text-center leading-relaxed">
-                    Configure um assistente de IA no sistema, para que ele seja capaz de resolver ou responder qualquer pergunta relacionado ao sistema e informações do banco de dados
-                  </p>
-                </div>
-              )}
             </div>
           </CardContent>
 
