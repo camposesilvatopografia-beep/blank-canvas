@@ -25,6 +25,7 @@ export default function SuccessScreen({
   showNewRecordButton = true,
   autoRedirectDelay = 0,
   accentColor = 'green',
+  imageUrl,
 }: SuccessScreenProps) {
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(autoRedirectDelay);
