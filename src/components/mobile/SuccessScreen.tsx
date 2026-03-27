@@ -14,6 +14,7 @@ interface SuccessScreenProps {
   showNewRecordButton?: boolean;
   autoRedirectDelay?: number;
   accentColor?: string;
+  imageUrl?: string;
 }
 
 export default function SuccessScreen({
@@ -24,6 +25,7 @@ export default function SuccessScreen({
   showNewRecordButton = true,
   autoRedirectDelay = 0,
   accentColor = 'green',
+  imageUrl,
 }: SuccessScreenProps) {
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(autoRedirectDelay);
@@ -148,6 +150,23 @@ export default function SuccessScreen({
                 <span className="text-white font-medium">{detail.value}</span>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Image Display */}
+        {imageUrl && (
+          <div
+            className={cn(
+              'mb-6 rounded-lg overflow-hidden border-2 border-white/10 transition-all duration-500 delay-[550ms]',
+              showContent ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+            )}
+          >
+            <img 
+              src={imageUrl} 
+              alt="Comprovante" 
+              className="w-full h-auto object-cover"
+              onError={(e) => (e.currentTarget.style.display = 'none')}
+            />
           </div>
         )}
 

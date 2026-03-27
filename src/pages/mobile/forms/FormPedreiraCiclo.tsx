@@ -534,6 +534,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
   const [successDetails, setSuccessDetails] = useState<{ label: string; value: string }[]>([]);
   const [successTitle, setSuccessTitle] = useState('');
   const [successSubtitle, setSuccessSubtitle] = useState('');
+  const [successImageUrl, setSuccessImageUrl] = useState<string | null>(null);
 
   // Load options + sheet headers
   useEffect(() => {
@@ -1122,6 +1123,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
         { label: 'Hora Saída', value: horaSaidaFinal },
         { label: 'Status', value: 'Saiu do Britador' },
       ]);
+      setSuccessImageUrl(null);
       setSubmitted(true);
     } catch (error: any) {
       toast({ title: 'Erro', description: error.message, variant: 'destructive' });
@@ -1264,6 +1266,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
         { label: 'Tonelada', value: `${derived.tonelada} t` },
         { label: 'Status', value: 'Pesado' },
       ]);
+      setSuccessImageUrl(balancaFotoPreview);
       setSubmitted(true);
     } catch (error: any) {
       toast({ title: 'Erro', description: error.message, variant: 'destructive' });
@@ -1620,6 +1623,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
         { label: 'Tonelada', value: `${derived.tonelada} t` },
         { label: 'Status', value: 'Pesado' },
       ]);
+      setSuccessImageUrl(hervalFotoPreview || hervalFotoPreview2);
       setSubmitted(true);
     } catch (error: any) {
       toast({ title: 'Erro', description: error.message, variant: 'destructive' });
@@ -1957,6 +1961,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       setSelectedCarregPendente(null);
       setCarregPesoSaida('');
       setCarregSaidaFotoFile(null);
+      setSuccessImageUrl(carregSaidaFotoPreview);
       setSubmitted(true);
     } catch (error: any) {
       toast({ title: 'Erro', description: error.message, variant: 'destructive' });
@@ -2157,9 +2162,10 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
           { label: 'Peso Carregado', value: `${currentRow[fi('Peso_Final')] || '-'} kg` },
           { label: 'Peso Vazio', value: `${formatPesoForSheet(formObraExtra.pesoVazio)} kg` },
           { label: 'Tonelada', value: `${derived.tonelada} t` },
-          { label: 'Status', value: '✅ Finalizado' },
-        ]);
-        setSubmitted(true);
+        { label: 'Status', value: '✅ Finalizado' },
+      ]);
+      setSuccessImageUrl(carregChegadaFotoPreview);
+      setSubmitted(true);
 
       } else {
         // ===== NORMAL FLOW (non-transferred) =====
@@ -2261,6 +2267,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
           { label: 'Status', value: '✅ Finalizado' },
         ];
         setSuccessDetails(successDetailsList);
+        setSuccessImageUrl(ocrFotoPreview);
         setSubmitted(true);
       }
     } catch (error: any) {
@@ -2297,6 +2304,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
     setFormObraExtra({ material: '', pesoVazio: '', pesoFinal: '', numeroPedido: '' });
     setBalancaFotoFile(null);
     setObraVazioFotoFile(null);
+    setSuccessImageUrl(null);
     setHervalFotoFile(null);
     setHervalFotoFile2(null);
     setFormHerval({
@@ -2458,6 +2466,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
         details={successDetails}
         onNewRecord={handleNewRecord}
         accentColor="blue"
+        imageUrl={successImageUrl || undefined}
       />
     );
   }
