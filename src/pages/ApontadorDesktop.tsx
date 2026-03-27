@@ -153,21 +153,29 @@ export default function ApontadorDesktop() {
 
       const parseSheet = (data: any[][], userColumns: string[] = ['Usuario']): SheetRecord[] => {
         if (!data || data.length < 2) return [];
-        const headers = data[0] as string[];
-        const dateIdx = headers.indexOf('Data');
-        const statusIdx = headers.indexOf('Status');
-        const userIdxes = userColumns.map(col => headers.indexOf(col)).filter(i => i !== -1);
+        const headers = (data[0] as string[]).map(h => h.trim().toLowerCase());
+        const userColsLower = userColumns.map(c => c.toLowerCase());
+        
+        const findIdx = (name: string) => headers.indexOf(name.toLowerCase());
+        
+        const dateIdx = findIdx('Data');
+        const statusIdx = findIdx('Status');
+        const userIdxes = userColsLower.map(col => headers.indexOf(col)).filter(i => i !== -1);
+
+        const rawHeaders = data[0] as string[];
 
         return data.slice(1).map((row, idx) => {
           const record: Record<string, string> = {};
-          headers.forEach((h, i) => { record[h] = row[i] || ''; });
+          rawHeaders.forEach((h, i) => { record[h] = row[i] || ''; });
+          
           const status = statusIdx !== -1 ? (row[statusIdx] || '') : '';
           const isPending = status.toLowerCase().includes('pendente') || status.toLowerCase().includes('em aberto');
+          
           return { rowIndex: idx + 1, data: record, status, isPending };
         }).filter(r => {
-          const matchDate = r.data['Data'] === todayStr;
+          const matchDate = r.data[rawHeaders[dateIdx]] === todayStr;
           if (!userName) return matchDate;
-          const matchUser = userIdxes.some(i => (data[r.rowIndex]?.[i] || '').trim() === userName);
+          const matchUser = userIdxes.some(i => (data[r.rowIndex]?.[i] || '').trim().toLowerCase() === userName.toLowerCase());
           return matchDate && matchUser;
         });
       };
