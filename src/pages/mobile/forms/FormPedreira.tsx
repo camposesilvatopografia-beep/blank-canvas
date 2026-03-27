@@ -378,6 +378,27 @@ export default function FormPedreira() {
 
       const success = await appendSheet('Apontamento_Pedreira', [pedreiraRow]);
 
+      // Backup to Supabase
+      if (success) {
+        supabase.from('movimentacoes_pedreira').insert({
+          data: formData.data,
+          hora: formData.horaCarregamento,
+          prefixo_caminhao: formData.caminhao,
+          empresa_caminhao: selectedCaminhao?.empresa,
+          motorista: selectedCaminhao?.motorista,
+          fornecedor: formData.fornecedor,
+          material: formData.material,
+          nota_fiscal: formData.numeroPedido,
+          viagens: 1,
+          volume: parseBRNumber(formData.pesoFinal),
+          volume_total: derived.toneladaNum,
+          usuario: effectiveName,
+          foto_path: fotoChegadaUrl,
+        }).then(({ error }) => {
+          if (error) console.error('Supabase backup error (Pedreira):', error);
+        });
+      }
+
       if (!success) {
         throw new Error('Erro ao salvar apontamento');
       }
