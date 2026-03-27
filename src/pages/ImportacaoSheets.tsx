@@ -290,7 +290,7 @@ const ImportacaoSheets = () => {
                 <Label htmlFor="sheetUrl">URL da Planilha</Label>
                 <Input 
                   id="sheetUrl" 
-                  placeholder="https://docs.google.com/spreadsheets/d/..." 
+                  placeholder="URL da Planilha..." 
                   value={sheetUrl}
                   onChange={(e) => setSheetUrl(e.target.value)}
                   disabled={isImporting}
