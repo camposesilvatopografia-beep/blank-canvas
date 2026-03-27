@@ -496,7 +496,7 @@ export type Database = {
         }
         Relationships: []
       }
-      materiais: {
+      materiais_pedreira: {
         Row: {
           created_at: string
           id: string
@@ -517,22 +517,25 @@ export type Database = {
         }
         Relationships: []
       }
-      materiais_pedreira: {
+      material: {
         Row: {
           created_at: string
           id: string
+          material: string | null
           nome: string
           status: string
         }
         Insert: {
           created_at?: string
           id?: string
+          material?: string | null
           nome: string
           status?: string
         }
         Update: {
           created_at?: string
           id?: string
+          material?: string | null
           nome?: string
           status?: string
         }
