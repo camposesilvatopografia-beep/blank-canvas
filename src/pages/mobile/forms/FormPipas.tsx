@@ -6,6 +6,8 @@ import { useImpersonation } from '@/contexts/ImpersonationContext';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { supabase } from '@/integrations/supabase/client';
+import { parseNumeric } from '@/utils/masks';
+
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
