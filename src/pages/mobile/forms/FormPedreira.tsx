@@ -246,14 +246,15 @@ export default function FormPedreira() {
     let pesoVazioNum: number;
     
     if (pesoFinalRaw.includes(',') || pesoFinalRaw.includes('.')) {
-      pesoFinalNum = parseBRNumber(pesoFinalRaw);
+      pesoFinalNum = parseNumeric(pesoFinalRaw);
     } else {
       pesoFinalNum = parseBankDigits(pesoFinalRaw);
     }
     
     if (pesoVazioRaw.includes(',') || pesoVazioRaw.includes('.')) {
-      pesoVazioNum = parseBRNumber(pesoVazioRaw);
+      pesoVazioNum = parseNumeric(pesoVazioRaw);
     } else {
+
       pesoVazioNum = parseBankDigits(pesoVazioRaw);
     }
     
