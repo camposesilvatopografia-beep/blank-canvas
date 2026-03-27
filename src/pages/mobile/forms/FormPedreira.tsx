@@ -311,7 +311,7 @@ export default function FormPedreira() {
       );
 
 
-      // Upload Peso Final photo if available
+      // Photo upload logic
       let fotoPesoFinalUrl = '';
       if (pesoFinalFotoFile) {
         try {
@@ -326,7 +326,6 @@ export default function FormPedreira() {
         } catch (e) { console.error('Upload foto peso final erro:', e); }
       }
 
-      // Upload OCR photo if available
       let fotoChegadaUrl = '';
       if (ocrFotoFile) {
         try {
@@ -343,69 +342,76 @@ export default function FormPedreira() {
 
       const generateId = () => Math.random().toString(36).substring(2, 10);
       const pedreiraRow = [
-        generateId(),                            // A: ID (auto-generated)
+        generateId(),                            // A: ID
         dataFormatada,                           // B: Data
         formData.horaCarregamento,               // C: Hora
         formData.numeroPedido || '',             // D: Ordem_Carregamento
         formData.fornecedor || '',               // E: Fornecedor
-        formData.caminhao,                       // F: Prefixo_Eq (user selected)
-        selectedCaminhao?.descricao || 'Caminhão Reboque', // G: Descricao_Eq (auto-filled)
-        selectedCaminhao?.empresa || '',         // H: Empresa_Eq (auto-filled)
-        selectedCaminhao?.motorista || '',       // I: Motorista (auto-filled)
-        selectedCaminhao?.placa || '',           // J: Placa (auto-filled)
+        formData.caminhao,                       // F: Prefixo_Eq
+        selectedCaminhao?.descricao || 'Caminhão Reboque', // G
+        selectedCaminhao?.empresa || '',         // H
+        selectedCaminhao?.motorista || '',       // I
+        selectedCaminhao?.placa || '',           // J
         formData.material,                       // K: Material
         formatPesoForSheet(effectivePesoVazio),   // L: Peso_Vazio
         formatPesoForSheet(formData.pesoFinal),   // M: Peso_Final
-        derived.pesoLiquido || '',               // N: Peso_Liquido
-        derived.metroCubico || '',               // O: Metro_Cubico
-        derived.densidade || '',                 // P: Densidade
-        derived.tonelada || '',                  // Q: Tonelada
-        effectiveName || '',                     // R: Usuario (logged-in user)
+        derived.pesoLiquido || '',               // N
+        derived.metroCubico || '',               // O
+        derived.densidade || '',                 // P
+        derived.tonelada || '',                  // Q
+        effectiveName || '',                     // R: Usuario
         format(new Date(), 'HH:mm'),            // S: Hora_Chegada_Obra
         formatPesoForSheet(formData.pesoChegada), // T: Peso_Chegada_Obra
         'Finalizado',                            // U: Status
-        fotoChegadaUrl,                          // V: Foto Peso Chegada Obra
+        fotoChegadaUrl,                          // V: Foto
       ];
 
-      // Check if offline
+      const supabaseBackup = async () => {
+        try {
+          const { error } = await supabase.from('movimentacoes_pedreira').insert({
+            data: formData.data,
+            hora: formData.horaCarregamento,
+            prefixo_caminhao: formData.caminhao,
+            empresa_caminhao: selectedCaminhao?.empresa,
+            motorista: selectedCaminhao?.motorista,
+            fornecedor: formData.fornecedor,
+            material: formData.material,
+            nota_fiscal: formData.numeroPedido,
+            viagens: 1,
+            volume: parseNumeric(formData.pesoFinal),
+            volume_total: derived.toneladaNum,
+            usuario: effectiveName,
+            foto_path: fotoChegadaUrl,
+          });
+          if (error) console.error('Supabase backup error (Pedreira):', error);
+        } catch (e) {
+          console.error('Failed to insert in Supabase (Pedreira):', e);
+        }
+      };
+
       if (!isOnline) {
-        addPendingRecord('pedreira', 'Apontamento_Pedreira', pedreiraRow, { formData });
+        addPendingRecord('pedreira', 'Apontamento_Pedreira', pedreiraRow, { ...formData });
+        await supabaseBackup();
         setSavedOffline(true);
         setSubmitted(true);
         playOfflineSound();
-        toast({
-          title: 'Salvo Localmente',
-          description: 'Será sincronizado quando a conexão voltar.',
-        });
+        toast({ title: 'Salvo Localmente', description: 'Será sincronizado quando a conexão voltar.' });
         setLoading(false);
         return;
       }
 
       const success = await appendSheet('Apontamento_Pedreira', [pedreiraRow]);
 
-      // Backup to Supabase
-      if (success) {
-        supabase.from('movimentacoes_pedreira').insert({
-          data: formData.data,
-          hora: formData.horaCarregamento,
-          prefixo_caminhao: formData.caminhao,
-          empresa_caminhao: selectedCaminhao?.empresa,
-          motorista: selectedCaminhao?.motorista,
-          fornecedor: formData.fornecedor,
-          material: formData.material,
-          nota_fiscal: formData.numeroPedido,
-          viagens: 1,
-          volume: parseBRNumber(formData.pesoFinal),
-          volume_total: derived.toneladaNum,
-          usuario: effectiveName,
-          foto_path: fotoChegadaUrl,
-        }).then(({ error }) => {
-          if (error) console.error('Supabase backup error (Pedreira):', error);
-        });
-      }
+      // Backup regardless of sheet success
+      await supabaseBackup();
 
       if (!success) {
-        throw new Error('Erro ao salvar apontamento');
+        addPendingRecord('pedreira', 'Apontamento_Pedreira', pedreiraRow, { ...formData });
+        setSavedOffline(true);
+        setSubmitted(true);
+        playOfflineSound();
+        toast({ title: 'Salvo Localmente', description: 'Falha na planilha. Registro salvo offline e Supabase.' });
+        return;
       }
 
       setSubmitted(true);
@@ -414,6 +420,43 @@ export default function FormPedreira() {
         title: 'Sucesso!',
         description: 'Apontamento de pedreira registrado com sucesso.',
       });
+    } catch (error: any) {
+      console.error('Pedreira submission error:', error);
+      // Fallback
+      const dataFormatada = format(new Date(formData.data + 'T12:00:00'), 'dd/MM/yyyy');
+      const derived = calculateDerivedValues(formData.pesoFinal || '0', getEffectivePesoVazio() || '0');
+      const pedreiraRowFallback = [
+        Math.random().toString(36).substring(2, 10),
+        dataFormatada,
+        formData.horaCarregamento,
+        formData.numeroPedido || '',
+        formData.fornecedor || '',
+        formData.caminhao,
+        selectedCaminhao?.descricao || '',
+        selectedCaminhao?.empresa || '',
+        selectedCaminhao?.motorista || '',
+        selectedCaminhao?.placa || '',
+        formData.material,
+        formatPesoForSheet(getEffectivePesoVazio()),
+        formatPesoForSheet(formData.pesoFinal),
+        derived.pesoLiquido,
+        derived.metroCubico,
+        derived.densidade,
+        derived.tonelada,
+        effectiveName || '',
+        format(new Date(), 'HH:mm'),
+        formatPesoForSheet(formData.pesoChegada),
+        'Finalizado',
+      ];
+      addPendingRecord('pedreira', 'Apontamento_Pedreira', pedreiraRowFallback, { ...formData });
+      setSavedOffline(true);
+      setSubmitted(true);
+      playOfflineSound();
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
     } catch (error: any) {
       console.error('Error submitting:', error);
