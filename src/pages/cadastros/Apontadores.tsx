@@ -675,6 +675,10 @@ export default function Apontadores() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" className="gap-2" onClick={loadApontadores} disabled={loading}>
+            <RotateCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
           <Button className="gap-2" onClick={openNewModal}>
             <Plus className="w-4 h-4" />
             Novo Apontador
