@@ -362,7 +362,7 @@ function ChatWidget() {
         <>
           <div className="flex items-center gap-2 px-4 py-3 bg-blue-600 text-white">
             <MessageCircle className="w-5 h-5" />
-            <span className="flex-1 font-semibold text-sm">Mensagens</span>
+            <span className="flex-1 font-semibold text-sm">Criar Agente de IA</span>
             <button onClick={() => setOpen(false)} className="opacity-70 hover:opacity-100">
               <X className="w-5 h-5" />
             </button>
