@@ -1,6 +1,6 @@
 import { Outlet, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
-const AiAssistantChat = lazy(() => import('@/components/ai/AiAssistantChat'));
+// AiAssistantChat removed
 const SupportChatWidget = lazy(() => import('@/components/support/SupportChatWidget'));
 import logoApropriapp from '@/assets/logo-apropriapp.png';
 import { AppSidebar } from './AppSidebar';
@@ -62,10 +62,7 @@ export const AppLayout = () => {
         </main>
       </div>
       
-      {/* AI Assistant */}
-      <Suspense fallback={null}>
-        <AiAssistantChat />
-      </Suspense>
+      {/* AI Assistant removed */}
 
       {/* Support Chat */}
       <Suspense fallback={null}>
