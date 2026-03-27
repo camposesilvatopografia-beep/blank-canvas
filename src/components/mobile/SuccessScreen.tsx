@@ -188,7 +188,7 @@ export default function SuccessScreen({
           )}
         >
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-          Dados sincronizados com a planilha
+          Dados sincronizados com a planilha e Supabase
         </div>
       </Card>
     </div>
