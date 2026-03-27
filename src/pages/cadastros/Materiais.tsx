@@ -62,7 +62,7 @@ export default function Materiais() {
         toast({ title: 'Sucesso', description: 'Material atualizado com sucesso' });
       } else {
         const { error } = await supabase
-          .from('materiais')
+          .from('material')
           .insert({ nome: data.nome });
 
         if (error) throw error;
