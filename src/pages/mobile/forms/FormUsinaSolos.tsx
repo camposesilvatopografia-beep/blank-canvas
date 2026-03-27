@@ -32,7 +32,7 @@ export default function FormUsinaSolos() {
   const { profile } = useAuth();
   const { effectiveName } = useImpersonation();
   const { appendSheet, readSheet, writeSheet, deleteRow, loading } = useGoogleSheets();
-  const { isOnline, pendingCount } = useOfflineSync();
+  const { isOnline, pendingCount, addPendingRecord } = useOfflineSync();
   const { toast } = useToast();
 
   const [data, setData] = useState(format(new Date(), 'yyyy-MM-dd'));
