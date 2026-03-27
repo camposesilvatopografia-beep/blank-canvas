@@ -275,7 +275,11 @@ export function DetalhamentoViagemTab({
           <thead><tr>
             <th>Data</th><th>Hora</th><th>Prefixo</th>
             <th>Fornecedor</th><th>Nº Pedido/Nota</th><th>Descrição</th>
-            <th>Material</th><th class="text-right">Peso Bruto (t)</th>
+            <th>Material</th>
+            <th class="text-right">Peso Ped. (t)</th>
+            <th class="text-right">Peso Cheg. (kg)</th>
+            <th class="text-right">Ton. Obra (t)</th>
+            <th class="text-right">Dif. (t)</th>
           </tr></thead>
           <tbody>${sortedRecords.map(r => `<tr>
             <td>${r.data || activeDate}</td><td>${r.hora}</td><td class="bold" style="color:#c2410c">${r.prefixo}</td>
