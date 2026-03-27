@@ -493,7 +493,7 @@ function ChatWidget() {
             {messages.length === 0 ? (
               <div className="flex flex-col items-center gap-2 pt-8 text-center text-muted-foreground">
                 <MessageCircle className="w-10 h-10 opacity-30" />
-                <p className="text-sm font-medium">Envie a primeira mensagem!</p>
+                <p className="text-sm font-medium">Descreva o agente de IA para criar!</p>
               </div>
             ) : (
               messages.map(msg => {
