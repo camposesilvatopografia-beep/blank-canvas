@@ -584,7 +584,13 @@ export function DetalhamentoViagemTab({
                     <TableCell className="py-2 font-bold text-sm"></TableCell>
                     <TableCell colSpan={2} className="py-2 font-bold text-sm">Total geral</TableCell>
                     <TableCell colSpan={5} className="py-2 font-bold text-sm">{totalViagens} viagens</TableCell>
-                    <TableCell className="py-2 text-right font-bold text-sm">{fmt(totalTon)}</TableCell>
+                    <TableCell className="py-2 text-right font-bold text-sm bg-amber-50/20">{fmt(totalTon)}</TableCell>
+                    <TableCell className="py-2 text-right font-bold text-sm bg-blue-50/20" colSpan={2}>
+                      {fmt(activeRecords.reduce((s, r) => s + (r.toneladaCalcObra || 0), 0))} t (Obra)
+                    </TableCell>
+                    <TableCell className="py-2 text-right font-bold text-sm">
+                      {fmt(activeRecords.reduce((s, r) => s + ((r.toneladaCalcObra || 0) - r.tonelada), 0))} t (Dif)
+                    </TableCell>
                   </TableRow>
                 </TableFooter>
               </Table>
