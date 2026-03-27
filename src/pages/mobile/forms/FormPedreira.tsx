@@ -81,6 +81,7 @@ export default function FormPedreira() {
   const [caminhoes, setCaminhoes] = useState<CamReboqueData[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [savedOffline, setSavedOffline] = useState(false);
+  const [sheetHeaders, setSheetHeaders] = useState<string[]>([]);
 
   // Records view state
   const [showRecords, setShowRecords] = useState(false);
