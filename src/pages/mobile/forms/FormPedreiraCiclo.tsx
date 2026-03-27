@@ -4807,34 +4807,18 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                           onChange={async (e) => {
                             const file = e.target.files?.[0];
                             if (!file) return;
-                            setCarregSaidaOcrLoading(true);
-                            // Always save the photo file regardless of OCR result
-                            setCarregSaidaFotoFile(file);
-                            const reader = new FileReader();
-                            const base64 = await new Promise<string>((resolve) => {
-                              reader.onload = () => resolve(reader.result as string);
-                              reader.readAsDataURL(file);
-                            });
-                            setCarregSaidaFotoPreview(base64);
-                            try {
-                              const response = await supabase.functions.invoke('ocr-peso', {
-                                body: { imageBase64: base64 },
-                              });
-                              if (response.error) throw response.error;
-                              const { value } = response.data;
-                              if (value && value !== 'ERRO') {
-                                const rawValue = String(parseInt(value, 10));
-                                setCarregPesoSaida(rawValue);
-                                toast({ title: '✅ Peso lido com sucesso!', description: `Valor: ${formatBankInput(rawValue)}` });
-                              } else {
-                                toast({ title: 'Foto salva! Digite o peso manualmente', description: 'OCR não conseguiu ler, mas a foto foi capturada', variant: 'default' });
-                              }
-                            } catch (error: any) {
-                              toast({ title: 'Foto salva! Digite o peso manualmente', description: 'OCR indisponível, mas a foto foi capturada', variant: 'default' });
-                            } finally {
-                              setCarregSaidaOcrLoading(false);
-                              if (carregSaidaOcrInputRef.current) carregSaidaOcrInputRef.current.value = '';
-                            }
+                             setCarregSaidaOcrLoading(true);
+                             // Always save the photo file
+                             setCarregSaidaFotoFile(file);
+                             const reader = new FileReader();
+                             const base64 = await new Promise<string>((resolve) => {
+                               reader.onload = () => resolve(reader.result as string);
+                               reader.readAsDataURL(file);
+                             });
+                             setCarregSaidaFotoPreview(base64);
+                             toast({ title: '✅ Foto capturada!', description: 'Digite o peso manualmente abaixo.' });
+                             setCarregSaidaOcrLoading(false);
+                             if (carregSaidaOcrInputRef.current) carregSaidaOcrInputRef.current.value = '';
                           }}
                         />
                         {carregSaidaFotoPreview && (
