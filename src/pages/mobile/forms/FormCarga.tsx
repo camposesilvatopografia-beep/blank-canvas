@@ -5,6 +5,7 @@ import { useImpersonation } from '@/contexts/ImpersonationContext';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { useOfflineCache } from '@/hooks/useOfflineCache';
+import { supabase } from '@/integrations/supabase/client';
 import { useEquipmentPermissions } from '@/hooks/useEquipmentPermissions';
 import { useLocalPermissions } from '@/hooks/useLocalPermissions';
 import { Button } from '@/components/ui/button';
