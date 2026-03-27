@@ -46,6 +46,7 @@ const menuColorMap: Record<string, { border: string; bg: string; activeBg: strin
   'Alertas':      { border: 'border-l-red-400',      bg: '',                        activeBg: 'bg-red-500/20',      text: 'text-red-300' },
   'Almoxarifado': { border: 'border-l-yellow-400',   bg: '',                        activeBg: 'bg-yellow-500/20',   text: 'text-yellow-300' },
   'Cadastros':    { border: 'border-l-purple-400',   bg: 'bg-purple-500/5',        activeBg: 'bg-purple-500/20',   text: 'text-purple-300' },
+  'Controle de Manutenção e Abastecimentos': { border: 'border-l-indigo-400', bg: 'bg-indigo-500/5', activeBg: 'bg-indigo-500/20', text: 'text-indigo-300' },
 };
 
 const menuItems: MenuItem[] = [
