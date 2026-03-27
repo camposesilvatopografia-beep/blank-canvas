@@ -295,7 +295,7 @@ const ImportacaoSheets = () => {
                   onChange={(e) => setSheetUrl(e.target.value)}
                   disabled={isImporting}
                 />
-                <p className="text-[10px] text-muted-foreground">Certifique-se que a planilha está "Qualquer pessoa com o link pode ler" ou publicada na web.</p>
+                <p className="text-[10px] text-muted-foreground">vou criar copia da plainilha para nao impactar no projeto original, pois a planilha é a mes,a e esse agora, deve alimentar uma copia</p>
               </div>
 
               <div className="space-y-3">
