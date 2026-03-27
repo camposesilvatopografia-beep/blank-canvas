@@ -282,6 +282,8 @@ export default function FormPedreira() {
     setLoading(true);
     setSavedOffline(false);
 
+    let fotoPesoFinalUrl = '';
+    let fotoChegadaUrl = '';
     try {
       const now = new Date();
       const hora = format(now, 'HH:mm:ss');
