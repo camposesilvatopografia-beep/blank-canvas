@@ -1123,6 +1123,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
         { label: 'Hora Saída', value: horaSaidaFinal },
         { label: 'Status', value: 'Saiu do Britador' },
       ]);
+      setSuccessImageUrl(null);
       setSubmitted(true);
     } catch (error: any) {
       toast({ title: 'Erro', description: error.message, variant: 'destructive' });
