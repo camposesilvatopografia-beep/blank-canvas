@@ -74,20 +74,31 @@ export default function FrotaGeralObra() {
       const rows = await readSheet('Mobilização');
       if (rows.length < 2) { setData([]); return; }
       const headers = rows[0].map((h: string) => (h || '').toString().trim().toUpperCase());
-      const idx = (name: string) => {
-        const i = headers.findIndex((h: string) => h.includes(name));
+      const idx = (names: string[]) => {
+        const i = headers.findIndex((h: string) => names.some(name => h.includes(name)));
         return i >= 0 ? i : -1;
       };
-      const iItem = idx('ITEM');
-      const iCodigo = idx('CÓDIGO') >= 0 ? idx('CÓDIGO') : idx('CODIGO') >= 0 ? idx('CODIGO') : idx('TAG');
-      const iProp = idx('PROPRIETÁRIO') >= 0 ? idx('PROPRIETÁRIO') : idx('PROPRIETARIO');
-      const iEquip = idx('EQUIPAMENTO');
-      const iMarca = idx('MARCA');
-      const iPot = idx('POTÊNCIA') >= 0 ? idx('POTÊNCIA') : idx('POTENCIA');
-      const iOp = idx('OPERADOR') >= 0 ? idx('OPERADOR') : idx('MOTORISTA');
-      const iStatus = idx('STATUS');
+      const iItem = idx(['ITEM']);
+      const iCodigo = idx(['CÓDIGO', 'CODIGO', 'TAG', 'PREFIXO', 'ID', 'PLACA']);
+      const iProp = idx(['PROPRIETÁRIO', 'PROPRIETARIO', 'EMPRESA', 'DONO', 'FORNECEDOR']);
+      const iEquip = idx(['EQUIPAMENTO', 'TIPO', 'DESCRICAO', 'DESCRIÇÃO']);
+      const iMarca = idx(['MARCA', 'MODELO']);
+      const iPot = idx(['POTÊNCIA', 'POTENCIA', 'CAPACIDADE']);
+      const iOp = idx(['OPERADOR', 'MOTORISTA', 'CONDUTOR', 'NOME']);
+      const iStatus = idx(['STATUS', 'SITUAÇÃO', 'SITUACAO']);
+      
       setStatusColIndex(iStatus);
-      setColIndices({ item: iItem, codigo: iCodigo, proprietario: iProp, equipamento: iEquip, marca: iMarca, potencia: iPot, operador: iOp, status: iStatus, totalCols: headers.length });
+      setColIndices({ 
+        item: iItem, 
+        codigo: iCodigo, 
+        proprietario: iProp, 
+        equipamento: iEquip, 
+        marca: iMarca, 
+        potencia: iPot, 
+        operador: iOp, 
+        status: iStatus, 
+        totalCols: headers.length 
+      });
 
       const parsed: EquipRow[] = rows.slice(1)
         .map((r: any[], i: number) => {

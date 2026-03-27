@@ -48,16 +48,16 @@ export default function CaminhoesHerval() {
       const rows = await readSheet(SHEET_NAME);
       if (rows.length < 2) { setData([]); return; }
       const headers = rows[0].map((h: string) => (h || '').toString().trim().toUpperCase().replace(/\s+/g, '_'));
-      const idx = (name: string) => {
-        const i = headers.findIndex((h: string) => h.includes(name));
+      const idx = (names: string[]) => {
+        const i = headers.findIndex((h: string) => names.some(name => h.includes(name)));
         return i >= 0 ? i : -1;
       };
       const colMap: ColMap = {
-        placa: idx('PLACA'),
-        descricao: idx('DESCRI'),
-        empresa: idx('EMPRESA'),
-        motorista: idx('MOTORISTA'),
-        pesoVazio: idx('PESO'),
+        placa: idx(['PLACA', 'VEICULO', 'EQUIPAMENTO', 'PREFIXO', 'ID']),
+        descricao: idx(['DESCRI', 'MODELO', 'TIPO', 'ESPECIFICA']),
+        empresa: idx(['EMPRESA', 'FORNECEDOR', 'CIA', 'COMPANHIA']),
+        motorista: idx(['MOTORISTA', 'CONDUTOR', 'OPERADOR', 'NOME']),
+        pesoVazio: idx(['PESO', 'TARA', 'PESO_V', 'PV', 'PESO_VAZIO']),
       };
       setCols(colMap);
 
