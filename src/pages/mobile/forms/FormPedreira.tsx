@@ -355,7 +355,8 @@ export default function FormPedreira() {
         format(new Date(), 'HH:mm'),            // S: Hora_Chegada_Obra
         formatPesoForSheet(formData.pesoChegada), // T: Peso_Chegada_Obra
         'Finalizado',                            // U: Status
-        fotoChegadaUrl,                          // V: Foto
+        fotoChegadaUrl,                          // V: Foto Pesagem Obra
+        fotoPesoFinalUrl,                        // W: Foto Pesagem Pedreira
       ];
 
       const supabaseBackup = async () => {
