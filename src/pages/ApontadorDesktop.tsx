@@ -39,7 +39,7 @@ interface ModuleWindow {
   reportPath?: string;
 }
 
-import AiAssistantChat from '@/components/ai/AiAssistantChat';
+// AiAssistantChat removed
 
 export default function ApontadorDesktop() {
   const navigate = useNavigate();
