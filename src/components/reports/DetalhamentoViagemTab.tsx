@@ -24,6 +24,9 @@ interface DayRecord {
   ordem: string;
   pesoFinal?: number;
   pesoChegada?: number;
+  toneladaTicket?: number;
+  toneladaCalcObra?: number;
+  pesoVazioObra?: number;
 }
 
 interface DetalhamentoViagemTabProps {
