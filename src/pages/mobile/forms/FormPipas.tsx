@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useImpersonation } from '@/contexts/ImpersonationContext';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -165,6 +166,25 @@ export default function FormPipas() {
       }
 
       const success = await appendSheet('Apontamento_Pipa', [pipaRow]);
+
+      // Backup to Supabase
+      if (success) {
+        supabase.from('movimentacoes_pipas').insert({
+          data: formData.data,
+          hora: format(new Date(), 'HH:mm'),
+          prefixo_pipa: formData.veiculo,
+          motorista: selectedPipa?.motorista,
+          empresa: selectedPipa?.empresa,
+          local: formData.localTrabalho,
+          atividade: 'Rega/Umectação',
+          volume: parseFloat(selectedPipa?.capacidade || '0'),
+          viagens: parseInt(viagens),
+          volume_total: parseFloat(selectedPipa?.capacidade || '0') * parseInt(viagens),
+          usuario: effectiveName,
+        }).then(({ error }) => {
+          if (error) console.error('Supabase backup error (Pipas):', error);
+        });
+      }
 
       if (!success) {
         throw new Error('Erro ao salvar apontamento');

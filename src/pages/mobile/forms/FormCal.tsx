@@ -360,8 +360,24 @@ export default function FormCal() {
 
       console.log('[FormCal] Calling appendSheet...');
       const success = await appendSheet('Mov_Cal', [calRow]);
-      console.log('[FormCal] appendSheet result:', success);
+      
+      // Backup to Supabase
+      if (success) {
+        supabase.from('movimentacoes_cal').insert({
+          data: formData.data,
+          hora,
+          prefixo_caminhao: defaultPrefixoEq,
+          fornecedor: defaultFornecedor,
+          nota_fiscal: formData.tipo === 'Entrada' ? formData.notaFiscal : '',
+          quantidade: parseNumeric(formData.quantidade),
+          local: 'Cebolão',
+          usuario: effectiveName,
+        }).then(({ error }) => {
+          if (error) console.error('Supabase backup error (Cal):', error);
+        });
+      }
 
+      console.log('[FormCal] appendSheet result:', success);
       if (!success) {
         throw new Error('Erro ao salvar movimento');
       }

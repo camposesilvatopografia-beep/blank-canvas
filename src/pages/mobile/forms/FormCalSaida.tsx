@@ -269,6 +269,20 @@ export default function FormCalSaida() {
       if (navigator.onLine) {
         await appendSheet('Mov_Cal', [calRow]);
         rowSynced = true;
+
+        // Backup to Supabase (Step 1)
+        supabase.from('movimentacoes_cal').insert({
+          data: dataStep1,
+          hora,
+          prefixo_caminhao: defaultPrefixoEq,
+          fornecedor: defaultFornecedor,
+          quantidade: parseNumeric(pesoVazio),
+          local: 'Cebolão',
+          usuario: effectiveName,
+          foto_path: urlPesoVazio,
+        }).then(({ error }) => {
+          if (error) console.error('Supabase backup error (Cal Saida Step 1):', error);
+        });
       } else {
         addPendingRecord('cal', 'Mov_Cal', calRow, { formData: { pesoVazio, data: dataStep1 } });
         rowSynced = false;
