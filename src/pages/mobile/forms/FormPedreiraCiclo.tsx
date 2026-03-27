@@ -579,11 +579,11 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       const areiaData = await readSheet('Caminhões Areia Express');
       if (areiaData && areiaData.length > 1) {
         const aHeaders = areiaData[0].map((h: string) => (h || '').toString().trim().toUpperCase().replace(/\s+/g, '_'));
-        const aIdx = (name: string) => aHeaders.findIndex((h: string) => h.includes(name));
-        const iPlaca = aIdx('PLACA');
-        const iMotorista = aIdx('MOTORISTA');
-        const iPeso = aIdx('PESO');
-        const iDesc = aIdx('DESCRI');
+        const aIdx = (names: string[]) => aHeaders.findIndex((h: string) => names.some(name => h.includes(name)));
+        const iPlaca = aIdx(['PLACA', 'VEICULO', 'EQUIPAMENTO', 'PREFIXO', 'ID']);
+        const iMotorista = aIdx(['MOTORISTA', 'CONDUTOR', 'OPERADOR', 'NOME']);
+        const iPeso = aIdx(['PESO', 'TARA', 'PESO_V', 'PV', 'PESO_VAZIO']);
+        const iDesc = aIdx(['DESCRI', 'MODELO', 'TIPO', 'ESPECIFICA']);
         const veiculos = areiaData.slice(1)
           .filter((r: any[]) => r[iPlaca] && r[iPlaca].toString().trim())
           .map((r: any[]) => ({
