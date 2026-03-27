@@ -218,8 +218,8 @@ export default function MobileAuth() {
 
 
         <div className="mt-6 pt-4 border-t border-white/10">
-          <p className="text-amber-500 text-[10px] font-medium text-center leading-relaxed bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
-            O assistente ia não funciona
+          <p className="text-primary text-[10px] font-medium text-center leading-relaxed bg-primary/10 p-2 rounded-lg border border-primary/20">
+            Esta IA é do Lovable. Integre a IA do Supabase para que o assistente possa ser poderoso no sistema, trabalhando como agente RAG.
           </p>
         </div>
       </Card>
