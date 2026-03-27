@@ -146,8 +146,15 @@ const ImportacaoSheets = () => {
     const processed: any = {};
     let hasRequiredFields = true;
 
+    // Create a lowercase map of the row for case-insensitive header matching
+    const rowLower: Record<string, any> = {};
+    Object.keys(row).forEach(key => {
+      rowLower[key.toLowerCase().trim()] = row[key];
+    });
+
     config.columns.forEach(col => {
-      let val = row[col];
+      // Try exact match first, then lowercase match
+      let val = row[col] !== undefined ? row[col] : rowLower[col.toLowerCase()];
       
       if (col.includes("data")) {
         val = formatDate(val);
@@ -295,7 +302,7 @@ const ImportacaoSheets = () => {
                   onChange={(e) => setSheetUrl(e.target.value)}
                   disabled={isImporting}
                 />
-                <p className="text-[10px] text-muted-foreground">vou criar copia da plainilha para nao impactar no projeto original, pois a planilha é a mes,a e esse agora, deve alimentar uma copia</p>
+                <p className="text-[10px] text-muted-foreground italic">Dica: A planilha deve estar compartilhada como "Qualquer pessoa com o link pode ler". O sistema agora reconhece cabeçalhos mesmo com letras maiúsculas ou minúsculas.</p>
               </div>
 
               <div className="space-y-3">
