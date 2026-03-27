@@ -1152,10 +1152,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
         } else {
           success = await appendSheet('Apontamento_Pedreira', [pedreiraRow]);
         }
-      if (!success) throw new Error('Erro ao salvar');
-
-      // Backup to Supabase
-      await supabaseBackupPedreira(currentRow, headers);
+        if (!success) throw new Error('Erro ao salvar');
 
         // Backup to Supabase
         await supabaseBackupPedreira(pedreiraRow, headers);
