@@ -168,7 +168,7 @@ export function useOfflineSync() {
 
       if (table) {
         console.log(`[OfflineSync] Syncing to Supabase table ${table}...`);
-        const { error } = await supabase.from(table).upsert(payload, { onConflict: 'external_id' });
+        const { error } = await supabase.from(table as any).upsert(payload, { onConflict: 'external_id' });
         if (error) {
           console.error(`[OfflineSync] Supabase sync error for ${type}:`, error);
           return false;
