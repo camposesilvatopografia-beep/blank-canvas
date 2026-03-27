@@ -2301,7 +2301,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       pesoVazio: '',
       pesoFinal: '',
     });
-    setFormObra({ horaChegada: format(new Date(), 'HH:mm'), pesoChegada: '', ocrFotoFile: null });
+    setFormObra({ horaChegada: format(new Date(), 'HH:mm'), pesoChegada: '', pesoVazio: '', ocrFotoFile: null });
     setFormObraExtra({ material: '', pesoVazio: '', pesoFinal: '', numeroPedido: '' });
     setBalancaFotoFile(null);
     setObraVazioFotoFile(null);
