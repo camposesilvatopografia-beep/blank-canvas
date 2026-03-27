@@ -174,6 +174,7 @@ export default function Apontadores() {
         toast({ title: 'Sucesso', description: 'Apontador criado com sucesso' });
       }
       setModalOpen(false);
+      setShowPassword(false);
       setSelectedApontador(null);
       resetForm();
       loadApontadores();
