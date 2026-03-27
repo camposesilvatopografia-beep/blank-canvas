@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { MessageCircle, X, Send, Paperclip, Loader2, ArrowLeft, Users, Headphones, Search } from 'lucide-react';
+import { MessageCircle, X, Send, Paperclip, Loader2, ArrowLeft, Users, Headphones, Search, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -42,13 +42,9 @@ interface UserProfile {
   status: string;
 }
 
-type Screen = 'list' | 'chat' | 'new-chat' | 'user-select';
+type Screen = 'list' | 'chat' | 'user-select';
 
 export default function SupportChatWidget() {
-  return <ChatWidget />;
-}
-
-function ChatWidget() {
   const { user, profile } = useAuth();
   const [open, setOpen] = useState(false);
   const [screen, setScreen] = useState<Screen>('list');
@@ -65,10 +61,8 @@ function ChatWidget() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Track which conversations have unread messages
   const [unreadMap, setUnreadMap] = useState<Record<string, number>>({});
 
-  // Load all conversations for this user
   const loadConversations = useCallback(async () => {
     if (!user?.id) return;
     setLoading(true);
@@ -109,7 +103,6 @@ function ChatWidget() {
     }
   }, [open, loadConversations]);
 
-  // Global realtime: listen for ALL new messages for this user's conversations
   useEffect(() => {
     if (!user?.id) return;
 
@@ -121,16 +114,14 @@ function ChatWidget() {
         table: 'support_messages',
       }, (payload) => {
         const newMsg = payload.new as Message;
-        // If in active conversation, add to messages
         if (activeConv && newMsg.conversation_id === activeConv.id) {
           setMessages(prev => {
             if (prev.some(m => m.id === newMsg.id)) return prev;
             return [...prev, newMsg];
           });
         }
-        // If message is from someone else, increment unread
+        
         if (newMsg.sender_id !== user.id) {
-          // Check if this conversation belongs to the user
           const conv = conversations.find(c => c.id === newMsg.conversation_id);
           if (conv || activeConv?.id === newMsg.conversation_id) {
             if (!open || activeConv?.id !== newMsg.conversation_id) {
@@ -141,14 +132,13 @@ function ChatWidget() {
               setTotalUnread(prev => prev + 1);
             }
           }
-          // Reload conversations to update last_message
           loadConversations();
         }
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [user?.id, activeConv?.id, open, conversations]);
+  }, [user?.id, activeConv?.id, open, conversations, loadConversations]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -156,12 +146,10 @@ function ChatWidget() {
     }
   }, [messages]);
 
-  // Clear unread when opening a conversation
   const openConversation = async (conv: Conversation) => {
     setActiveConv(conv);
     setScreen('chat');
     await loadMessages(conv.id);
-    // Clear unread for this conversation
     const convUnread = unreadMap[conv.id] || 0;
     if (convUnread > 0) {
       setUnreadMap(prev => ({ ...prev, [conv.id]: 0 }));
@@ -169,18 +157,15 @@ function ChatWidget() {
     }
   };
 
-  // Get the "other person" name for display
   const getConversationName = (conv: Conversation) => {
     if (conv.conversation_type === 'support') return '🛟 Suporte (Admin)';
     if (conv.user_id === user?.id) return conv.recipient_name || 'Usuário';
     return conv.user_name || 'Usuário';
   };
 
-  // Create or find existing conversation with a user
   const startChatWithUser = async (targetUser: UserProfile) => {
     if (!user?.id) return;
 
-    // Check if conversation already exists between these two users
     const existing = conversations.find(c =>
       c.conversation_type === 'direct' && (
         (c.user_id === user.id && c.recipient_id === targetUser.user_id) ||
@@ -193,7 +178,6 @@ function ChatWidget() {
       return;
     }
 
-    // Create new direct conversation
     const { data, error } = await supabase
       .from('support_conversations')
       .insert({
@@ -219,11 +203,9 @@ function ChatWidget() {
     await openConversation(newConv);
   };
 
-  // Start support conversation
   const startSupportChat = async () => {
     if (!user?.id) return;
 
-    // Check existing support conversation
     const existing = conversations.find(c => c.conversation_type === 'support' && c.user_id === user.id && c.status === 'open');
     if (existing) {
       await openConversation(existing);
@@ -336,12 +318,11 @@ function ChatWidget() {
     return users.filter(u => u.nome.toLowerCase().includes(s) || u.email.toLowerCase().includes(s));
   }, [users, userSearch]);
 
-  // ── Floating button ──
   if (!open) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-105 transition-transform"
+        className="fixed bottom-24 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg hover:scale-105 transition-transform"
         title="Chat"
       >
         <MessageCircle className="w-7 h-7" />
@@ -354,19 +335,206 @@ function ChatWidget() {
     );
   }
 
-  // ── Chat Window ──
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-[400px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[calc(100vh-8rem)] flex flex-col bg-background border border-border rounded-xl shadow-2xl overflow-hidden">
-      {/* ─── SCREEN: Conversation List ─── */}
+    <div className="fixed bottom-24 right-6 z-50 w-[400px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[calc(100vh-8rem)] flex flex-col bg-background border border-border rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-5">
       {screen === 'list' && (
         <>
-          <div className="flex items-center gap-2 px-4 py-3 bg-primary text-primary-foreground">
-...
-                      isMe ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'
-...
-            <Button size="icon" onClick={handleSend} disabled={!input.trim() || sending} className="shrink-0 bg-primary hover:bg-primary/90">
-              <Send className="w-4 h-4" />
-            </Button>
+          <div className="flex items-center gap-2 px-4 py-3 bg-blue-600 text-white">
+            <MessageCircle className="w-5 h-5" />
+            <span className="font-semibold text-sm flex-1">Mensagens</span>
+            <button onClick={() => setOpen(false)} className="opacity-70 hover:opacity-100">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-4 space-y-3">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start gap-2 h-12" 
+                onClick={async () => { await loadUsers(); setScreen('user-select'); }}
+              >
+                <Users className="w-5 h-5 text-blue-600" />
+                <span>Conversar com usuário</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start gap-2 h-12 border-blue-200 bg-blue-50/30" 
+                onClick={startSupportChat}
+              >
+                <Headphones className="w-5 h-5 text-blue-600" />
+                <span>Suporte (jeanallbuquerque@gmail.com)</span>
+              </Button>
+            </div>
+            
+            <div className="border-t">
+              <div className="px-4 py-2 bg-muted/30">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Conversas recentes</p>
+              </div>
+              {loading ? (
+                <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin text-blue-600" /></div>
+              ) : conversations.length === 0 ? (
+                <div className="text-center p-8 text-muted-foreground italic text-sm">Nenhuma conversa ativa</div>
+              ) : (
+                conversations.map(conv => (
+                  <button
+                    key={conv.id}
+                    onClick={() => openConversation(conv)}
+                    className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 border-b last:border-0 transition-colors"
+                  >
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${conv.conversation_type === 'support' ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600'}`}>
+                      {conv.conversation_type === 'support' ? <Headphones className="w-5 h-5" /> : <User className="w-5 h-5" />}
+                    </div>
+                    <div className="flex-1 text-left min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-medium text-sm truncate">{getConversationName(conv)}</p>
+                        <p className="text-[10px] text-muted-foreground whitespace-nowrap">
+                          {format(new Date(conv.last_message_at), 'HH:mm', { locale: ptBR })}
+                        </p>
+                      </div>
+                      <p className="text-xs text-muted-foreground truncate">{conv.subject}</p>
+                    </div>
+                    {unreadMap[conv.id] > 0 && (
+                      <Badge className="bg-red-500 text-white ml-2 h-5 min-w-5 flex items-center justify-center rounded-full p-0">
+                        {unreadMap[conv.id]}
+                      </Badge>
+                    )}
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {screen === 'user-select' && (
+        <>
+          <div className="flex items-center gap-2 px-4 py-3 bg-blue-600 text-white">
+            <button onClick={() => setScreen('list')} className="opacity-70 hover:opacity-100 mr-2">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <span className="font-semibold text-sm flex-1">Selecionar Usuário</span>
+            <button onClick={() => setOpen(false)} className="opacity-70 hover:opacity-100">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="p-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input 
+                placeholder="Buscar usuário..." 
+                className="pl-9"
+                value={userSearch}
+                onChange={e => setUserSearch(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            {filteredUsers.length === 0 ? (
+              <div className="text-center p-8 text-muted-foreground text-sm">Nenhum usuário encontrado</div>
+            ) : (
+              filteredUsers.map(u => (
+                <button
+                  key={u.user_id}
+                  onClick={() => startChatWithUser(u)}
+                  className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 border-b last:border-0 transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
+                    <User className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 text-left min-w-0">
+                    <p className="font-medium text-sm truncate">{u.nome}</p>
+                    <p className="text-xs text-muted-foreground truncate">{u.tipo}</p>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+        </>
+      )}
+
+      {screen === 'chat' && activeConv && (
+        <>
+          <div className="flex items-center gap-2 px-4 py-3 bg-blue-600 text-white">
+            <button onClick={() => setScreen('list')} className="opacity-70 hover:opacity-100 mr-2">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm truncate">{getConversationName(activeConv)}</p>
+              {activeConv.status === 'closed' && <Badge variant="secondary" className="bg-white/20 text-white text-[9px] h-4">Encerrada</Badge>}
+            </div>
+            <button onClick={() => setOpen(false)} className="opacity-70 hover:opacity-100">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.map((msg, i) => {
+              const isMe = msg.sender_id === user?.id;
+              return (
+                <div key={msg.id || i} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[85%] rounded-lg px-3 py-2 text-sm shadow-sm ${
+                    isMe ? 'bg-blue-600 text-white' : 'bg-muted text-foreground'
+                  }`}>
+                    {!isMe && <p className="text-[10px] font-bold mb-1 opacity-70">{msg.sender_name}</p>}
+                    {msg.content && <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>}
+                    {msg.attachment_path && (
+                      <div className="mt-2">
+                        {isImage(msg.attachment_name) ? (
+                          <a href={msg.attachment_path} target="_blank" rel="noopener noreferrer">
+                            <img src={msg.attachment_path} alt={msg.attachment_name || ''} className="max-w-full rounded border border-white/20 max-h-60 object-contain bg-black/5" />
+                          </a>
+                        ) : (
+                          <a 
+                            href={msg.attachment_path} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className={`flex items-center gap-2 p-2 rounded border ${isMe ? 'bg-white/10 border-white/20 hover:bg-white/20' : 'bg-background border-border hover:bg-muted'} transition-colors`}
+                          >
+                            <Paperclip className="w-4 h-4 shrink-0" />
+                            <span className="text-xs truncate font-medium">{msg.attachment_name || 'Arquivo'}</span>
+                          </a>
+                        )}
+                      </div>
+                    )}
+                    <p className={`text-[9px] mt-1 text-right opacity-70`}>
+                      {format(new Date(msg.created_at), 'HH:mm', { locale: ptBR })}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="p-3 border-t bg-background">
+            <div className="flex gap-2 items-end">
+              <input ref={fileRef} type="file" className="hidden" onChange={handleFileUpload} />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="shrink-0 text-muted-foreground hover:text-blue-600" 
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
+              </Button>
+              <Textarea
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Escreva sua mensagem..."
+                className="resize-none min-h-[40px] max-h-[120px] text-sm py-2"
+                rows={1}
+                disabled={sending}
+              />
+              <Button 
+                size="icon" 
+                onClick={handleSend} 
+                disabled={!input.trim() || sending} 
+                className="shrink-0 bg-blue-600 hover:bg-blue-700 h-10 w-10 shadow-md"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </>
       )}
