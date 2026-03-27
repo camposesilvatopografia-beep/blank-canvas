@@ -1252,22 +1252,37 @@ export default function Apontadores() {
             </p>
             <div className="space-y-2">
               <Label htmlFor="newPassword">Nova Senha</Label>
-              <Input
-                id="newPassword"
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Mínimo 6 caracteres"
-              />
+              <div className="relative">
+                <Input
+                  id="newPassword"
+                  type={showPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Mínimo 6 caracteres"
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-muted-foreground"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </Button>
+              </div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setPasswordModalOpen(false)}>
+            <Button variant="outline" onClick={() => {
+              setPasswordModalOpen(false);
+              setShowPassword(false);
+            }}>
               Cancelar
             </Button>
             <Button onClick={handleChangePassword} disabled={saving || !newPassword}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Alterar Senha
+              Atualizar Senha
             </Button>
           </DialogFooter>
         </DialogContent>
