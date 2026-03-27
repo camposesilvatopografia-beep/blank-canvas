@@ -109,6 +109,9 @@ export default function FormCarga() {
     localLancamento: '',
   });
 
+  const isSalaTecnica = isAdmin || profile?.tipo === 'Sala Técnica';
+
+
   // Use cached data directly - instant loading! + filter by local permissions
   const locaisOrigem = useMemo(() => {
     const cached = getCachedLocaisOrigem();
