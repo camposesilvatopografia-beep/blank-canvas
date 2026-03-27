@@ -362,7 +362,7 @@ function ChatWidget() {
         <>
           <div className="flex items-center gap-2 px-4 py-3 bg-blue-600 text-white">
             <MessageCircle className="w-5 h-5" />
-            <span className="flex-1 font-semibold text-sm">Mensagens</span>
+            <span className="flex-1 font-semibold text-sm">Criar Agente de IA</span>
             <button onClick={() => setOpen(false)} className="opacity-70 hover:opacity-100">
               <X className="w-5 h-5" />
             </button>
@@ -493,7 +493,7 @@ function ChatWidget() {
             {messages.length === 0 ? (
               <div className="flex flex-col items-center gap-2 pt-8 text-center text-muted-foreground">
                 <MessageCircle className="w-10 h-10 opacity-30" />
-                <p className="text-sm font-medium">Envie a primeira mensagem!</p>
+                <p className="text-sm font-medium">Descreva o agente de IA para criar!</p>
               </div>
             ) : (
               messages.map(msg => {
@@ -537,7 +537,7 @@ function ChatWidget() {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Digite sua mensagem..."
+              placeholder="Descreva o agente de IA para o sistema..."
               className="resize-none min-h-[40px] max-h-[100px] text-sm"
               rows={1}
               disabled={sending}
