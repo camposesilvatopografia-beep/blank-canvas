@@ -115,6 +115,23 @@ export default function FormUsinaSolos() {
     const row = [dataFormatada, quantidadeReal.toFixed(2).replace('.', ',')];
 
     const success = await appendSheet('Produção Usina Solos', [row]);
+    
+    // Backup to Supabase
+    if (success) {
+      supabase.from('movimentacoes_usina_solos').insert({
+        data: data,
+        hora: format(new Date(), 'HH:mm'),
+        usina: 'Usina de Solos',
+        material: 'BGTC/BGTC-F',
+        quantidade: quantidadeReal,
+        umidade: 0,
+        local: 'Usina',
+        usuario: effectiveName,
+      }).then(({ error }) => {
+        if (error) console.error('Supabase backup error (Usina Solos):', error);
+      });
+    }
+
     if (success) {
       playSuccessSound();
       setShowSuccess(true);
