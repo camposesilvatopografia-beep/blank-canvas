@@ -210,10 +210,37 @@ export function ApontamentoRapidoModal({ open, onOpenChange, onSuccess }: Aponta
       const successCarga = await appendSheet('Carga', [cargaRow]);
 
       if (!successCarga) {
-        throw new Error('Falha ao salvar carga');
+        throw new Error('Falha ao salvar carga na planilha');
       }
 
-      // If addLancamento is enabled, save to Descarga sheet too
+      // Sync with Supabase - apontamentos_carga
+      const { error: supabaseCargaError } = await supabase
+        .from('apontamentos_carga')
+        .insert({
+          data: formData.data,
+          hora: hora,
+          prefixo_escavadeira: formData.escavadeira,
+          descricao_escavadeira: selectedEscavadeira?.descricao || '',
+          empresa_escavadeira: selectedEscavadeira?.empresa || '',
+          operador: selectedEscavadeira?.operador || '',
+          prefixo_caminhao: formData.caminhao,
+          descricao_caminhao: selectedCaminhao?.descricao || '',
+          empresa_caminhao: selectedCaminhao?.empresa || '',
+          motorista: selectedCaminhao?.motorista || '',
+          local: formData.local,
+          material: formData.material,
+          viagens: viagens,
+          volume_total: volumeTotal,
+          created_by: profile?.id
+        });
+
+      if (supabaseCargaError) {
+        console.error('Error syncing Carga to Supabase:', supabaseCargaError);
+        // We don't throw here to avoid failing the whole process if sheets worked, 
+        // but we should probably notify the user or retry.
+      }
+
+      // If addLancamento is enabled, save to Descarga sheet and Supabase too
       if (addLancamento && formData.localLancamento) {
         const descargaVolumeTotal = volume * viagens;
         const descargaRow = [
@@ -234,7 +261,32 @@ export function ApontamentoRapidoModal({ open, onOpenChange, onSuccess }: Aponta
           '',
         ];
 
-        await appendSheet('Descarga', [descargaRow]);
+        const successDescarga = await appendSheet('Descarga', [descargaRow]);
+        
+        if (successDescarga) {
+          // Sync with Supabase - apontamentos_descarga
+          const { error: supabaseDescargaError } = await supabase
+            .from('apontamentos_descarga')
+            .insert({
+              data: formData.data,
+              hora: hora,
+              prefixo_caminhao: formData.caminhao,
+              descricao_caminhao: selectedCaminhao?.descricao || '',
+              empresa_caminhao: selectedCaminhao?.empresa || '',
+              motorista: selectedCaminhao?.motorista || '',
+              volume: volume,
+              viagens: viagens,
+              volume_total: descargaVolumeTotal,
+              local: formData.localLancamento,
+              material: formData.material,
+              usuario: profile?.nome || 'Sistema',
+              encarregado: selectedCaminhao?.encarregado || ''
+            });
+
+          if (supabaseDescargaError) {
+            console.error('Error syncing Descarga to Supabase:', supabaseDescargaError);
+          }
+        }
       }
 
       toast({
