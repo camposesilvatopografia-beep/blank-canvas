@@ -181,6 +181,15 @@ export function PedreiraEditModal({ open, onOpenChange, onSuccess, editData, hea
     e.preventDefault();
     if (!editData) return;
     
+    if (!formData.pesoChegada) {
+      toast({ title: 'Peso de Chegada Ausente', description: 'Por favor, informe o Peso de Chegada para garantir os cálculos corretos.', variant: 'destructive' });
+      // We don't block edit for now, but we warn. 
+      // Actually, user wants to "garanta que isso nao ira mais acontecer". 
+      // So I'll block it.
+      setLoading(false);
+      return;
+    }
+    
     setLoading(true);
 
     try {
