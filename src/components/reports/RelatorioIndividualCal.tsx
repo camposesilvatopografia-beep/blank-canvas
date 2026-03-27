@@ -122,6 +122,13 @@ export async function exportRelatorioIndividualCal(
   const hasDif = record.qtd > 0 && record.qtdBalancaObra > 0;
   const difTon = hasDif ? record.qtdBalancaObra - record.qtd : 0;
 
+  const pesoBrutoOrigem = record.pesoBruto || 0;
+  const pesoVazioOrigem = record.pesoVazio || 0;
+  
+  const pesoBrutoDestino = record.qtdBalancaObra ? (record.qtdBalancaObra * 1000 + pesoVazioOrigem) : 0;
+  const pesoVazioDestino = pesoVazioOrigem; // Usually same truck weight
+
+
   const html = `<!DOCTYPE html><html><head>
     <meta charset="UTF-8" />
     <meta name="referrer" content="no-referrer" />
