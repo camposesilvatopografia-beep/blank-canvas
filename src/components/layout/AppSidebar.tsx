@@ -10,7 +10,7 @@ import {
   CloudRain, FlaskConical, Settings, Users, MapPin, Package,
   Building2, ChevronDown, ChevronRight, Smartphone, LogOut, Bell,
   ShieldCheck, Clock, ClipboardList, BarChart3, Warehouse, LayoutGrid, Menu, ExternalLink,
-  MessageCircle,
+  MessageCircle, Gauge, Wrench, Fuel,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
