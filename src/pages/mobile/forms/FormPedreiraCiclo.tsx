@@ -3734,7 +3734,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                             pesoLiquido: row[fi('Peso_Liquido_Cubico')] || row[fi('Peso_Liquido')] || '',
                             tonelada: row[fi('Tonelada')] || '', metroCubico: row[fi('Metro_Cubico')] || '',
                             });
-                            setFormObra({ horaChegada: format(new Date(), 'HH:mm'), pesoChegada: '', ocrFotoFile: null });
+                            setFormObra({ horaChegada: format(new Date(), 'HH:mm'), pesoChegada: '', pesoVazio: '', ocrFotoFile: null });
                             setFormObraExtra({ material: '', pesoVazio: '', pesoFinal: '', numeroPedido: '' });
                             toast({ title: '✅ Registro encontrado!' });
                             break;
