@@ -108,19 +108,20 @@ export async function exportRelatorioIndividualPedreira(
         <div class="fotos-grid" style="grid-template-columns: ${gridCols}">
           ${hasFotoPesagem ? `
           <div class="foto-item">
-            <div class="foto-label">⚖️ Peso Carregado na Balança (Pedreira)</div>
+            <div class="foto-label">🏗️ PESAGEM ORIGEM (Peso Bruto) — Pedreira</div>
             <img src="${fotoPesagemSrc}" alt="Foto pesagem pedreira" class="foto-img" referrerpolicy="no-referrer" onerror="this.onerror=null;tryAltSrc(this,'${esc(fotoPesagemFallback)}')" />
           </div>
           ` : ''}
           ${hasFotoChegada ? `
           <div class="foto-item">
-            <div class="foto-label">🏢 Peso de Chegada na Obra (Carregado)</div>
+            <div class="foto-label">🏢 PESAGEM DESTINO (Peso Chegada) — Obra</div>
             <img src="${fotoChegadaSrc}" alt="Foto peso chegada" class="foto-img" referrerpolicy="no-referrer" onerror="this.onerror=null;tryAltSrc(this,'${esc(fotoChegadaFallback)}')" />
           </div>
           ` : ''}
           ${hasFotoVazio ? `
           <div class="foto-item">
-            <div class="foto-label">🚛 Peso de Saída (Vazio) — Obra</div>
+            <div class="foto-label">🚛 TARA / SAÍDA (Peso Vazio) — Obra</div>
+
             <img src="${fotoVazioSrc}" alt="Foto peso vazio" class="foto-img" referrerpolicy="no-referrer" onerror="this.onerror=null;tryAltSrc(this,'${esc(fotoVazioFallback)}')" />
           </div>
           ` : ''}
