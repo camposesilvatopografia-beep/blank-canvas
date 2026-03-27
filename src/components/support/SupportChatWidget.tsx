@@ -537,7 +537,7 @@ function ChatWidget() {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Digite sua mensagem..."
+              placeholder="Descreva o agente de IA para o sistema..."
               className="resize-none min-h-[40px] max-h-[100px] text-sm"
               rows={1}
               disabled={sending}
