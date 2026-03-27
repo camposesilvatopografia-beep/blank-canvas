@@ -232,6 +232,15 @@ export async function exportRelatorioIndividualPedreira(
       .peso-cell.dif-positiva .p-value { color: #2563eb; }
       .peso-cell.dif-negativa .p-value { color: #dc2626; }
 
+      .peso-cell-small {
+        text-align: center;
+        padding: 4px;
+      }
+      .peso-cell-small .p-label { font-size: 8px; color: #6b7280; text-transform: uppercase; font-weight: 700; }
+      .peso-cell-small .p-value { font-size: 14px; font-weight: 800; color: #1a1a2e; margin-top: 2px; }
+      .peso-cell-small .p-unit { font-size: 8px; color: #9ca3af; }
+
+
       .fotos-section {
         margin-bottom: 16px;
       }
