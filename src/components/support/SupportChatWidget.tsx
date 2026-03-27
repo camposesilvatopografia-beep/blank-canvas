@@ -322,12 +322,12 @@ export default function SupportChatWidget() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-24 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg hover:scale-105 transition-transform"
+        className="fixed bottom-24 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-105 transition-transform"
         title="Chat"
       >
         <MessageCircle className="w-7 h-7" />
         {totalUnread > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center font-bold">
+          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-bold">
             {totalUnread}
           </span>
         )}
@@ -339,7 +339,7 @@ export default function SupportChatWidget() {
     <div className="fixed bottom-24 right-6 z-50 w-[400px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[calc(100vh-8rem)] flex flex-col bg-background border border-border rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-5">
       {screen === 'list' && (
         <>
-          <div className="flex items-center gap-2 px-4 py-3 bg-blue-600 text-white">
+          <div className="flex items-center gap-2 px-4 py-3 bg-primary text-primary-foreground">
             <MessageCircle className="w-5 h-5" />
             <span className="font-semibold text-sm flex-1">Mensagens</span>
             <button onClick={() => setOpen(false)} className="opacity-70 hover:opacity-100">
@@ -353,15 +353,15 @@ export default function SupportChatWidget() {
                 className="w-full justify-start gap-2 h-12" 
                 onClick={async () => { await loadUsers(); setScreen('user-select'); }}
               >
-                <Users className="w-5 h-5 text-blue-600" />
+                <Users className="w-5 h-5 text-primary" />
                 <span>Conversar com usuário</span>
               </Button>
               <Button 
                 variant="outline" 
-                className="w-full justify-start gap-2 h-12 border-blue-200 bg-blue-50/30" 
+                className="w-full justify-start gap-2 h-12 border-primary/20 bg-primary/5" 
                 onClick={startSupportChat}
               >
-                <Headphones className="w-5 h-5 text-blue-600" />
+                <Headphones className="w-5 h-5 text-primary" />
                 <span>Suporte (jeanallbuquerque@gmail.com)</span>
               </Button>
             </div>
