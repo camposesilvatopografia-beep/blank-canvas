@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
-import { Users, Plus, Search, Pencil, UserX, Loader2, Shield, Copy, Share2, Smartphone, Settings, Key, MapPin, Eye, Edit3, Trash2, RotateCcw } from 'lucide-react';
+import { Users, Plus, Search, Pencil, UserX, Loader2, Shield, Copy, Share2, Smartphone, Settings, Key, MapPin, Eye, EyeOff, Edit3, Trash2, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { DeleteConfirmDialog } from '@/components/crud/DeleteConfirmDialog';
@@ -85,6 +85,7 @@ export default function Apontadores() {
   const [permissionsLoading, setPermissionsLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isNew, setIsNew] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const { toast } = useToast();
   const { isAdmin, profile } = useAuth();
@@ -103,7 +104,9 @@ export default function Apontadores() {
     status: 'ativo',
   });
 
-  const appUrl = window.location.origin + '/mobile';
+  const publishedUrl = 'https://canvas-bliss-start-97.lovable.app';
+  const isPreview = window.location.hostname.includes('lovable.app') && window.location.hostname.includes('preview');
+  const appUrl = isPreview ? publishedUrl + '/mobile' : window.location.origin + '/mobile';
 
   useEffect(() => {
     loadApontadores();
@@ -173,6 +176,7 @@ export default function Apontadores() {
         toast({ title: 'Sucesso', description: 'Apontador criado com sucesso' });
       }
       setModalOpen(false);
+      setShowPassword(false);
       setSelectedApontador(null);
       resetForm();
       loadApontadores();
@@ -673,6 +677,10 @@ export default function Apontadores() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" className="gap-2" onClick={loadApontadores} disabled={loading}>
+            <RotateCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
           <Button className="gap-2" onClick={openNewModal}>
             <Plus className="w-4 h-4" />
             Novo Apontador
@@ -702,9 +710,15 @@ export default function Apontadores() {
               </div>
               <div>
                 <h3 className="font-semibold">Link do App Mobile</h3>
-                <p className="text-sm text-muted-foreground">Compartilhe com os apontadores para instalação</p>
+                <p className="text-sm text-muted-foreground">Compartilhe o link oficial para instalação (não requer conta Lovable)</p>
               </div>
             </div>
+            {isPreview && (
+              <div className="bg-amber-100 border border-amber-200 text-amber-800 text-[10px] px-2 py-1 rounded-md font-medium uppercase tracking-wider flex items-center gap-1">
+                <Shield className="w-3 h-3" />
+                Preview Mode - Link oficial habilitado
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <Input
                 value={appUrl}
@@ -886,13 +900,25 @@ export default function Apontadores() {
             {isNew && (
               <div className="space-y-2">
                 <Label htmlFor="password">Senha</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="Mínimo 6 caracteres"
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder="Mínimo 6 caracteres"
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-muted-foreground"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </Button>
+                </div>
               </div>
             )}
             <div className="space-y-2">
@@ -917,7 +943,7 @@ export default function Apontadores() {
             </Button>
             <Button onClick={handleSave} disabled={saving}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              {isNew ? 'Cadastrar' : 'Salvar'}
+              {isNew ? 'Cadastrar' : 'Atualizar'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1234,22 +1260,37 @@ export default function Apontadores() {
             </p>
             <div className="space-y-2">
               <Label htmlFor="newPassword">Nova Senha</Label>
-              <Input
-                id="newPassword"
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Mínimo 6 caracteres"
-              />
+              <div className="relative">
+                <Input
+                  id="newPassword"
+                  type={showPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Mínimo 6 caracteres"
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-muted-foreground"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </Button>
+              </div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setPasswordModalOpen(false)}>
+            <Button variant="outline" onClick={() => {
+              setPasswordModalOpen(false);
+              setShowPassword(false);
+            }}>
               Cancelar
             </Button>
             <Button onClick={handleChangePassword} disabled={saving || !newPassword}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Alterar Senha
+              Atualizar Senha
             </Button>
           </DialogFooter>
         </DialogContent>

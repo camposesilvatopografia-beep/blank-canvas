@@ -73,27 +73,29 @@ export default function InstallApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2d3e50] via-[#1a2634] to-[#0f1419] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[#111827] flex flex-col items-center justify-center p-4">
       {/* Logo and Title */}
-      <div className="text-center mb-8">
-        <div className="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-amber-500/30 backdrop-blur-sm border border-white/20">
-          <img src={logoApropriapp} alt="ApropriAPP" className="w-16 h-16 object-contain" />
+      <div className="text-center mb-10">
+        <div className="w-28 h-28 bg-[#1f2937] rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-xl border border-white/10 overflow-hidden">
+          <img src={logoApropriapp} alt="ApropriAPP" className="w-20 h-20 object-contain" />
         </div>
-        <h1 className="text-3xl font-bold text-white mb-2">ApropriAPP</h1>
-        <p className="text-white/60">Sistema de Apontamento em Campo</p>
+        <h1 className="text-3xl font-bold text-white mb-2">ApropriAPP Mobile</h1>
+        <p className="text-gray-400 max-w-xs mx-auto">
+          Instale o aplicativo oficial para realizar apontamentos em campo, mesmo sem internet.
+        </p>
       </div>
 
       {/* Main Card */}
-      <Card className="bg-white/10 backdrop-blur-lg border-white/20 p-6 max-w-md w-full">
+      <Card className="bg-[#1f2937] border-white/10 p-6 max-w-md w-full shadow-2xl">
         {isInstalled ? (
           <div className="text-center">
             <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 className="w-8 h-8 text-green-500" />
             </div>
-            <h2 className="text-xl font-semibold text-white mb-2">App Instalado!</h2>
-            <p className="text-white/60 mb-6">O ApropriAPP já está na sua tela inicial.</p>
-            <Button onClick={goToApp} className="w-full h-12 text-lg gap-2 bg-amber-500 hover:bg-amber-600">
-              Abrir App
+            <h2 className="text-xl font-semibold text-white mb-2">Instalado com Sucesso!</h2>
+            <p className="text-gray-400 mb-6">O ApropriAPP já está pronto para uso na sua tela inicial.</p>
+            <Button onClick={goToApp} className="w-full h-12 text-lg gap-2 bg-amber-500 hover:bg-amber-600 font-bold">
+              Abrir Aplicativo
               <ArrowRight className="w-5 h-5" />
             </Button>
           </div>
@@ -102,14 +104,20 @@ export default function InstallApp() {
             {/* Install Section */}
             <div className="mb-6">
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Smartphone className="w-5 h-5" />
+                <Smartphone className="w-5 h-5 text-amber-500" />
                 Instalar Aplicativo
               </h2>
 
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mb-6">
+                <p className="text-amber-200 text-xs text-center font-medium">
+                  🔒 Acesso direto: Não requer conta Lovable para utilizar.
+                </p>
+              </div>
+
               {deferredPrompt ? (
-                <Button onClick={handleInstall} className="w-full h-12 text-lg gap-2 bg-green-500 hover:bg-green-600">
-                  <Download className="w-5 h-5" />
-                  Instalar Agora
+                <Button onClick={handleInstall} className="w-full h-14 text-xl gap-2 bg-green-500 hover:bg-green-600 font-bold shadow-lg shadow-green-500/20">
+                  <Download className="w-6 h-6" />
+                  INSTALAR AGORA
                 </Button>
               ) : (
                 <div className="space-y-4">
