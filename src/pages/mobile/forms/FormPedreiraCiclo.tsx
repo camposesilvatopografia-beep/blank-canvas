@@ -2191,8 +2191,8 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
           const tcIdx2 = fi('Tonelada (Calc Obra)');
           if (tcIdx2 !== -1) {
             const pcNum2 = parseInt(formObra.pesoChegada, 10) / 100;
-            const pvRaw2 = currentRow[fi('Peso_Vazio')] || '0';
-            const pvNum2 = parseFloat(pvRaw2.replace(/\./g, '').replace(',', '.')) || 0;
+            const pvRaw2 = formObra.pesoVazio || currentRow[fi('Peso_Vazio')] || '0';
+            const pvNum2 = pvRaw2.includes(',') || pvRaw2.includes('.') ? parseBRNumber(pvRaw2) : parseBankDigits(pvRaw2);
             if (pcNum2 > 0 && pvNum2 > 0) {
               const tonCalcObra2 = (pcNum2 - pvNum2) / 1000;
               currentRow[tcIdx2] = tonCalcObra2.toFixed(2).replace('.', ',');
