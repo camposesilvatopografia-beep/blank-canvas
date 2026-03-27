@@ -502,6 +502,24 @@ export default function FormCalEntrada() {
         'Em aberto',                      // U: Status
       ];
 
+      // Backup to Supabase
+      if (navigator.onLine) {
+        supabase.from('movimentacoes_cal').insert({
+          data: formData.data,
+          hora,
+          prefixo_caminhao: formData.prefixoCaminhao,
+          fornecedor: formData.fornecedor,
+          nota_fiscal: formData.notaFiscal,
+          quantidade: parseNumeric(formData.quantidade),
+          local: 'Cebolão',
+          usuario: effectiveName,
+          foto_path: urlChegada,
+          nf_foto_path: urlTicket,
+        }).then(({ error }) => {
+          if (error) console.error('Supabase backup error (Cal Entrada):', error);
+        });
+      }
+
       if (navigator.onLine) {
         await appendSheet('Mov_Cal', [partialRow]);
       }
