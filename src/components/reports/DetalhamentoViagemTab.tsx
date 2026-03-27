@@ -550,7 +550,18 @@ export function DetalhamentoViagemTab({
                       <TableCell className="py-1.5 text-sm">{r.fornecedor}</TableCell>
                       <TableCell className="py-1.5 text-sm">{r.descricao}</TableCell>
                       <TableCell className="py-1.5 text-sm">{r.material}</TableCell>
-                      <TableCell className="py-1.5 text-sm text-right font-medium">{fmt(r.tonelada)}</TableCell>
+                      <TableCell className="py-1.5 text-sm text-right font-medium bg-amber-50/20">{fmt(r.tonelada)}</TableCell>
+                      <TableCell className="py-1.5 text-sm text-right bg-blue-50/20">{r.pesoChegada && r.pesoChegada > 0 ? r.pesoChegada.toLocaleString('pt-BR') : '—'}</TableCell>
+                      <TableCell className="py-1.5 text-sm text-right font-medium bg-blue-50/20">{r.toneladaCalcObra && r.toneladaCalcObra > 0 ? fmt(r.toneladaCalcObra) : '—'}</TableCell>
+                      <TableCell className="py-1.5 text-sm text-right">
+                        {r.toneladaCalcObra && r.toneladaCalcObra > 0 ? (() => {
+                          const dif = r.toneladaCalcObra - r.tonelada;
+                          if (Math.abs(dif) < 0.0005) return <span className="text-muted-foreground">—</span>;
+                          return <span className={dif > 0 ? 'text-blue-600 font-bold' : 'text-red-600 font-bold'}>
+                            {dif > 0 ? '+' : ''}{fmt(dif)}
+                          </span>;
+                        })() : '—'}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
