@@ -395,7 +395,7 @@ export default function RelatorioCombinado() {
           <CardContent className="py-12 text-center text-muted-foreground">
             <FileText className="w-10 h-10 mx-auto mb-3 opacity-40" />
             <p className="font-medium">Nenhum dado encontrado para {selectedDate}</p>
-            <p className="text-sm mt-1">Os novos lançamentos devem ser preenchidos na tabela do supabase do banco de dados tbm na tabela do google sheets em cada uma relacionada</p>
+            <p className="text-sm mt-1">Tente selecionar outra data ou verifique se há registros vinculados a este dia.</p>
           </CardContent>
         </Card>
       )}
