@@ -273,8 +273,8 @@ const ImportacaoSheets = () => {
     <div className="container mx-auto py-8 space-y-8 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Importação do Google Sheets</h1>
-          <p className="text-muted-foreground">Popule o banco de dados via planilhas CSV públicas.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Importação de Tabelas</h1>
+          <p className="text-muted-foreground">Popule o banco de dados importando tabelas de dados.</p>
         </div>
       </div>
 
