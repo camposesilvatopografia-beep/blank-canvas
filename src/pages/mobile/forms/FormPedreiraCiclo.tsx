@@ -2100,7 +2100,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
 
         // The peso final (carregado) is already saved from step 1
         const pesoFinalRaw = currentRow[fi('Peso_Final')] || '0';
-        const derived = calculateDerivedValues(pesoFinalRaw, formObraExtra.pesoVazio);
+        const derived = calculateDerivedValues(pesoFinalRaw, effectivePesoVazioStep2);
         if (fi('Peso_Liquido_Cubico') !== -1) currentRow[fi('Peso_Liquido_Cubico')] = derived.pesoLiquido;
         else if (fi('Peso_Liquido') !== -1) currentRow[fi('Peso_Liquido')] = derived.pesoLiquido;
         if (fi('Metro_Cubico') !== -1) currentRow[fi('Metro_Cubico')] = derived.metroCubico;
