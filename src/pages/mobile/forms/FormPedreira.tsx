@@ -1223,7 +1223,7 @@ export default function FormPedreira() {
         {/* Submit Button */}
         <Button
           type="submit"
-          disabled={loading || sheetLoading || !formData.caminhao || !formData.material}
+          disabled={loading || sheetLoading || !formData.caminhao || !formData.material || !formData.pesoChegada}
           className="w-full h-20 text-2xl font-bold bg-amber-500 hover:bg-amber-600 shadow-xl mt-4 rounded-2xl"
         >
           {loading || sheetLoading ? (
