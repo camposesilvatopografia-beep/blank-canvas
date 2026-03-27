@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useImpersonation } from '@/contexts/ImpersonationContext';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
+import { supabase } from '@/integrations/supabase/client';
 import { buildRowRange } from '@/utils/sheetHelpers';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
