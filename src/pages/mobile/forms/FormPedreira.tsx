@@ -441,6 +441,8 @@ export default function FormPedreira() {
         format(new Date(), 'HH:mm'),
         formatPesoForSheet(formData.pesoChegada),
         'Finalizado',
+        fotoChegadaUrl,
+        fotoPesoFinalUrl,
       ];
       addPendingRecord('pedreira', 'Apontamento_Pedreira', pedreiraRowFallback, { ...formData });
       setSavedOffline(true);
