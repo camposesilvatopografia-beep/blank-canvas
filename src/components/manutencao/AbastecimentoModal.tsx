@@ -247,7 +247,7 @@ export function AbastecimentoModal({ open, onOpenChange, onSuccess }: Abastecime
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-blue-600 font-bold">KM Anterior</Label>
+              <Label className="text-blue-500 font-bold">KM Anterior</Label>
               <Input 
                 value={formData.km_anterior} 
                 onChange={e => setFormData(p => ({ ...p, km_anterior: e.target.value }))}
