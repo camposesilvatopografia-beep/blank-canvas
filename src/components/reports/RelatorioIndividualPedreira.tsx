@@ -20,6 +20,7 @@ interface PedreiraRecord {
   toneladaTicket?: number;
   toneladaCalcObra?: number;
   pesoChegada: number;
+  pesoVazioObra?: number;
   fotoChegada: string;
   fotoPesagem: string;
   fotoVazio: string;
