@@ -706,6 +706,7 @@ export default function FormPedreira() {
         details={successDetails}
         onNewRecord={handleNewRecord}
         accentColor={savedOffline ? "amber" : "amber"}
+        imageUrl={pesoFinalFotoPreview || undefined}
       />
     );
   }
