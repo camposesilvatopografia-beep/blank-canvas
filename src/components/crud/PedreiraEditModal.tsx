@@ -116,6 +116,13 @@ export function PedreiraEditModal({ open, onOpenChange, onSuccess, editData, hea
       };
       const ttIdx = findIdx('Tonelada (ticket)');
       const ttVal = ttIdx !== -1 && editData.originalRow ? String(editData.originalRow[ttIdx] || '') : '';
+      
+      const pcIdx = findIdx('Peso Chegada Obra');
+      const pcIdx2 = pcIdx !== -1 ? pcIdx : findIdx('Peso da Chegada');
+      const pcVal = pcIdx2 !== -1 && editData.originalRow ? parseFloat(String(editData.originalRow[pcIdx2] || '0').replace(/\./g, '').replace(',', '.')) : 0;
+      
+      const pvoIdx = findIdx('Peso Vazio Obra');
+      const pvoVal = pvoIdx !== -1 && editData.originalRow ? parseFloat(String(editData.originalRow[pvoIdx] || '0').replace(/\./g, '').replace(',', '.')) : 0;
 
       setFormData({
         data: formattedDate,
