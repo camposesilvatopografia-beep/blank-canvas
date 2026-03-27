@@ -54,7 +54,7 @@ export default function Materiais() {
     try {
       if (selectedMaterial) {
         const { error } = await supabase
-          .from('materiais')
+          .from('material')
           .update({ nome: data.nome })
           .eq('id', selectedMaterial.id);
 
