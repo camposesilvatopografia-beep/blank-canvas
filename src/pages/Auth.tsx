@@ -330,9 +330,9 @@ export default function Auth() {
               </div>
 
               {!isSignUp && (
-                <div className="mt-4 p-4 rounded-xl bg-primary/10 border border-primary/20 backdrop-blur-sm animate-pulse">
+                <div className="mt-4 p-4 rounded-xl bg-primary/10 border border-primary/20 backdrop-blur-sm">
                   <p className="text-xs text-primary font-medium text-center leading-relaxed">
-                    O assistente ia não funciona
+                    Esta IA é do Lovable. Integre a IA do Supabase para que o assistente possa ser poderoso no sistema, trabalhando como agente RAG.
                   </p>
                 </div>
               )}
