@@ -217,11 +217,6 @@ export default function MobileAuth() {
         </form>
 
 
-        <div className="mt-6 pt-4 border-t border-white/10">
-          <p className="text-primary text-[10px] font-medium text-center leading-relaxed bg-primary/10 p-2 rounded-lg border border-primary/20">
-            Configure um assistente de IA no sistema, para que ele seja capaz de resolver ou responder qualquer pergunta relacionado ao sistema e informações do banco de dados
-          </p>
-        </div>
       </Card>
 
       {/* Install App Link */}
