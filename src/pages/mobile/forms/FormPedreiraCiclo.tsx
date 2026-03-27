@@ -2265,6 +2265,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
           { label: 'Status', value: '✅ Finalizado' },
         ];
         setSuccessDetails(successDetailsList);
+        setSuccessImageUrl(ocrFotoPreview);
         setSubmitted(true);
       }
     } catch (error: any) {
