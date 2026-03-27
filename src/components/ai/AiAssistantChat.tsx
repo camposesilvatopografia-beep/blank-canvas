@@ -172,7 +172,7 @@ export default function AiAssistantChat() {
             <div className="flex flex-col items-center text-center text-muted-foreground gap-1">
               <Bot className="w-8 h-8 opacity-40" />
               <p className="text-sm font-medium">Olá{profile?.nome ? `, ${profile.nome.split(' ')[0]}` : ''}! 👋</p>
-              <p className="text-xs">QUERO QUE FAÇA ESSE ASSISTENTE DE IA FUNCIONAR NO SISTEMA</p>
+              <p className="text-xs">Crie agente de IA nosistema do SUPABASE, paratrabalhar para o sistema</p>
             </div>
             <div className="w-full space-y-2.5">
               {[
