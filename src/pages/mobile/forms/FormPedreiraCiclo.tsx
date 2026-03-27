@@ -383,6 +383,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
   const [formObra, setFormObra] = useState({
     horaChegada: format(new Date(), 'HH:mm'),
     pesoChegada: '',
+    pesoVazio: '',
     ocrFotoFile: null as File | null,
   });
   const [ocrLoading, setOcrLoading] = useState(false);
