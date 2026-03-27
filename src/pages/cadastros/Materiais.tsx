@@ -32,7 +32,7 @@ export default function Materiais() {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('materiais')
+        .from('material')
         .select('id, nome')
         .order('nome');
 
