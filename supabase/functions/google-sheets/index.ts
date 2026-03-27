@@ -455,8 +455,6 @@ serve(async (req) => {
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
 
     } else if (action === 'deleteRow') {
       // Get sheet ID (gid) from metadata
