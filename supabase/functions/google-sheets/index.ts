@@ -427,76 +427,34 @@ serve(async (req) => {
     } else if (action === 'append') {
       console.log(`APPEND request - Range: ${range}, Values rows: ${values?.length}, First row cols: ${values?.[0]?.length}`);
 
-      // Extract sheet name from range (e.g. "Apontamento_Pedreira!A2" -> "Apontamento_Pedreira")
-      const sheetNameOnly = range.includes('!') ? range.split('!')[0] : range;
-
-      // Step 1: Read column A to find the actual last row with data
-      const scanRange = `${sheetNameOnly}!A:A`;
-      const scanUrl = `${baseUrl}/values/${encodeURIComponent(scanRange)}?majorDimension=COLUMNS`;
-      const scanResp = await fetch(scanUrl, {
-        headers: { 'Authorization': `Bearer ${googleToken}` },
-      });
-      const scanData = await scanResp.json();
-
-      let lastRow = 1; // default: at least row 1 (header)
-      if (scanData.values && scanData.values[0]) {
-        lastRow = scanData.values[0].length; // length = number of rows with data in col A
-      }
-
-      // Also scan a few more columns to catch rows where col A is empty but other cols have data
-      const scanRangeWide = `${sheetNameOnly}!A1:AZ${lastRow + 100}`;
-      const scanWideResp = await fetch(`${baseUrl}/values/${encodeURIComponent(scanRangeWide)}`, {
-        headers: { 'Authorization': `Bearer ${googleToken}` },
-      });
-      const scanWideData = await scanWideResp.json();
-      if (scanWideData.values) {
-        lastRow = Math.max(lastRow, scanWideData.values.length);
-      }
-
-      const nextRow = lastRow + 1;
-      const numCols = values?.[0]?.length || 1;
-
-      // Convert column number to letter (e.g. 1->A, 27->AA)
-      const colToLetter = (col: number): string => {
-        let result = '';
-        let c = col;
-        while (c > 0) {
-          c--;
-          result = String.fromCharCode(65 + (c % 26)) + result;
-          c = Math.floor(c / 26);
-        }
-        return result;
-      };
-
-      const endCol = colToLetter(numCols);
-      const endRow = nextRow + (values?.length || 1) - 1;
-      const writeRange = `${sheetNameOnly}!A${nextRow}:${endCol}${endRow}`;
-
-      console.log(`APPEND: lastRow=${lastRow}, writing to ${writeRange}`);
-
-      // Step 2: Write directly to the calculated position
-      const writeUrl = `${baseUrl}/values/${encodeURIComponent(writeRange)}?valueInputOption=USER_ENTERED`;
-      response = await fetch(writeUrl, {
-        method: 'PUT',
+      // Use the official Google Sheets append API which automatically expands the grid
+      // POST https://sheets.googleapis.com/v4/spreadsheets/{spreadsheetId}/values/{range}:append?valueInputOption=USER_ENTERED
+      const appendUrl = `${baseUrl}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED`;
+      
+      response = await fetch(appendUrl, {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${googleToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ values }),
       });
+      
       data = await response.json();
 
       if (!response.ok) {
-        console.error('Google Sheets API Error (append-write):', JSON.stringify(data));
+        console.error('Google Sheets API Error (append):', JSON.stringify(data));
         throw new Error(`Falha ao adicionar dados na planilha: ${data?.error?.message || 'unknown'}`);
       }
 
-      console.log(`APPEND SUCCESS - ${values?.length || 0} rows written at row ${nextRow} by user ${userId}`);
+      console.log(`APPEND SUCCESS - ${values?.length || 0} rows appended to ${range} by user ${userId}`);
 
       return new Response(JSON.stringify({ 
         success: true, 
-        updates: { updatedRows: values?.length || 0, startRow: nextRow }
+        updates: data.updates || data
       }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
 
