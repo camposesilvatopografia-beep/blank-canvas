@@ -200,6 +200,12 @@ export default function FormPedreira() {
           }));
         setCaminhoes(caminhoesData);
       }
+
+      // Load headers for Apontamento_Pedreira
+      const pedrData = await readSheet('Apontamento_Pedreira', 'A1:AZ1');
+      if (pedrData && pedrData.length > 0) {
+        setSheetHeaders(pedrData[0]);
+      }
     };
 
     loadOptions();
