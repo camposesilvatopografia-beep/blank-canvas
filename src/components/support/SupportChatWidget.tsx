@@ -371,7 +371,7 @@ export default function SupportChatWidget() {
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Conversas recentes</p>
               </div>
               {loading ? (
-                <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin text-blue-600" /></div>
+                <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
               ) : conversations.length === 0 ? (
                 <div className="text-center p-8 text-muted-foreground italic text-sm">Nenhuma conversa ativa</div>
               ) : (
@@ -381,7 +381,7 @@ export default function SupportChatWidget() {
                     onClick={() => openConversation(conv)}
                     className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 border-b last:border-0 transition-colors"
                   >
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${conv.conversation_type === 'support' ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600'}`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${conv.conversation_type === 'support' ? 'bg-amber-100 text-amber-600' : 'bg-primary/10 text-primary'}`}>
                       {conv.conversation_type === 'support' ? <Headphones className="w-5 h-5" /> : <User className="w-5 h-5" />}
                     </div>
                     <div className="flex-1 text-left min-w-0">
@@ -394,7 +394,7 @@ export default function SupportChatWidget() {
                       <p className="text-xs text-muted-foreground truncate">{conv.subject}</p>
                     </div>
                     {unreadMap[conv.id] > 0 && (
-                      <Badge className="bg-red-500 text-white ml-2 h-5 min-w-5 flex items-center justify-center rounded-full p-0">
+                      <Badge className="bg-destructive text-destructive-foreground ml-2 h-5 min-w-5 flex items-center justify-center rounded-full p-0">
                         {unreadMap[conv.id]}
                       </Badge>
                     )}
@@ -408,7 +408,7 @@ export default function SupportChatWidget() {
 
       {screen === 'user-select' && (
         <>
-          <div className="flex items-center gap-2 px-4 py-3 bg-blue-600 text-white">
+          <div className="flex items-center gap-2 px-4 py-3 bg-primary text-primary-foreground">
             <button onClick={() => setScreen('list')} className="opacity-70 hover:opacity-100 mr-2">
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -454,7 +454,7 @@ export default function SupportChatWidget() {
 
       {screen === 'chat' && activeConv && (
         <>
-          <div className="flex items-center gap-2 px-4 py-3 bg-blue-600 text-white">
+          <div className="flex items-center gap-2 px-4 py-3 bg-primary text-primary-foreground">
             <button onClick={() => setScreen('list')} className="opacity-70 hover:opacity-100 mr-2">
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -473,7 +473,7 @@ export default function SupportChatWidget() {
               return (
                 <div key={msg.id || i} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[85%] rounded-lg px-3 py-2 text-sm shadow-sm ${
-                    isMe ? 'bg-blue-600 text-white' : 'bg-muted text-foreground'
+                    isMe ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'
                   }`}>
                     {!isMe && <p className="text-[10px] font-bold mb-1 opacity-70">{msg.sender_name}</p>}
                     {msg.content && <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>}
@@ -511,7 +511,7 @@ export default function SupportChatWidget() {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="shrink-0 text-muted-foreground hover:text-blue-600" 
+                className="shrink-0 text-muted-foreground hover:text-primary" 
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
               >
@@ -530,7 +530,7 @@ export default function SupportChatWidget() {
                 size="icon" 
                 onClick={handleSend} 
                 disabled={!input.trim() || sending} 
-                className="shrink-0 bg-blue-600 hover:bg-blue-700 h-10 w-10 shadow-md"
+                className="shrink-0 bg-primary hover:bg-primary/90 h-10 w-10 shadow-md"
               >
                 <Send className="w-4 h-4" />
               </Button>
