@@ -458,54 +458,6 @@ export default function FormPedreira() {
   };
 
 
-    } catch (error: any) {
-      console.error('Error submitting:', error);
-      // If error, save offline
-      const dataFormatada = format(new Date(formData.data + 'T12:00:00'), 'dd/MM/yyyy');
-      const generateIdFallback = () => Math.random().toString(36).substring(2, 10);
-
-      const derived = calculateDerivedValues(
-        formData.pesoFinal || '0',
-        selectedCaminhao?.pesoVazio || '0'
-      );
-
-      const pedreiraRow = [
-        generateIdFallback(),
-        dataFormatada,
-        formData.horaCarregamento,
-        formData.numeroPedido || '',
-        formData.fornecedor || '',
-        formData.caminhao,
-        selectedCaminhao?.descricao || 'Caminhão Reboque',
-        selectedCaminhao?.empresa || '',
-        selectedCaminhao?.motorista || '',
-        selectedCaminhao?.placa || '',
-        formData.material,
-        formatPesoForSheet(selectedCaminhao?.pesoVazio || ''),
-        formatPesoForSheet(formData.pesoFinal),
-        derived.pesoLiquido || '',
-        derived.metroCubico || '',
-        derived.densidade || '',
-        derived.tonelada || '',
-        effectiveName || '',                     // R: Usuario (logged-in user)
-        format(new Date(), 'HH:mm'),            // S: Hora_Chegada_Obra
-        formatPesoForSheet(formData.pesoChegada), // T: Peso_Chegada_Obra
-        'Finalizado',                            // U: Status
-      ];
-
-      addPendingRecord('pedreira', 'Apontamento_Pedreira', pedreiraRow, { formData });
-      setSavedOffline(true);
-      setSubmitted(true);
-      playOfflineSound();
-      toast({
-        title: 'Salvo Localmente',
-        description: 'Erro na conexão. Será sincronizado depois.',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleNewRecord = () => {
     setSubmitted(false);
     setSavedOffline(false);
