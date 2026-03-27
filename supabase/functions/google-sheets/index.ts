@@ -306,17 +306,64 @@ serve(async (req) => {
     // ============ GOOGLE SHEETS API ============
     const serviceAccountJson = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_JSON');
     if (!serviceAccountJson) {
-      throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON not configured');
+      console.error('GOOGLE_SERVICE_ACCOUNT_JSON secret is not set');
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: 'Configuração do servidor incompleta: GOOGLE_SERVICE_ACCOUNT_JSON não configurado' 
+      }), { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      });
     }
 
-    // Clean the JSON string - remove any BOM, trim whitespace
-    const cleanedJson = serviceAccountJson.trim().replace(/^\uFEFF/, '');
+    // Clean the JSON string - remove any BOM, trim whitespace, handle escaped newlines
+    let cleanedJson = serviceAccountJson.trim().replace(/^\uFEFF/, '');
+    
+    // Try to detect if value was double-escaped or wrapped in quotes
+    if (cleanedJson.startsWith('"') && cleanedJson.endsWith('"')) {
+      try {
+        cleanedJson = JSON.parse(cleanedJson);
+      } catch {}
+    }
+    
+    // Replace literal \n with actual newlines (common when pasting from env vars)
+    cleanedJson = cleanedJson.replace(/\\\\n/g, '\\n');
     
     if (!cleanedJson.startsWith('{')) {
-      throw new Error('Invalid service account configuration');
+      console.error('GOOGLE_SERVICE_ACCOUNT_JSON does not start with {. First 20 chars:', cleanedJson.substring(0, 20));
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: 'Configuração inválida: o secret GOOGLE_SERVICE_ACCOUNT_JSON não contém JSON válido. Cole o conteúdo completo do arquivo .json da Service Account.' 
+      }), { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      });
     }
 
-    const serviceAccount = JSON.parse(cleanedJson);
+    let serviceAccount;
+    try {
+      serviceAccount = JSON.parse(cleanedJson);
+    } catch (parseErr) {
+      console.error('Failed to parse GOOGLE_SERVICE_ACCOUNT_JSON:', parseErr.message);
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: 'JSON inválido no secret GOOGLE_SERVICE_ACCOUNT_JSON. Verifique se copiou o arquivo completo.' 
+      }), { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      });
+    }
+    
+    if (!serviceAccount.client_email || !serviceAccount.private_key) {
+      console.error('Service account JSON missing required fields (client_email or private_key)');
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: 'O JSON da Service Account está incompleto. Certifique-se de que contém client_email e private_key.' 
+      }), { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      });
+    }
     
     console.log(`Google Sheets API - User: ${userId}, Action: ${action}, Range: ${range}`);
 
