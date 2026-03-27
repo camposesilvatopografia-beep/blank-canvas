@@ -443,7 +443,7 @@ export default function FormPedreira() {
       };
 
       if (!isOnline) {
-        addPendingRecord('pedreira', 'Apontamento_Pedreira', pedreiraRow, { ...formData, toneladaNum: derived.toneladaNum, effectiveName });
+        addPendingRecord('pedreira', 'Apontamento_Pedreira', pedreiraRow, { ...formData, id: recordId, toneladaNum: derived.toneladaNum, effectiveName });
         await supabaseBackup();
         setSavedOffline(true);
         setSubmitted(true);
@@ -457,7 +457,7 @@ export default function FormPedreira() {
       const supSuccess = await supabaseBackup();
 
       if (!success || !supSuccess) {
-        addPendingRecord('pedreira', 'Apontamento_Pedreira', pedreiraRow, { ...formData, toneladaNum: derived.toneladaNum, effectiveName });
+        addPendingRecord('pedreira', 'Apontamento_Pedreira', pedreiraRow, { ...formData, id: recordId, toneladaNum: derived.toneladaNum, effectiveName });
         setSavedOffline(true);
         setSubmitted(true);
         playOfflineSound();
