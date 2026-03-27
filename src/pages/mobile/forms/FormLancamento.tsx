@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { parseNumeric } from '@/utils/masks';
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, ClipboardList, Loader2, CheckCircle2, MapPin, Truck as TruckIcon, Package, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
