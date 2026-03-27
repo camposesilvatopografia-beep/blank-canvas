@@ -194,7 +194,7 @@ export default function FormPipas() {
       playSuccessSound();
       toast({
         title: 'Sucesso!',
-        description: 'Apontamento de pipa registrado com sucesso.',
+        description: 'Apontamento de pipa registrado na planilha e Supabase.',
       });
 
     } catch (error: any) {

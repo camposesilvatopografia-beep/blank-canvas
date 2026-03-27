@@ -387,7 +387,7 @@ export default function FormCal() {
       playSuccessSound();
       toast({
         title: 'Sucesso!',
-        description: 'Movimento de CAL registrado com sucesso.',
+        description: 'Movimento de CAL registrado na planilha e Supabase.',
       });
 
     } catch (error: any) {
