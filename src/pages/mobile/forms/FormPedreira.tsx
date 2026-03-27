@@ -291,6 +291,8 @@ export default function FormPedreira() {
     setSavedOffline(false);
 
     try {
+      const now = new Date();
+      const hora = format(now, 'HH:mm:ss');
       const dataFormatada = format(new Date(formData.data + 'T12:00:00'), 'dd/MM/yyyy');
 
       // Get effective peso vazio
@@ -307,6 +309,7 @@ export default function FormPedreira() {
         formData.pesoFinal || '0',
         effectivePesoVazio || '0'
       );
+
 
       // Upload Peso Final photo if available
       let fotoPesoFinalUrl = '';
