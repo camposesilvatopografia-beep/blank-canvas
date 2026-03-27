@@ -97,19 +97,37 @@ interface PhotoFieldProps {
   sublabel: string;
   photo: File | null;
   preview: string | null;
-  onCapture: (file: File) => void;
+  onCapture: (file: File, url: string) => void;
   onRemove: () => void;
   accentColor: string;
+  uploading?: boolean;
 }
 
-function PhotoField({ label, sublabel, photo, preview, onCapture, onRemove, accentColor }: PhotoFieldProps) {
+function PhotoField({ label, sublabel, photo, preview, onCapture, onRemove, accentColor, uploading }: PhotoFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [localUploading, setLocalUploading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) onCapture(file);
+    if (file) {
+      setLocalUploading(true);
+      try {
+        const url = await uploadPhoto(file, 'cal-fotos-temp');
+        onCapture(file, url);
+        toast.success('Foto salva no Supabase!');
+      } catch (err) {
+        console.error('Error uploading photo:', err);
+        // Fallback to local preview if upload fails
+        const localUrl = URL.createObjectURL(file);
+        onCapture(file, localUrl);
+        toast.error('Erro ao salvar no Supabase, salva apenas localmente');
+      } finally {
+        setLocalUploading(false);
+      }
+    }
   };
 
+  const isUploading = uploading || localUploading;
   const borderColor = accentColor === 'emerald' ? 'border-emerald-200' : accentColor === 'orange' ? 'border-orange-200' : 'border-purple-200';
   const bgColor = accentColor === 'emerald' ? 'bg-emerald-50/50' : accentColor === 'orange' ? 'bg-orange-50/50' : 'bg-purple-50/50';
   const textColor = accentColor === 'emerald' ? 'text-emerald-700' : accentColor === 'orange' ? 'text-orange-700' : 'text-purple-700';
@@ -130,32 +148,42 @@ function PhotoField({ label, sublabel, photo, preview, onCapture, onRemove, acce
         onChange={handleChange}
       />
       {preview ? (
-        <div className="relative">
-          <img src={preview} alt={label} className="w-full h-32 object-cover rounded-lg" />
+        <div className="relative group">
+          <img src={preview} alt={label} className="w-full h-32 object-cover rounded-lg shadow-sm" />
+          <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center">
+            {isUploading && <Loader2 className="w-6 h-6 animate-spin text-white" />}
+          </div>
           <button
             type="button"
             onClick={onRemove}
-            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 shadow-md hover:bg-red-600 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
+          {!isUploading && (
+            <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-green-500/80 text-[10px] text-white rounded-md flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" /> Supabase
+            </div>
+          )}
         </div>
       ) : (
         <Button
           type="button"
           variant="outline"
-          className={`w-full h-20 ${btnColor} border-dashed border-2`}
+          disabled={isUploading}
+          className={`w-full h-20 ${btnColor} border-dashed border-2 hover:bg-white/50 transition-all`}
           onClick={() => inputRef.current?.click()}
         >
           <div className="flex flex-col items-center gap-1">
-            <Image className="w-6 h-6" />
-            <span className="text-xs">Tirar Foto / Selecionar</span>
+            {isUploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Image className="w-6 h-6" />}
+            <span className="text-xs font-semibold">{isUploading ? 'Salvando no Supabase...' : 'Tirar Foto / Selecionar'}</span>
           </div>
         </Button>
       )}
     </Card>
   );
 }
+
 
 // OCR-enabled weight field with photo capture
 interface OcrWeightFieldProps {
