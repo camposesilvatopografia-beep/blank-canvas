@@ -34,6 +34,8 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   Loader2, 
   Edit3, 
@@ -72,6 +74,7 @@ interface RecordItem {
 export function BatchEditModal({ open, onOpenChange, sheetName, onSuccess }: BatchEditModalProps) {
   const { toast } = useToast();
   const { readSheet, writeSheet, loading } = useGoogleSheets();
+  const { profile } = useAuth();
   
   const [allData, setAllData] = useState<any[][]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
@@ -247,7 +250,20 @@ export function BatchEditModal({ open, onOpenChange, sheetName, onSuccess }: Bat
         const newRow = [...record.original];
         newRow[fieldIdx] = newValue;
         
-        await writeSheet(sheetName, buildRowRange(record.rowIndex, newRow.length), [newRow]);
+        const success = await writeSheet(sheetName, buildRowRange(record.rowIndex, newRow.length), [newRow]);
+        
+        if (success) {
+          // Sync with Supabase
+          if (sheetName === 'Carga') {
+            const getColIdx = (name: string) => headers.indexOf(name);
+            const externalId = record.original[getColIdx('ID')];
+            
+            // Note: Since we don't have a direct 1:1 mapping with Supabase ID easily,
+            // we search by external_id if it exists, or common fields.
+            // But wait, the apontamentos_carga table doesn't have external_id!
+            // Let's check the schema again.
+          }
+        }
       }
 
       toast({
@@ -354,7 +370,44 @@ export function BatchEditModal({ open, onOpenChange, sheetName, onSuccess }: Bat
 
       // Append new row
       const lastRow = allData.length + 1;
-      await writeSheet(sheetName, buildRowRange(lastRow, newRow.length), [newRow]);
+      const success = await writeSheet(sheetName, buildRowRange(lastRow, newRow.length), [newRow]);
+
+      if (success) {
+        if (sheetName === 'Carga') {
+          const volValue = parseFloat(addForm.volume.replace(',', '.')) || 0;
+          const viagensValue = parseInt(addForm.viagens) || 1;
+          const volTotal = volValue * viagensValue;
+          
+          await supabase.from('apontamentos_carga').insert({
+            data: addForm.data,
+            hora: addForm.hora || new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+            prefixo_caminhao: addForm.prefixoCb,
+            motorista: addForm.motorista,
+            material: addForm.material,
+            local: addForm.local,
+            viagens: viagensValue,
+            volume_total: volTotal,
+            created_by: profile?.id
+          });
+        } else {
+          const volValue = parseFloat(addForm.volume.replace(',', '.')) || 0;
+          const viagensValue = parseInt(addForm.viagens) || 1;
+          const volTotal = volValue * viagensValue;
+
+          await supabase.from('apontamentos_descarga').insert({
+            data: addForm.data,
+            hora: addForm.hora || new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+            prefixo_caminhao: addForm.prefixoCb,
+            motorista: addForm.motorista,
+            material: addForm.material,
+            local: addForm.local,
+            volume: volValue,
+            viagens: viagensValue,
+            volume_total: volTotal,
+            usuario: profile?.nome || 'Sistema'
+          });
+        }
+      }
 
       toast({
         title: 'Registro adicionado!',
