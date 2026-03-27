@@ -1650,6 +1650,9 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       if (!success) throw new Error('Erro ao salvar');
 
       // Backup to Supabase
+      await supabaseBackupPedreira(pedreiraRow, headers);
+
+      // Backup to Supabase
       await supabaseBackupPedreira(row, headers);
 
       // Herval vehicles are now managed via the "Caminhões Herval" sheet cadastro
