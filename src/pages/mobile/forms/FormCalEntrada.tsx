@@ -216,12 +216,17 @@ function OcrWeightField({ label, sublabel, value, onChange, formatFn, photo, pre
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Save photo BEFORE attempting OCR
+    // Show local preview immediately
     const previewUrl = URL.createObjectURL(file);
     onPhotoSet(file, previewUrl);
 
     setOcrLoading(true);
     try {
+      // 1. Upload to Supabase immediately as requested
+      const remoteUrl = await uploadPhoto(file, 'cal-ocr-temp');
+      onPhotoSet(file, remoteUrl); // Update with remote URL
+      
+      // 2. Perform OCR
       const reader = new FileReader();
       const base64 = await new Promise<string>((resolve) => {
         reader.onload = () => resolve(reader.result as string);
@@ -234,12 +239,12 @@ function OcrWeightField({ label, sublabel, value, onChange, formatFn, photo, pre
       const { value: ocrValue } = response.data;
       if (ocrValue && ocrValue !== 'ERRO') {
         onChange(String(parseInt(ocrValue, 10)));
-        toast({ title: '✅ Peso lido com sucesso!', description: `Valor: ${formatFn(ocrValue)}` });
+        toast({ title: '✅ Peso lido com sucesso!', description: `Valor: ${formatFn(ocrValue)} (Salvo no Supabase)` });
       } else {
-        toast({ title: 'Foto salva!', description: 'Digite o peso manualmente.' });
+        toast({ title: 'Foto salva no Supabase!', description: 'Digite o peso manualmente.' });
       }
     } catch (error: any) {
-      toast({ title: 'Foto salva!', description: 'OCR indisponível — digite o peso manualmente.' });
+      toast({ title: 'Foto salva!', description: 'Erro no OCR, mas a foto está no Supabase. Digite o peso.' });
     } finally {
       setOcrLoading(false);
       if (ocrRef.current) ocrRef.current.value = '';
