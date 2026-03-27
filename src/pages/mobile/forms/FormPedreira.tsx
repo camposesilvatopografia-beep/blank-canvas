@@ -360,31 +360,51 @@ export default function FormPedreira() {
       }
 
       const generateId = () => Math.random().toString(36).substring(2, 10);
-      const pedreiraRow = [
-        generateId(),                            // A: ID
-        dataFormatada,                           // B: Data
-        formData.horaCarregamento,               // C: Hora
-        formData.numeroPedido || '',             // D: Ordem_Carregamento
-        formData.fornecedor || '',               // E: Fornecedor
-        formData.caminhao,                       // F: Prefixo_Eq
-        selectedCaminhao?.descricao || 'Caminhão Reboque', // G
-        selectedCaminhao?.empresa || '',         // H
-        selectedCaminhao?.motorista || '',       // I
-        selectedCaminhao?.placa || '',           // J
-        formData.material,                       // K: Material
-        formatPesoForSheet(effectivePesoVazio),   // L: Peso_Vazio
-        formatPesoForSheet(formData.pesoFinal),   // M: Peso_Final
-        derived.pesoLiquido || '',               // N
-        derived.metroCubico || '',               // O
-        derived.densidade || '',                 // P
-        derived.tonelada || '',                  // Q
-        effectiveName || '',                     // R: Usuario
-        format(new Date(), 'HH:mm'),            // S: Hora_Chegada_Obra
-        formatPesoForSheet(formData.pesoChegada), // T: Peso_Chegada_Obra
-        'Finalizado',                            // U: Status
-        fotoChegadaUrl,                          // V: Foto Pesagem Obra
-        fotoPesoFinalUrl,                        // W: Foto Pesagem Pedreira
-      ];
+      
+      let headers = sheetHeaders;
+      if (!headers || headers.length === 0) {
+        const hData = await readSheet('Apontamento_Pedreira', 'A1:AZ1');
+        if (hData && hData.length > 0) headers = hData[0];
+      }
+
+      const fi = (name: string) => headers.indexOf(name);
+      const colCount = headers.length > 0 ? headers.length : 23;
+      const pedreiraRow: string[] = new Array(colCount).fill('');
+
+      const sv = (name: string, fallbackIdx: number, value: string) => {
+        const idx = fi(name);
+        if (idx !== -1) pedreiraRow[idx] = value;
+        else if (fallbackIdx < colCount) pedreiraRow[fallbackIdx] = value;
+      };
+
+      sv('ID', 0, generateId());
+      sv('Data', 1, dataFormatada);
+      sv('Hora', 2, formData.horaCarregamento);
+      sv('Ordem_Carregamento', 3, formData.numeroPedido || '');
+      sv('Fornecedor', 4, formData.fornecedor || '');
+      sv('Prefixo_Eq', 5, formData.caminhao);
+      sv('Descricao_Eq', 6, selectedCaminhao?.descricao || 'Caminhão Reboque');
+      sv('Empresa_Eq', 7, selectedCaminhao?.empresa || '');
+      sv('Motorista', 8, selectedCaminhao?.motorista || '');
+      sv('Placa', 9, selectedCaminhao?.placa || '');
+      sv('Material', 10, formData.material);
+      sv('Peso_Vazio', 11, formatPesoForSheet(effectivePesoVazio));
+      sv('Peso_Final', 12, formatPesoForSheet(formData.pesoFinal));
+      sv('Peso_Liquido', 13, derived.pesoLiquido || '');
+      sv('Metro_Cubico', 14, derived.metroCubico || '');
+      sv('Densidade', 15, derived.densidade || '');
+      sv('Tonelada', 16, derived.tonelada || '');
+      sv('Usuario', 17, effectiveName || '');
+      sv('Hora_Chegada_Obra', 18, format(new Date(), 'HH:mm'));
+      sv('Peso_Chegada_Obra', 19, formatPesoForSheet(formData.pesoChegada));
+      sv('Status', 20, 'Finalizado');
+      
+      // Photos
+      const fotoChegadaIdx = fi('Foto do Peso Chegada Obra') !== -1 ? fi('Foto do Peso Chegada Obra') : (fi('Foto') !== -1 ? fi('Foto') : 21);
+      if (fotoChegadaIdx !== -1 && fotoChegadaIdx < colCount) pedreiraRow[fotoChegadaIdx] = fotoChegadaUrl;
+      
+      const fotoPesagemIdx = fi('Foto Pesagem Pedreira') !== -1 ? fi('Foto Pesagem Pedreira') : (fi('Foto_Pesagem_Pedreira') !== -1 ? fi('Foto_Pesagem_Pedreira') : 22);
+      if (fotoPesagemIdx !== -1 && fotoPesagemIdx < colCount) pedreiraRow[fotoPesagemIdx] = fotoPesoFinalUrl;
 
       const supabaseBackup = async () => {
         try {
