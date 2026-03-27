@@ -58,6 +58,9 @@ import ApontadorDesktop from "./pages/ApontadorDesktop";
 import PainelOperacao from "./pages/PainelOperacao";
 import PainelOperacaoAuth from "./pages/PainelOperacaoAuth";
 import ImportacaoSheets from "./pages/ImportacaoSheets";
+import Abastecimentos from "./pages/manutencao/Abastecimentos";
+import Horimetros from "./pages/manutencao/Horimetros";
+import Manutencoes from "./pages/manutencao/Manutencoes";
 // Mobile pages
 import MobileHome from "./pages/mobile/MobileHome";
 import MobileAuth from "./pages/mobile/MobileAuth";
@@ -199,6 +202,9 @@ const App = () => (
                   <Route path="/sala-tecnica/frota-geral-obra" element={<FrotaGeralObra />} />
                   <Route path="/sala-tecnica/caminhoes-areia-express" element={<CaminhoesAreiaExpress />} />
                   <Route path="/sala-tecnica/caminhoes-herval" element={<CaminhoesHerval />} />
+                  <Route path="/manutencao/abastecimentos" element={<Abastecimentos />} />
+                  <Route path="/manutencao/horimetros" element={<Horimetros />} />
+                  <Route path="/manutencao/manutencoes" element={<Manutencoes />} />
                   <Route path="/abastech" element={<Abastech />} />
                   <Route path="/alertas" element={<Alertas />} />
                   <Route path="/almoxarifado" element={<Almoxarifado />} />
