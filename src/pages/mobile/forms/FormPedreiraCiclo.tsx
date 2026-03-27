@@ -4213,7 +4213,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                 />
                 {ocrFotoPreview && (
                   <div className="mt-3 relative">
-                    <img src={ocrFotoPreview} alt="Foto OCR" className="w-full max-h-48 object-contain rounded-xl border-2 border-amber-300" />
+                    <img src={ocrFotoPreview} alt="Foto da Balança" className="w-full max-h-48 object-contain rounded-xl border-2 border-amber-300" />
                     <div className="absolute top-2 right-2 flex gap-2">
                       <Button type="button" size="sm" variant="secondary" className="bg-white/90 text-amber-700 border border-amber-300 rounded-lg text-xs" onClick={() => {
                         if (ocrInputRef.current) {
