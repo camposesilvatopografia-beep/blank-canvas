@@ -106,7 +106,6 @@ interface PhotoFieldProps {
 function PhotoField({ label, sublabel, photo, preview, onCapture, onRemove, accentColor, uploading }: PhotoFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [localUploading, setLocalUploading] = useState(false);
-
   const { toast } = useToast();
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -119,7 +118,6 @@ function PhotoField({ label, sublabel, photo, preview, onCapture, onRemove, acce
         toast({ title: 'Foto salva!', description: 'Foto armazenada no Supabase.', variant: 'default' });
       } catch (err) {
         console.error('Error uploading photo:', err);
-        // Fallback to local preview if upload fails
         const localUrl = URL.createObjectURL(file);
         onCapture(file, localUrl);
         toast({ title: 'Erro ao salvar', description: 'Foto salva apenas localmente.', variant: 'destructive' });
@@ -216,17 +214,14 @@ function OcrWeightField({ label, sublabel, value, onChange, formatFn, photo, pre
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Show local preview immediately
     const previewUrl = URL.createObjectURL(file);
     onPhotoSet(file, previewUrl);
 
     setOcrLoading(true);
     try {
-      // 1. Upload to Supabase immediately as requested
       const remoteUrl = await uploadPhoto(file, 'cal-ocr-temp');
-      onPhotoSet(file, remoteUrl); // Update with remote URL
+      onPhotoSet(file, remoteUrl);
       
-      // 2. Perform OCR
       const reader = new FileReader();
       const base64 = await new Promise<string>((resolve) => {
         reader.onload = () => resolve(reader.result as string);
@@ -244,7 +239,7 @@ function OcrWeightField({ label, sublabel, value, onChange, formatFn, photo, pre
         toast({ title: 'Foto salva no Supabase!', description: 'Digite o peso manualmente.' });
       }
     } catch (error: any) {
-      toast({ title: 'Foto salva!', description: 'Erro no OCR, mas a foto está no Supabase. Digite o peso.' });
+      toast({ title: 'Foto salva!', description: 'Erro no OCR, mas a foto está no Supabase.' });
     } finally {
       setOcrLoading(false);
       if (ocrRef.current) ocrRef.current.value = '';
@@ -257,45 +252,45 @@ function OcrWeightField({ label, sublabel, value, onChange, formatFn, photo, pre
         <Scale className="w-4 h-4" /> {label}
       </Label>
       <p className="text-xs text-gray-500 mb-2">{sublabel}</p>
-      <div className="flex gap-2">
+      <div className="flex gap-2 relative">
         <Input
           type="tel"
           inputMode="numeric"
           value={value}
           onChange={e => onChange(e.target.value.replace(/[^0-9]/g, ''))}
           placeholder="Ex: 32500"
-          className={`text-2xl font-bold text-center h-14 flex-1 border-2 ${btnBorder}`}
-          disabled={disabled}
+          className={`text-2xl font-bold text-center h-14 flex-1 border-2 ${btnBorder} transition-all duration-300 focus:ring-2 focus:ring-emerald-500/20`}
+          disabled={disabled || ocrLoading}
         />
         <Button
           type="button"
           variant="outline"
           onClick={() => ocrRef.current?.click()}
           disabled={ocrLoading || disabled}
-          className={`h-14 px-4 border-2 ${btnBorder} ${textColor} rounded-xl`}
+          className={`h-14 px-4 border-2 ${btnBorder} ${textColor} rounded-xl hover:bg-white/50 transition-all`}
         >
           {ocrLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Camera className="w-6 h-6" />}
         </Button>
       </div>
-      <input
-        ref={ocrRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="hidden"
-        onChange={handleOcr}
-      />
       <p className="text-xs text-right text-gray-400 mt-1">{value ? `Será salvo como: ${formatFn(value)} kg` : 'kg • 📸 Toque na câmera para ler da balança'}</p>
       {preview && (
-        <div className="relative mt-2">
-          <img src={preview} alt={label} className="w-full h-32 object-cover rounded-lg" />
+        <div className="relative mt-2 group">
+          <img src={preview} alt={label} className="w-full h-32 object-cover rounded-lg shadow-sm" />
+          <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center">
+            {ocrLoading && <Loader2 className="w-6 h-6 animate-spin text-white" />}
+          </div>
           <button
             type="button"
             onClick={onPhotoRemove}
-            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 shadow-md hover:bg-red-600 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
+          {!ocrLoading && (
+            <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-green-500/80 text-[10px] text-white rounded-md flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" /> Supabase
+            </div>
+          )}
         </div>
       )}
     </Card>
