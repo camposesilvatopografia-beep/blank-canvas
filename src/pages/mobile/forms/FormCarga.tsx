@@ -337,9 +337,31 @@ export default function FormCarga() {
 
       // Online - save directly
       console.log('[FormCarga] Sending carga data (dynamic mapping), row length:', cargaRow.length);
-      console.log('[FormCarga] First 5 columns:', cargaRow.slice(0, 5));
       const successCarga = await appendSheet('Carga', [cargaRow]);
-      console.log('[FormCarga] appendSheet result:', successCarga);
+      
+      // Backup to Supabase
+      if (successCarga) {
+        supabase.from('apontamentos_carga').insert({
+          data: formData.data,
+          hora,
+          prefixo_escavadeira: formData.escavadeira,
+          descricao_escavadeira: selectedEscavadeira?.descricao,
+          empresa_escavadeira: selectedEscavadeira?.empresa,
+          operador: selectedEscavadeira?.operador,
+          prefixo_caminhao: formData.caminhao,
+          descricao_caminhao: selectedCaminhao?.descricao,
+          empresa_caminhao: selectedCaminhao?.empresa,
+          motorista: selectedCaminhao?.motorista,
+          volume_total: volumeTotal,
+          viagens: parseInt(viagens),
+          local: formData.local,
+          estaca: formData.estaca,
+          material: formData.material,
+          status: 'Sincronizado'
+        }).then(({ error }) => {
+          if (error) console.error('Supabase backup error (Carga):', error);
+        });
+      }
 
       if (!successCarga) {
         addPendingRecord('carga', 'Carga', cargaRow, { ...formData, dataFormatada, hora });
@@ -361,6 +383,26 @@ export default function FormCarga() {
           : buildDescargaRowFallback(generateId(), dataFormatada, hora, viagens, volumeTotal);
 
         const successDescarga = await appendSheet('Descarga', [descargaRow]);
+        
+        // Backup to Supabase (Descarga)
+        if (successDescarga) {
+          supabase.from('apontamentos_descarga').insert({
+            data: formData.data,
+            hora,
+            prefixo_caminhao: formData.caminhao,
+            descricao_caminhao: selectedCaminhao?.descricao,
+            empresa_caminhao: selectedCaminhao?.empresa,
+            motorista: selectedCaminhao?.motorista,
+            volume_total: volumeTotal,
+            viagens: parseInt(viagens),
+            local: formData.localLancamento,
+            estaca: formData.estaca,
+            material: formData.material,
+          }).then(({ error }) => {
+            if (error) console.error('Supabase backup error (Descarga from Carga):', error);
+          });
+        }
+
         if (!successDescarga) {
           addPendingRecord('lancamento', 'Descarga', descargaRow, { ...formData, localLancamento: formData.localLancamento });
         }

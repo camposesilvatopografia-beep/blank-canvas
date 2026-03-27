@@ -207,6 +207,26 @@ export default function FormLancamento() {
 
       console.log('[FormLancamento] Sending descarga data, row length:', descargaRow.length);
       const success = await appendSheet('Descarga', [descargaRow]);
+      
+      // Backup to Supabase
+      if (success) {
+        supabase.from('apontamentos_descarga').insert({
+          data: formData.data,
+          hora,
+          prefixo_caminhao: formData.caminhao,
+          descricao_caminhao: selectedCaminhao?.descricao,
+          empresa_caminhao: selectedCaminhao?.empresa,
+          motorista: selectedCaminhao?.motorista,
+          volume_total: volumeTotal,
+          viagens: parseInt(viagens),
+          local: formData.local,
+          estaca: formData.estaca,
+          material: formData.material,
+        }).then(({ error }) => {
+          if (error) console.error('Supabase backup error (Descarga):', error);
+        });
+      }
+
       console.log('[FormLancamento] appendSheet result:', success);
       if (!success) throw new Error('Erro ao salvar lançamento');
 
