@@ -32,7 +32,8 @@ interface PedreiraRecord {
   data: string; hora: string; ordem: string; fornecedor: string; prefixo: string;
   descricao: string; empresa: string; motorista: string; placa: string; material: string;
   pesoVazio: number; pesoFinal: number; pesoLiquido: number; tonelada: number;
-  toneladaTicket?: number; toneladaCalcObra?: number; pesoChegada?: number; fotoChegada?: string;
+  toneladaTicket?: number; toneladaCalcObra?: number; pesoChegada?: number; 
+  fotoChegada?: string; fotoPesagem?: string; fotoVazio?: string;
 }
 
 type ReportSection = 'caminhoes' | 'escavadeiras' | 'pipas' | 'pedreira';
@@ -254,6 +255,8 @@ export default function RelatorioCombinado() {
         toneladaCalcObra: parseFloat(String(r[getIdx('Tonelada (Calc Obra)')] || r[getIdx('Tonelada_Calc_Obra')] || 0).replace(/\./g, '').replace(',', '.')) || parseFloat(String(r[getIdx('Tonelada (ticket)')] || r[getIdx('Tonelada_Ticket')] || r[getIdx('Tonelada')] || 0).replace(/\./g, '').replace(',', '.')),
         pesoChegada: parseFloat(String(r[getIdx('Peso Chegada Obra')] || r[getIdx('Peso da Chegada')] || r[getIdx('Peso_Chegada_Obra')] || 0).replace(/\./g, '').replace(',', '.')),
         fotoChegada: r[getIdx('Foto do Peso Chegada Obra')] || r[getIdx('Foto do Peso da Chegada')] || r[getIdx('Foto_Peso_Chegada')] || '',
+        fotoPesagem: r[getIdx('Foto Pesagem Pedreira')] || r[getIdx('Foto_Pesagem_Pedreira')] || '',
+        fotoVazio: r[getIdx('Foto do Peso Saida Obra')] || r[getIdx('Foto do Peso Saída Obra')] || r[getIdx('Foto do Peso Vazio Obra')] || r[getIdx('Foto Peso Vazio Obra')] || r[getIdx('Foto_Peso_Vazio_Obra')] || r[getIdx('Foto Peso Vazio')] || '',
       }));
 
     return { pedreiraRecords: rows, pedreiraDateRange: { start: selectedDate, end: selectedDate } };

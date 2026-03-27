@@ -821,6 +821,48 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       toneladaNum: tonelada,
     };
   };
+  
+  const supabaseBackupPedreira = async (row: any[], headers: string[]) => {
+    try {
+      const fi = (name: string) => headers.indexOf(name);
+      const getVal = (name: string) => {
+        const idx = fi(name);
+        return idx !== -1 ? row[idx] : '';
+      };
+
+      const dataStr = getVal('Data');
+      const horaStr = getVal('Hora');
+      const prefixo = getVal('Prefixo_Eq');
+      const material = getVal('Material');
+      const pesoFinal = getVal('Peso_Final');
+      const tonelada = getVal('Tonelada');
+      
+      const fotoChegada = getVal('Foto do Peso Chegada Obra') || getVal('Foto_Peso_Chegada') || getVal('Foto Peso Chegada') || '';
+      const fotoPesagem = getVal('Foto Pesagem Pedreira') || getVal('Foto_Pesagem_Pedreira') || '';
+
+      const { error } = await supabase.from('movimentacoes_pedreira').upsert({
+        external_id: getVal('ID'),
+        data: dataStr ? format(new Date(dataStr.split('/').reverse().join('-')), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
+        hora: horaStr || format(new Date(), 'HH:mm:ss'),
+        prefixo_caminhao: prefixo,
+        empresa_caminhao: getVal('Empresa_Eq'),
+        motorista: getVal('Motorista'),
+        fornecedor: getVal('Fornecedor'),
+        material: material,
+        nota_fiscal: getVal('Ordem_Carregamento'),
+        viagens: 1,
+        volume: parseBRNumber(pesoFinal),
+        volume_total: parseBRNumber(tonelada),
+        usuario: effectiveName,
+        foto_path: fotoChegada,
+        nf_foto_path: fotoPesagem,
+      }, { onConflict: 'external_id' });
+      
+      if (error) console.error('Supabase backup error (Pedreira Ciclo):', error);
+    } catch (e) {
+      console.error('Failed to insert in Supabase (Pedreira Ciclo):', e);
+    }
+  };
 
   // =================== SEARCH BY PREFIXO (Balança) or OS (Obra) ===================
   const handleSearchByPrefixo = async (prefixo: string) => {
@@ -1111,6 +1153,9 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
           success = await appendSheet('Apontamento_Pedreira', [pedreiraRow]);
         }
         if (!success) throw new Error('Erro ao salvar');
+
+        // Backup to Supabase
+        await supabaseBackupPedreira(pedreiraRow, headers);
         // Signal desktop tabs to refresh
         localStorage.setItem('pedreira_data_updated', Date.now().toString());
         playSuccessSound();
@@ -1252,6 +1297,9 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       const success = await writeSheet('Apontamento_Pedreira', buildRowRange(rowNum, currentRow.length), [currentRow]);
       if (!success) throw new Error('Erro ao atualizar');
 
+      // Backup to Supabase
+      await supabaseBackupPedreira(currentRow, headers);
+
       // Signal desktop tabs to refresh
       localStorage.setItem('pedreira_data_updated', Date.now().toString());
       playSuccessSound();
@@ -1312,6 +1360,12 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       const rowNum = foundRecord.rowIndex;
       const success = await writeSheet('Apontamento_Pedreira', buildRowRange(rowNum, currentRow.length), [currentRow]);
       if (!success) throw new Error('Erro ao transferir');
+
+      // Backup to Supabase
+      await supabaseBackupPedreira(currentRow, headers);
+
+      // Backup to Supabase
+      await supabaseBackupPedreira(currentRow, headers);
 
       localStorage.setItem('pedreira_data_updated', Date.now().toString());
       playSuccessSound();
@@ -1607,6 +1661,9 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       }
       if (!success) throw new Error('Erro ao salvar');
 
+      // Backup to Supabase
+      await supabaseBackupPedreira(row, headers);
+
       // Herval vehicles are now managed via the "Caminhões Herval" sheet cadastro
 
       // Signal desktop tabs to refresh
@@ -1780,6 +1837,9 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       }
       if (!carregSuccess) throw new Error('Erro ao salvar');
 
+      // Backup to Supabase
+      await supabaseBackupPedreira(row, headers);
+
       localStorage.setItem('pedreira_data_updated', Date.now().toString());
       playSuccessSound();
       setSuccessTitle('Lançamento Finalizado!');
@@ -1938,6 +1998,9 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
               const { data: urlData } = supabase.storage.from('pedreira-ocr-fotos').getPublicUrl(filePath);
               currentRow[fotoVazioIdx] = urlData?.publicUrl || '';
               await writeSheet('Apontamento_Pedreira', `A${rec.sheetRowIndex}:${lastCol}${rec.sheetRowIndex}`, [currentRow]);
+              
+              // Backup to Supabase
+              await supabaseBackupPedreira(currentRow, headers);
             }
             console.log('[CarregSaida] Photo uploaded');
           }
@@ -2064,8 +2127,23 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
 
         const rowNum = foundRecord.rowIndex;
         const range = buildRowRange(rowNum, currentRow.length);
-        const success = await writeSheet('Apontamento_Pedreira', range, [currentRow]);
-        if (!success) throw new Error('Erro ao salvar');
+      const success = await writeSheet('Apontamento_Pedreira', range, [currentRow]);
+      if (!success) throw new Error('Erro ao salvar');
+
+      // Backup to Supabase
+      await supabaseBackupPedreira(currentRow, headers);
+
+        // Backup to Supabase
+        await supabaseBackupPedreira(currentRow, headers);
+
+      // Backup to Supabase
+      await supabaseBackupPedreira(currentRow, headers);
+
+        // Backup to Supabase
+        await supabaseBackupPedreira(currentRow, headers);
+
+      // Backup to Supabase
+      await supabaseBackupPedreira(currentRow, headers);
 
         localStorage.setItem('pedreira_data_updated', Date.now().toString());
         playSuccessSound();
@@ -2128,7 +2206,10 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
         const rowNum = foundRecord.rowIndex;
         const range = buildRowRange(rowNum, currentRow.length);
         const success = await writeSheet('Apontamento_Pedreira', range, [currentRow]);
-        if (!success) throw new Error('Erro ao salvar');
+      if (!success) throw new Error('Erro ao salvar');
+
+      // Backup to Supabase
+      await supabaseBackupPedreira(currentRow, headers);
 
         // Upload Obra Step 2 vazio photo if available
         if (obraVazioFotoFile) {
@@ -2257,6 +2338,9 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
         const range = buildRowRange(rowNum, currentRow.length);
         const success = await writeSheet('Apontamento_Pedreira', range, [currentRow]);
         if (!success) throw new Error('Erro ao atualizar');
+
+        // Backup to Supabase
+        await supabaseBackupPedreira(currentRow, headers);
 
         localStorage.setItem('pedreira_data_updated', Date.now().toString());
         playSuccessSound();
