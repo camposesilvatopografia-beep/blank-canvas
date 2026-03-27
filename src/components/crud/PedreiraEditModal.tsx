@@ -402,6 +402,50 @@ export function PedreiraEditModal({ open, onOpenChange, onSuccess, editData, hea
             </div>
           </div>
 
+          {(editData?.fotoChegada || editData?.fotoPesagem || editData?.fotoVazio) && (
+            <div className="p-4 border rounded-lg space-y-3 bg-slate-50">
+              <p className="font-medium text-sm flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-slate-500" />
+                Fotos do Registro:
+              </p>
+              <div className="grid grid-cols-3 gap-3">
+                {editData.fotoPesagem && (
+                  <div className="space-y-1">
+                    <p className="text-[10px] text-muted-foreground uppercase font-semibold">⚖️ Pesagem</p>
+                    <img 
+                      src={normalizePhotoUrl(editData.fotoPesagem)} 
+                      alt="Pesagem" 
+                      className="w-full h-24 object-cover rounded border bg-white cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => window.open(normalizePhotoUrl(editData.fotoPesagem), '_blank')}
+                    />
+                  </div>
+                )}
+                {editData.fotoChegada && (
+                  <div className="space-y-1">
+                    <p className="text-[10px] text-muted-foreground uppercase font-semibold">🏢 Chegada</p>
+                    <img 
+                      src={normalizePhotoUrl(editData.fotoChegada)} 
+                      alt="Chegada" 
+                      className="w-full h-24 object-cover rounded border bg-white cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => window.open(normalizePhotoUrl(editData.fotoChegada), '_blank')}
+                    />
+                  </div>
+                )}
+                {editData.fotoVazio && (
+                  <div className="space-y-1">
+                    <p className="text-[10px] text-muted-foreground uppercase font-semibold">🚛 Saída (Vazio)</p>
+                    <img 
+                      src={normalizePhotoUrl(editData.fotoVazio)} 
+                      alt="Vazio" 
+                      className="w-full h-24 object-cover rounded border bg-white cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => window.open(normalizePhotoUrl(editData.fotoVazio), '_blank')}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="p-4 bg-primary/10 rounded-lg space-y-2">
             <p className="font-medium text-sm text-primary">Valores Calculados:</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
