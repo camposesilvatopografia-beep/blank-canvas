@@ -196,8 +196,8 @@ export function PedreiraNewEntryModal({ open, onOpenChange, onSuccess, headers }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.data || !formData.prefixo || !formData.material) {
-      toast({ title: 'Campos obrigatórios', description: 'Preencha Data, Veículo e Material.', variant: 'destructive' });
+    if (!formData.data || !formData.prefixo || !formData.material || !formData.pesoChegada) {
+      toast({ title: 'Campos obrigatórios', description: 'Preencha Data, Veículo, Material e Peso de Chegada.', variant: 'destructive' });
       return;
     }
 
