@@ -1825,6 +1825,9 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       }
       if (!carregSuccess) throw new Error('Erro ao salvar');
 
+      // Backup to Supabase
+      await supabaseBackupPedreira(row, headers);
+
       localStorage.setItem('pedreira_data_updated', Date.now().toString());
       playSuccessSound();
       setSuccessTitle('Lançamento Finalizado!');
