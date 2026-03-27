@@ -107,6 +107,8 @@ function PhotoField({ label, sublabel, photo, preview, onCapture, onRemove, acce
   const inputRef = useRef<HTMLInputElement>(null);
   const [localUploading, setLocalUploading] = useState(false);
 
+  const { toast } = useToast();
+
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -114,13 +116,13 @@ function PhotoField({ label, sublabel, photo, preview, onCapture, onRemove, acce
       try {
         const url = await uploadPhoto(file, 'cal-fotos-temp');
         onCapture(file, url);
-        toast.success('Foto salva no Supabase!');
+        toast({ title: 'Foto salva!', description: 'Foto armazenada no Supabase.', variant: 'default' });
       } catch (err) {
         console.error('Error uploading photo:', err);
         // Fallback to local preview if upload fails
         const localUrl = URL.createObjectURL(file);
         onCapture(file, localUrl);
-        toast.error('Erro ao salvar no Supabase, salva apenas localmente');
+        toast({ title: 'Erro ao salvar', description: 'Foto salva apenas localmente.', variant: 'destructive' });
       } finally {
         setLocalUploading(false);
       }
