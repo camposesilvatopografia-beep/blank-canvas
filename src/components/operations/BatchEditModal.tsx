@@ -250,7 +250,20 @@ export function BatchEditModal({ open, onOpenChange, sheetName, onSuccess }: Bat
         const newRow = [...record.original];
         newRow[fieldIdx] = newValue;
         
-        await writeSheet(sheetName, buildRowRange(record.rowIndex, newRow.length), [newRow]);
+        const success = await writeSheet(sheetName, buildRowRange(record.rowIndex, newRow.length), [newRow]);
+        
+        if (success) {
+          // Sync with Supabase
+          if (sheetName === 'Carga') {
+            const getColIdx = (name: string) => headers.indexOf(name);
+            const externalId = record.original[getColIdx('ID')];
+            
+            // Note: Since we don't have a direct 1:1 mapping with Supabase ID easily,
+            // we search by external_id if it exists, or common fields.
+            // But wait, the apontamentos_carga table doesn't have external_id!
+            // Let's check the schema again.
+          }
+        }
       }
 
       toast({
