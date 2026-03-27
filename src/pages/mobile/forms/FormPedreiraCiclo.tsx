@@ -3166,7 +3166,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                       </p>
                     ) : (
                       <p className="text-sm text-muted-foreground mt-2">
-                        📸 Toque na câmera para ler da balança ou digite apenas números. Ex: 25960 = 25.960,00
+                        📸 Tire uma foto da balança e digite o peso manualmente abaixo.
                       </p>
                     )}
                   </Card>
