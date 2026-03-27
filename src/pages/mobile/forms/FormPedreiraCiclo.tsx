@@ -4169,6 +4169,28 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
               </Card>
               )}
 
+              {!isPendenteObra && (
+              <Card className="bg-blue-50 border-2 border-blue-300 p-5 rounded-2xl shadow-sm">
+                <Label className="text-lg font-bold text-[#1d3557] flex items-center gap-2 mb-3">
+                  <Scale className="w-6 h-6 text-blue-600" />
+                  Peso Vazio na Obra (opcional)
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder={currentRow[fi('Peso_Vazio')] ? `Usar do ticket: ${currentRow[fi('Peso_Vazio')]}` : 'Digite apenas números'}
+                    value={formObra.pesoVazio}
+                    onChange={e => setFormObra({ ...formObra, pesoVazio: e.target.value.replace(/[^0-9]/g, '') })}
+                    className="bg-white border-2 border-blue-400 text-gray-900 placeholder:text-gray-400 h-16 text-xl rounded-xl font-medium flex-1"
+                  />
+                </div>
+                <p className="text-xs text-blue-700 mt-2">
+                  Se deixado em branco, o sistema usará o <strong>peso vazio do ticket</strong> para o cálculo.
+                </p>
+              </Card>
+              )}
+
               {/* Submit */}
               <Button
                 type="submit"
