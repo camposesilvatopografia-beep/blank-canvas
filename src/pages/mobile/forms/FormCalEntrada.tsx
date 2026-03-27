@@ -97,19 +97,37 @@ interface PhotoFieldProps {
   sublabel: string;
   photo: File | null;
   preview: string | null;
-  onCapture: (file: File) => void;
+  onCapture: (file: File, url: string) => void;
   onRemove: () => void;
   accentColor: string;
+  uploading?: boolean;
 }
 
-function PhotoField({ label, sublabel, photo, preview, onCapture, onRemove, accentColor }: PhotoFieldProps) {
+function PhotoField({ label, sublabel, photo, preview, onCapture, onRemove, accentColor, uploading }: PhotoFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [localUploading, setLocalUploading] = useState(false);
+  const { toast } = useToast();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) onCapture(file);
+    if (file) {
+      setLocalUploading(true);
+      try {
+        const url = await uploadPhoto(file, 'cal-fotos-temp');
+        onCapture(file, url);
+        toast({ title: 'Foto salva!', description: 'Foto armazenada no Supabase.', variant: 'default' });
+      } catch (err) {
+        console.error('Error uploading photo:', err);
+        const localUrl = URL.createObjectURL(file);
+        onCapture(file, localUrl);
+        toast({ title: 'Erro ao salvar', description: 'Foto salva apenas localmente.', variant: 'destructive' });
+      } finally {
+        setLocalUploading(false);
+      }
+    }
   };
 
+  const isUploading = uploading || localUploading;
   const borderColor = accentColor === 'emerald' ? 'border-emerald-200' : accentColor === 'orange' ? 'border-orange-200' : 'border-purple-200';
   const bgColor = accentColor === 'emerald' ? 'bg-emerald-50/50' : accentColor === 'orange' ? 'bg-orange-50/50' : 'bg-purple-50/50';
   const textColor = accentColor === 'emerald' ? 'text-emerald-700' : accentColor === 'orange' ? 'text-orange-700' : 'text-purple-700';
@@ -130,32 +148,42 @@ function PhotoField({ label, sublabel, photo, preview, onCapture, onRemove, acce
         onChange={handleChange}
       />
       {preview ? (
-        <div className="relative">
-          <img src={preview} alt={label} className="w-full h-32 object-cover rounded-lg" />
+        <div className="relative group">
+          <img src={preview} alt={label} className="w-full h-32 object-cover rounded-lg shadow-sm" />
+          <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center">
+            {isUploading && <Loader2 className="w-6 h-6 animate-spin text-white" />}
+          </div>
           <button
             type="button"
             onClick={onRemove}
-            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 shadow-md hover:bg-red-600 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
+          {!isUploading && (
+            <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-green-500/80 text-[10px] text-white rounded-md flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" /> Supabase
+            </div>
+          )}
         </div>
       ) : (
         <Button
           type="button"
           variant="outline"
-          className={`w-full h-20 ${btnColor} border-dashed border-2`}
+          disabled={isUploading}
+          className={`w-full h-20 ${btnColor} border-dashed border-2 hover:bg-white/50 transition-all`}
           onClick={() => inputRef.current?.click()}
         >
           <div className="flex flex-col items-center gap-1">
-            <Image className="w-6 h-6" />
-            <span className="text-xs">Tirar Foto / Selecionar</span>
+            {isUploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Image className="w-6 h-6" />}
+            <span className="text-xs font-semibold">{isUploading ? 'Salvando no Supabase...' : 'Tirar Foto / Selecionar'}</span>
           </div>
         </Button>
       )}
     </Card>
   );
 }
+
 
 // OCR-enabled weight field with photo capture
 interface OcrWeightFieldProps {
@@ -186,12 +214,14 @@ function OcrWeightField({ label, sublabel, value, onChange, formatFn, photo, pre
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Save photo BEFORE attempting OCR
     const previewUrl = URL.createObjectURL(file);
     onPhotoSet(file, previewUrl);
 
     setOcrLoading(true);
     try {
+      const remoteUrl = await uploadPhoto(file, 'cal-ocr-temp');
+      onPhotoSet(file, remoteUrl);
+      
       const reader = new FileReader();
       const base64 = await new Promise<string>((resolve) => {
         reader.onload = () => resolve(reader.result as string);
@@ -204,12 +234,12 @@ function OcrWeightField({ label, sublabel, value, onChange, formatFn, photo, pre
       const { value: ocrValue } = response.data;
       if (ocrValue && ocrValue !== 'ERRO') {
         onChange(String(parseInt(ocrValue, 10)));
-        toast({ title: '✅ Peso lido com sucesso!', description: `Valor: ${formatFn(ocrValue)}` });
+        toast({ title: '✅ Peso lido com sucesso!', description: `Valor: ${formatFn(ocrValue)} (Salvo no Supabase)` });
       } else {
-        toast({ title: 'Foto salva!', description: 'Digite o peso manualmente.' });
+        toast({ title: 'Foto salva no Supabase!', description: 'Digite o peso manualmente.' });
       }
     } catch (error: any) {
-      toast({ title: 'Foto salva!', description: 'OCR indisponível — digite o peso manualmente.' });
+      toast({ title: 'Foto salva!', description: 'Erro no OCR, mas a foto está no Supabase.' });
     } finally {
       setOcrLoading(false);
       if (ocrRef.current) ocrRef.current.value = '';
@@ -222,45 +252,45 @@ function OcrWeightField({ label, sublabel, value, onChange, formatFn, photo, pre
         <Scale className="w-4 h-4" /> {label}
       </Label>
       <p className="text-xs text-gray-500 mb-2">{sublabel}</p>
-      <div className="flex gap-2">
+      <div className="flex gap-2 relative">
         <Input
           type="tel"
           inputMode="numeric"
           value={value}
           onChange={e => onChange(e.target.value.replace(/[^0-9]/g, ''))}
           placeholder="Ex: 32500"
-          className={`text-2xl font-bold text-center h-14 flex-1 border-2 ${btnBorder}`}
-          disabled={disabled}
+          className={`text-2xl font-bold text-center h-14 flex-1 border-2 ${btnBorder} transition-all duration-300 focus:ring-2 focus:ring-emerald-500/20`}
+          disabled={disabled || ocrLoading}
         />
         <Button
           type="button"
           variant="outline"
           onClick={() => ocrRef.current?.click()}
           disabled={ocrLoading || disabled}
-          className={`h-14 px-4 border-2 ${btnBorder} ${textColor} rounded-xl`}
+          className={`h-14 px-4 border-2 ${btnBorder} ${textColor} rounded-xl hover:bg-white/50 transition-all`}
         >
           {ocrLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Camera className="w-6 h-6" />}
         </Button>
       </div>
-      <input
-        ref={ocrRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="hidden"
-        onChange={handleOcr}
-      />
       <p className="text-xs text-right text-gray-400 mt-1">{value ? `Será salvo como: ${formatFn(value)} kg` : 'kg • 📸 Toque na câmera para ler da balança'}</p>
       {preview && (
-        <div className="relative mt-2">
-          <img src={preview} alt={label} className="w-full h-32 object-cover rounded-lg" />
+        <div className="relative mt-2 group">
+          <img src={preview} alt={label} className="w-full h-32 object-cover rounded-lg shadow-sm" />
+          <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center">
+            {ocrLoading && <Loader2 className="w-6 h-6 animate-spin text-white" />}
+          </div>
           <button
             type="button"
             onClick={onPhotoRemove}
-            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 shadow-md hover:bg-red-600 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
+          {!ocrLoading && (
+            <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-green-500/80 text-[10px] text-white rounded-md flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" /> Supabase
+            </div>
+          )}
         </div>
       )}
     </Card>
@@ -331,9 +361,8 @@ export default function FormCalEntrada() {
   const pesoVazioTon = pesoVazioRaw;
 
   // Photo helpers
-  const handlePhotoCapture = (setter: (f: File | null) => void, previewSetter: (s: string | null) => void) => (file: File) => {
+  const handlePhotoCapture = (setter: (f: File | null) => void, previewSetter: (s: string | null) => void) => (file: File, url: string) => {
     setter(file);
-    const url = URL.createObjectURL(file);
     previewSetter(url);
   };
 
