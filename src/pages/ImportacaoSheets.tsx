@@ -146,8 +146,15 @@ const ImportacaoSheets = () => {
     const processed: any = {};
     let hasRequiredFields = true;
 
+    // Create a lowercase map of the row for case-insensitive header matching
+    const rowLower: Record<string, any> = {};
+    Object.keys(row).forEach(key => {
+      rowLower[key.toLowerCase().trim()] = row[key];
+    });
+
     config.columns.forEach(col => {
-      let val = row[col];
+      // Try exact match first, then lowercase match
+      let val = row[col] !== undefined ? row[col] : rowLower[col.toLowerCase()];
       
       if (col.includes("data")) {
         val = formatDate(val);
