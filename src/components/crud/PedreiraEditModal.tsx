@@ -7,8 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Mountain, Scale, Truck, Package, Clock, Building2, User, FileText, MapPin } from 'lucide-react';
+import { Loader2, Mountain, Scale, Truck, Package, Clock, Building2, User, FileText, MapPin, ImageIcon, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { normalizePhotoUrl } from '@/utils/photoUrl';
 
 interface MaterialOption {
   id: string;
