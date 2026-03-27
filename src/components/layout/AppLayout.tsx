@@ -1,6 +1,6 @@
 import { Outlet, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
-// AiAssistantChat removed
+const AiAssistantChat = lazy(() => import('@/components/ai/AiAssistantChat'));
 const SupportChatWidget = lazy(() => import('@/components/support/SupportChatWidget'));
 import logoApropriapp from '@/assets/logo-apropriapp.png';
 import { AppSidebar } from './AppSidebar';
@@ -10,12 +10,10 @@ import { useRdoPushNotifications } from '@/hooks/useRdoPushNotifications';
 import { UpdateNotification } from '@/components/mobile/UpdateNotification';
 import { Loader2, Eye } from 'lucide-react';
 
-
 export const AppLayout = () => {
   const { isAdmin, loading, user, isReadOnly } = useAuth();
   useRdoPushNotifications();
   
-
   // Show loading while checking auth
   if (loading) {
     return (
@@ -24,8 +22,6 @@ export const AppLayout = () => {
       </div>
     );
   }
-
-  // All authenticated users can access the desktop system when they login via /auth
 
   return (
     <div className="flex w-full bg-background">
@@ -62,7 +58,10 @@ export const AppLayout = () => {
         </main>
       </div>
       
-      {/* AI Assistant removed */}
+      {/* AI Assistant */}
+      <Suspense fallback={null}>
+        <AiAssistantChat />
+      </Suspense>
 
       {/* Support Chat */}
       <Suspense fallback={null}>
