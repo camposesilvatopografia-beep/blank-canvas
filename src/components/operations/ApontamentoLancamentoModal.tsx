@@ -222,7 +222,7 @@ export function ApontamentoLancamentoModal({ open, onOpenChange, onSuccess }: Ap
         <DialogHeader className="border-b pb-4">
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Plus className="w-6 h-6 text-primary" />
-            Apontamento Rápido de Lançamento
+            Apontamento de Descarga
           </DialogTitle>
         </DialogHeader>
 
