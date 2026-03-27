@@ -456,6 +456,37 @@ export function PedreiraEditModal({ open, onOpenChange, onSuccess, editData, hea
             </div>
           </div>
 
+          {/* Pesos Obra */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Peso Chegada Obra (kg)
+              </Label>
+              <Input
+                type="text"
+                inputMode="numeric"
+                value={formData.pesoChegada}
+                onChange={e => setFormData({ ...formData, pesoChegada: e.target.value })}
+                placeholder="Ex: 44800"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Peso Vazio Saída Obra (kg)
+              </Label>
+              <Input
+                type="text"
+                inputMode="numeric"
+                value={formData.pesoVazioObra}
+                onChange={e => setFormData({ ...formData, pesoVazioObra: e.target.value })}
+                placeholder="Ex: 15100"
+              />
+            </div>
+          </div>
+
           {/* Calculated Values */}
           <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg space-y-2">
             <p className="font-medium text-sm text-amber-700 dark:text-amber-400">Valores Calculados:</p>
