@@ -130,7 +130,7 @@ function OcrWeightField({ label, sublabel, value, onChange, formatFn, photo, pre
         className="hidden"
         onChange={handleOcr}
       />
-      <p className="text-xs text-right text-gray-400 mt-1">{value ? `Será salvo como: ${formatFn(value)} kg` : 'kg • 📸 Toque na câmera para ler da balança'}</p>
+      <p className="text-xs text-right text-gray-400 mt-1">{value ? `Será salvo como: ${formatFn(value)} kg` : 'kg • 📸 Tire uma foto da balança'}</p>
       {preview && (
         <div className="relative mt-2">
           <img src={preview} alt={label} className="w-full h-32 object-cover rounded-lg" />

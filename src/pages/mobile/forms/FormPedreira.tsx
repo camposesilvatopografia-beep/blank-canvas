@@ -1209,7 +1209,7 @@ export default function FormPedreira() {
             </p>
           ) : (
             <p className="text-sm text-muted-foreground mt-2">
-              📸 Toque na câmera para ler da balança ou digite apenas números. Ex: 45320 = 45.320,00
+              📸 Tire uma foto da balança e digite o peso manualmente abaixo.
             </p>
           )}
         </Card>
