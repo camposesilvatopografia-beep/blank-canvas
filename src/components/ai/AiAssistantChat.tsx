@@ -172,40 +172,19 @@ export default function AiAssistantChat() {
             <div className="flex flex-col items-center text-center text-muted-foreground gap-1">
               <Bot className="w-8 h-8 opacity-40" />
               <p className="text-sm font-medium">Olá{profile?.nome ? `, ${profile.nome.split(' ')[0]}` : ''}! 👋</p>
-              <p className="text-xs">Crie agente de IA nosistema do SUPABASE, paratrabalhar para o sistema</p>
+              <p className="text-xs">Estou aqui para ajudar com informações do sistema ApropriAPP.</p>
             </div>
             <div className="w-full space-y-2.5">
               {[
                 { label: '🚛 Carga', questions: [
                   'Qual a produção de carga de hoje?',
-                  'Quantas viagens de carga ontem?',
+                  'Resumo de carga de ontem',
                 ]},
                 { label: '🔧 Manutenção', questions: [
                   'Quantos equipamentos em manutenção hoje?',
-                  'Quais equipamentos parados?',
                 ]},
                 { label: '⛽ Abastecimento', questions: [
-                  'Quantos litros abastecidos esta semana?',
                   'Resumo de abastecimentos de hoje',
-                ]},
-                { label: '⛏️ Pedreira', questions: [
-                  'Quantas viagens de pedreira hoje?',
-                  'Produção de pedreira ontem?',
-                ]},
-                { label: '💧 Pipas', questions: [
-                  'Quais pipas operaram hoje?',
-                  'Total de viagens de pipa esta semana?',
-                ]},
-                { label: '🕐 Horímetros', questions: [
-                  'Resumo dos horímetros de hoje',
-                ]},
-                { label: '🧪 Cal', questions: [
-                  'Quantas entradas de cal hoje?',
-                  'Saldo de cal por fornecedor?',
-                ]},
-                { label: '📦 Almoxarifado', questions: [
-                  'Materiais com estoque baixo?',
-                  'Últimas movimentações do almoxarifado?',
                 ]},
               ].map((group) => (
                 <div key={group.label}>
