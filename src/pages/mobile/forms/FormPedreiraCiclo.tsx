@@ -821,6 +821,50 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       toneladaNum: tonelada,
     };
   };
+  
+  const supabaseBackupPedreira = async (row: any[], headers: string[]) => {
+    try {
+      const fi = (name: string) => headers.indexOf(name);
+      const getVal = (name: string) => {
+        const idx = fi(name);
+        return idx !== -1 ? row[idx] : '';
+      };
+
+      const dataStr = getVal('Data');
+      const horaStr = getVal('Hora');
+      const prefixo = getVal('Prefixo_Eq');
+      const material = getVal('Material');
+      const pesoFinal = getVal('Peso_Final');
+      const tonelada = getVal('Tonelada');
+      
+      // Map photos
+      const fotoChegada = getVal('Foto do Peso Chegada Obra') || getVal('Foto_Peso_Chegada') || getVal('Foto Peso Chegada') || '';
+      const fotoPesagem = getVal('Foto Pesagem Pedreira') || getVal('Foto_Pesagem_Pedreira') || '';
+      const fotoVazio = getVal('Foto do Peso Saida Obra') || getVal('Foto_Peso_Vazio_Obra') || '';
+
+      const { error } = await supabase.from('movimentacoes_pedreira').upsert({
+        external_id: getVal('ID'),
+        data: dataStr ? format(new Date(dataStr.split('/').reverse().join('-')), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
+        hora: horaStr || format(new Date(), 'HH:mm:ss'),
+        prefixo_caminhao: prefixo,
+        empresa_caminhao: getVal('Empresa_Eq'),
+        motorista: getVal('Motorista'),
+        fornecedor: getVal('Fornecedor'),
+        material: material,
+        nota_fiscal: getVal('Ordem_Carregamento'),
+        viagens: 1,
+        volume: parseNumeric(pesoFinal),
+        volume_total: parseNumeric(tonelada),
+        usuario: effectiveName,
+        foto_path: fotoChegada,
+        nf_foto_path: fotoPesagem,
+      }, { onConflict: 'external_id' });
+      
+      if (error) console.error('Supabase backup error (Pedreira Ciclo):', error);
+    } catch (e) {
+      console.error('Failed to insert in Supabase (Pedreira Ciclo):', e);
+    }
+  };
 
   // =================== SEARCH BY PREFIXO (Balança) or OS (Obra) ===================
   const handleSearchByPrefixo = async (prefixo: string) => {
