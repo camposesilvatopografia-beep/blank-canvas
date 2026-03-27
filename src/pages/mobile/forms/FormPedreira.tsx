@@ -309,6 +309,12 @@ export default function FormPedreira() {
     setLoading(true);
     setSavedOffline(false);
 
+    if (!formData.caminhao || !formData.material || !formData.pesoChegada) {
+      toast({ title: 'Campos obrigatórios', description: 'Por favor, preencha Veículo, Material e Peso de Chegada.', variant: 'destructive' });
+      setLoading(false);
+      return;
+    }
+    
     let fotoPesoFinalUrl = '';
     let fotoChegadaUrl = '';
     try {
