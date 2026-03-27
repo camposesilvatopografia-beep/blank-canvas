@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Mountain, Scale, Truck, Package, Clock, Building2, User, FileText } from 'lucide-react';
+import { Loader2, Mountain, Scale, Truck, Package, Clock, Building2, User, FileText, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
