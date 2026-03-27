@@ -525,8 +525,17 @@ export function DetalhamentoViagemTab({
                     <TableHead className="py-2 text-xs font-bold cursor-pointer hover:text-primary select-none" onClick={() => setSortBy('material')}>
                       Material {sortBy === 'material' && '▾'}
                     </TableHead>
-                    <TableHead className="py-2 text-xs font-bold text-right cursor-pointer hover:text-primary select-none" onClick={() => setSortBy('tonelada')}>
-                      Peso Bruto (t) {sortBy === 'tonelada' && '▾'}
+                    <TableHead className="py-2 text-xs font-bold text-right cursor-pointer hover:text-primary select-none bg-amber-50/50" onClick={() => setSortBy('tonelada')}>
+                      Ton. Ped. (t) {sortBy === 'tonelada' && '▾'}
+                    </TableHead>
+                    <TableHead className="py-2 text-xs font-bold text-right bg-blue-50/50">
+                      P. Chegada (kg)
+                    </TableHead>
+                    <TableHead className="py-2 text-xs font-bold text-right bg-blue-50/50">
+                      Ton. Obra (t)
+                    </TableHead>
+                    <TableHead className="py-2 text-xs font-bold text-right">
+                      Dif. (t)
                     </TableHead>
                   </TableRow>
                 </TableHeader>
