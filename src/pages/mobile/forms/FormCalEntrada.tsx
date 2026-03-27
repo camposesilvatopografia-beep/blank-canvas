@@ -227,19 +227,9 @@ function OcrWeightField({ label, sublabel, value, onChange, formatFn, photo, pre
         reader.onload = () => resolve(reader.result as string);
         reader.readAsDataURL(file);
       });
-      const response = await supabase.functions.invoke('ocr-peso', {
-        body: { imageBase64: base64 },
-      });
-      if (response.error) throw response.error;
-      const { value: ocrValue } = response.data;
-      if (ocrValue && ocrValue !== 'ERRO') {
-        onChange(String(parseInt(ocrValue, 10)));
-        toast({ title: '✅ Peso lido com sucesso!', description: `Valor: ${formatFn(ocrValue)} (Salvo no Supabase)` });
-      } else {
-        toast({ title: 'Foto salva no Supabase!', description: 'Digite o peso manualmente.' });
-      }
+      toast({ title: '✅ Foto capturada!', description: 'Digite o peso manualmente abaixo.' });
     } catch (error: any) {
-      toast({ title: 'Foto salva!', description: 'Erro no OCR, mas a foto está no Supabase.' });
+      toast({ title: '✅ Foto capturada!', description: 'Digite o peso manualmente abaixo.' });
     } finally {
       setOcrLoading(false);
       if (ocrRef.current) ocrRef.current.value = '';
