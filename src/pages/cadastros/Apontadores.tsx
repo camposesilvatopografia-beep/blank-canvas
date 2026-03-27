@@ -104,7 +104,9 @@ export default function Apontadores() {
     status: 'ativo',
   });
 
-  const appUrl = window.location.origin + '/mobile';
+  const publishedUrl = 'https://canvas-bliss-start-97.lovable.app';
+  const isPreview = window.location.hostname.includes('lovable.app') && window.location.hostname.includes('preview');
+  const appUrl = isPreview ? publishedUrl + '/mobile' : window.location.origin + '/mobile';
 
   useEffect(() => {
     loadApontadores();
