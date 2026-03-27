@@ -122,6 +122,8 @@ interface PedreiraRecord {
   pesoFinal: number;
   pesoLiquido: number;
   tonelada: number;
+  toneladaTicket?: number;
+  toneladaCalcObra?: number;
   frete: number;
   pesoChegada: number;
   pesoVazioObra: number;
@@ -515,6 +517,8 @@ export default function Pedreira() {
       pesoFinal: parseNumBR(row[getIdx('Peso_Final')]),
       pesoLiquido: parseNumBR(row[getIdx('Peso_Liquido_Cubico')]),
       tonelada: parseNumBR(row[getIdx('Tonelada')] || row[getIdx('Tonelada (ticket)')] || row[getIdx('Tonelada_Ticket')]),
+      toneladaTicket: parseNumBR(row[getIdx('Tonelada (ticket)')] || row[getIdx('Tonelada_Ticket')] || row[getIdx('Tonelada')]),
+      toneladaCalcObra: parseNumBR(row[getIdx('Tonelada (Calc Obra)')] || row[getIdx('Tonelada_Calc_Obra')]),
       
       frete: parseNumBR(String(row[getIdx('Frete')] || row[getIdx('Valor_Frete')] || '').replace('R$', '').trim()),
       pesoChegada: parseNumBR(row[getIdx('Peso Chegada Obra')] || row[getIdx('Peso da Chegada')] || row[getIdx('Peso_Chegada_Obra')]),

@@ -20,6 +20,7 @@ interface PedreiraRecord {
   toneladaTicket?: number;
   toneladaCalcObra?: number;
   pesoChegada: number;
+  pesoVazioObra?: number;
   fotoChegada: string;
   fotoPesagem: string;
   fotoVazio: string;
@@ -131,7 +132,13 @@ export async function exportRelatorioIndividualPedreira(
   }
 
   const tonTicket = record.toneladaTicket || record.tonelada || 0;
-  const tonCalcObra = record.toneladaCalcObra || 0;
+  
+  // Calculate tonCalcObra: pesoChegada - (pesoVazioObra if provided, else pesoVazio)
+  const pesoVazioEfetivoObra = (record.pesoVazioObra && record.pesoVazioObra > 0) ? record.pesoVazioObra : record.pesoVazio;
+  const tonCalcObra = (record.pesoChegada > 0 && pesoVazioEfetivoObra > 0)
+    ? (record.pesoChegada - pesoVazioEfetivoObra) / 1000
+    : (record.toneladaCalcObra || 0);
+
   const difTon = tonCalcObra > 0 && tonTicket > 0 ? (tonCalcObra - tonTicket) : 0;
   const hasDif = Math.abs(difTon) > 0.0005;
 
@@ -139,7 +146,7 @@ export async function exportRelatorioIndividualPedreira(
   const pesoVazioPedreira = record.pesoVazio || (pesoBrutoPedreira > 0 && tonTicket > 0 ? (pesoBrutoPedreira - (tonTicket * 1000)) : 0);
   
   const pesoBrutoObra = record.pesoChegada || 0;
-  const pesoVazioObra = record.pesoVazio || 0; // Using record.pesoVazio as a general truck weight if specific one not available
+  const pesoVazioObra = pesoVazioEfetivoObra;
 
 
   const html = `<!DOCTYPE html><html><head>

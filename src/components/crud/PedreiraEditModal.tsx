@@ -7,8 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Mountain, Scale, Truck, Package, Clock, Building2, User, FileText } from 'lucide-react';
-import { format } from 'date-fns';
+import { Loader2, Mountain, Scale, Truck, Package, Clock, Building2, User, FileText, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface MaterialOption {
@@ -32,6 +31,10 @@ interface PedreiraEditData {
   pesoFinal: number;
   pesoLiquido: number;
   tonelada: number;
+  toneladaTicket?: number;
+  toneladaCalcObra?: number;
+  pesoChegada: number;
+  pesoVazioObra?: number;
   originalRow?: any[];
 }
 
@@ -64,6 +67,8 @@ export function PedreiraEditModal({ open, onOpenChange, onSuccess, editData, hea
     pesoVazio: '',
     pesoFinal: '',
     toneladaTicket: '',
+    pesoChegada: '',
+    pesoVazioObra: '',
   });
 
   // Load materials
@@ -95,12 +100,14 @@ export function PedreiraEditModal({ open, onOpenChange, onSuccess, editData, hea
       }
 
       // Format peso values - keep original numbers, format for display
-      const formatPeso = (value: number) => {
-        if (!value || value === 0) return '';
-        return value.toLocaleString('pt-BR', { maximumFractionDigits: 0 });
+      const formatPeso = (value: any) => {
+        if (value === undefined || value === null || value === '' || value === 0) return '';
+        const num = typeof value === 'string' ? parseFloat(value.replace(/\./g, '').replace(',', '.')) : value;
+        if (isNaN(num)) return '';
+        return num.toLocaleString('pt-BR', { maximumFractionDigits: 0 });
       };
 
-      // Get tonelada ticket from original row
+      // Helper to find column index by name
       const normalize = (s: string) => s.toLowerCase().replace(/[_\s]+/g, '');
       const normalizedHdrs = headers.map(normalize);
       const findIdx = (name: string) => {
@@ -108,8 +115,20 @@ export function PedreiraEditModal({ open, onOpenChange, onSuccess, editData, hea
         if (exact !== -1) return exact;
         return normalizedHdrs.indexOf(normalize(name));
       };
-      const ttIdx = findIdx('Tonelada (ticket)');
-      const ttVal = ttIdx !== -1 && editData.originalRow ? String(editData.originalRow[ttIdx] || '') : '';
+
+      // Get values from original row if possible
+      const getRowVal = (name: string) => {
+        const idx = findIdx(name);
+        return idx !== -1 && editData.originalRow ? String(editData.originalRow[idx] || '') : '';
+      };
+
+      const ttVal = getRowVal('Tonelada (ticket)') || getRowVal('Tonelada_Ticket');
+      
+      const pcValRaw = getRowVal('Peso Chegada Obra') || getRowVal('Peso da Chegada');
+      const pcVal = pcValRaw ? parseFloat(pcValRaw.replace(/\./g, '').replace(',', '.')) : 0;
+      
+      const pvoValRaw = getRowVal('Peso Vazio Obra');
+      const pvoVal = pvoValRaw ? parseFloat(pvoValRaw.replace(/\./g, '').replace(',', '.')) : 0;
 
       setFormData({
         data: formattedDate,
@@ -125,24 +144,35 @@ export function PedreiraEditModal({ open, onOpenChange, onSuccess, editData, hea
         pesoVazio: formatPeso(editData.pesoVazio),
         pesoFinal: formatPeso(editData.pesoFinal),
         toneladaTicket: ttVal,
+        pesoChegada: formatPeso(pcVal || editData.pesoChegada || 0),
+        pesoVazioObra: formatPeso(pvoVal || editData.pesoVazioObra || 0),
       });
     }
-  }, [editData, open]);
+  }, [editData, open, headers]);
 
   // Calculate derived values
   const calculateDerivedValues = () => {
-    const pesoFinalNum = parseFloat(formData.pesoFinal.replace(/\./g, '').replace(',', '.') || '0');
-    const pesoVazioNum = parseFloat(formData.pesoVazio.replace(/\./g, '').replace(',', '.') || '0');
+    const parse = (s: string) => parseFloat(s.replace(/\./g, '').replace(',', '.') || '0');
+    const pesoFinalNum = parse(formData.pesoFinal);
+    const pesoVazioNum = parse(formData.pesoVazio);
+    const pesoChegadaNum = parse(formData.pesoChegada);
+    const pesoVazioObraNum = parse(formData.pesoVazioObra);
     
     if (isNaN(pesoFinalNum) || isNaN(pesoVazioNum)) {
-      return { pesoLiquido: 0, tonelada: 0, metroCubico: 0 };
+      return { pesoLiquido: 0, tonelada: 0, metroCubico: 0, toneladaCalcObra: 0 };
     }
     
     const pesoLiquido = pesoFinalNum - pesoVazioNum;
     const tonelada = pesoLiquido / 1000;
     const metroCubico = tonelada / 1.52;
     
-    return { pesoLiquido, tonelada, metroCubico };
+    // Tonelada Calc Obra: pesoChegada - (pesoVazioObra se informado, senão pesoVazio)
+    const pesoVazioEfetivoObra = (pesoVazioObraNum && pesoVazioObraNum > 0) ? pesoVazioObraNum : pesoVazioNum;
+    const toneladaCalcObra = (pesoChegadaNum > 0 && pesoVazioEfetivoObra > 0)
+      ? (pesoChegadaNum - pesoVazioEfetivoObra) / 1000
+      : tonelada;
+    
+    return { pesoLiquido, tonelada, metroCubico, toneladaCalcObra };
   };
 
   const derived = calculateDerivedValues();
@@ -158,7 +188,7 @@ export function PedreiraEditModal({ open, onOpenChange, onSuccess, editData, hea
       const dateParts = formData.data.split('-');
       const dataFormatada = dateParts.length === 3 
         ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`
-        : editData.data; // Keep original if parsing fails
+        : editData.data;
         
       const normalize = (s: string) => s.toLowerCase().replace(/[_\s]+/g, '');
       const normalizedHdrs = headers.map(normalize);
@@ -173,39 +203,50 @@ export function PedreiraEditModal({ open, onOpenChange, onSuccess, editData, hea
         ? [...editData.originalRow]
         : new Array(headers.length).fill('');
       
-      row[getIdx('Data')] = dataFormatada;
-      row[getIdx('Hora')] = formData.hora;
-      row[getIdx('Ordem_Carregamento')] = formData.ordem;
-      row[getIdx('Fornecedor')] = formData.fornecedor;
-      row[getIdx('Prefixo_Eq')] = formData.prefixo;
-      row[getIdx('Descricao_Eq')] = formData.descricao;
-      row[getIdx('Empresa_Eq')] = formData.empresa;
-      row[getIdx('Motorista')] = formData.motorista;
-      row[getIdx('Placa')] = formData.placa;
-      row[getIdx('Material')] = formData.material;
-      row[getIdx('Peso_Vazio')] = formData.pesoVazio.replace(/\./g, '');
-      row[getIdx('Peso_Final')] = formData.pesoFinal.replace(/\./g, '');
-      row[getIdx('Peso_Liquido_Cubico')] = derived.pesoLiquido.toFixed(0);
-      row[getIdx('Metro_Cubico')] = derived.metroCubico.toFixed(2).replace('.', ',');
-      row[getIdx('Densidade')] = '1,52';
-      row[getIdx('Tonelada')] = derived.tonelada.toFixed(2).replace('.', ',');
+      const setCol = (name: string, val: string) => {
+        const idx = getIdx(name);
+        if (idx !== -1) row[idx] = val;
+      };
+
+      setCol('Data', dataFormatada);
+      setCol('Hora', formData.hora);
+      setCol('Ordem_Carregamento', formData.ordem);
+      setCol('Fornecedor', formData.fornecedor);
+      setCol('Prefixo_Eq', formData.prefixo);
+      setCol('Descricao_Eq', formData.descricao);
+      setCol('Empresa_Eq', formData.empresa);
+      setCol('Motorista', formData.motorista);
+      setCol('Placa', formData.placa);
+      setCol('Material', formData.material);
+      setCol('Peso_Vazio', formData.pesoVazio.replace(/\./g, ''));
+      setCol('Peso_Final', formData.pesoFinal.replace(/\./g, ''));
+      setCol('Peso_Liquido_Cubico', derived.pesoLiquido.toFixed(0));
+      setCol('Metro_Cubico', derived.metroCubico.toFixed(2).replace('.', ','));
+      setCol('Densidade', '1,52');
+      setCol('Tonelada', derived.tonelada.toFixed(2).replace('.', ','));
 
       // Write Tonelada Ticket
-      const ttIdx = getIdx('Tonelada (ticket)');
-      if (ttIdx === -1) {
-        const ttIdx2 = getIdx('Tonelada_Ticket');
-        if (ttIdx2 !== -1 && formData.toneladaTicket) {
-          row[ttIdx2] = formData.toneladaTicket;
-        }
-      } else if (formData.toneladaTicket) {
+      const ttIdx = getIdx('Tonelada (ticket)') !== -1 ? getIdx('Tonelada (ticket)') : getIdx('Tonelada_Ticket');
+      if (ttIdx !== -1 && formData.toneladaTicket) {
         row[ttIdx] = formData.toneladaTicket;
       }
 
       // Write Tonelada Calc Obra
-      const tcoIdx = getIdx('Tonelada (Calc Obra)');
-      const tcoIdx2 = tcoIdx !== -1 ? tcoIdx : getIdx('Tonelada_Calc_Obra');
-      if (tcoIdx2 !== -1) {
-        row[tcoIdx2] = derived.tonelada.toFixed(2).replace('.', ',');
+      const tcoIdx = getIdx('Tonelada (Calc Obra)') !== -1 ? getIdx('Tonelada (Calc Obra)') : getIdx('Tonelada_Calc_Obra');
+      if (tcoIdx !== -1) {
+        row[tcoIdx] = derived.toneladaCalcObra.toFixed(2).replace('.', ',');
+      }
+
+      // Write Peso Chegada
+      const pcIdx = getIdx('Peso Chegada Obra') !== -1 ? getIdx('Peso Chegada Obra') : getIdx('Peso da Chegada');
+      if (pcIdx !== -1 && formData.pesoChegada) {
+        row[pcIdx] = formData.pesoChegada.replace(/\./g, '');
+      }
+
+      // Write Peso Vazio Obra
+      const pvoIdx = getIdx('Peso Vazio Obra');
+      if (pvoIdx !== -1 && formData.pesoVazioObra) {
+        row[pvoIdx] = formData.pesoVazioObra.replace(/\./g, '');
       }
 
       const success = await writeSheet('Apontamento_Pedreira', buildRowRange(editData.rowIndex, headers.length), [row]);
@@ -244,238 +285,136 @@ export function PedreiraEditModal({ open, onOpenChange, onSuccess, editData, hea
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Data e Hora */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                Data
+                <Clock className="w-4 h-4" /> Data
               </Label>
-              <Input
-                type="date"
-                value={formData.data}
-                onChange={e => setFormData({ ...formData, data: e.target.value })}
-              />
+              <Input type="date" value={formData.data} onChange={e => setFormData({ ...formData, data: e.target.value })} />
             </div>
-
             <div className="space-y-2">
               <Label>Hora</Label>
-              <Input
-                type="time"
-                value={formData.hora}
-                onChange={e => setFormData({ ...formData, hora: e.target.value })}
-              />
+              <Input type="time" value={formData.hora} onChange={e => setFormData({ ...formData, hora: e.target.value })} />
             </div>
           </div>
 
-          {/* Ordem e Prefixo */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                Nº Pedido/OC
+                <FileText className="w-4 h-4" /> Nº Pedido/OC
               </Label>
-              <Input
-                value={formData.ordem}
-                onChange={e => setFormData({ ...formData, ordem: e.target.value })}
-                placeholder="Número do pedido"
-              />
+              <Input value={formData.ordem} onChange={e => setFormData({ ...formData, ordem: e.target.value })} />
             </div>
-
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
-                <Truck className="w-4 h-4" />
-                Prefixo
+                <Truck className="w-4 h-4" /> Prefixo
               </Label>
-              <Input
-                value={formData.prefixo}
-                onChange={e => setFormData({ ...formData, prefixo: e.target.value })}
-                placeholder="Ex: CAM-01"
-              />
+              <Input value={formData.prefixo} onChange={e => setFormData({ ...formData, prefixo: e.target.value })} />
             </div>
           </div>
 
-          {/* Empresa e Motorista */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
-                <Building2 className="w-4 h-4" />
-                Empresa
+                <Building2 className="w-4 h-4" /> Empresa
               </Label>
-              <Input
-                value={formData.empresa}
-                onChange={e => setFormData({ ...formData, empresa: e.target.value })}
-                placeholder="Nome da empresa"
-              />
+              <Input value={formData.empresa} onChange={e => setFormData({ ...formData, empresa: e.target.value })} />
             </div>
-
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Motorista
+                <User className="w-4 h-4" /> Motorista
               </Label>
-              <Input
-                value={formData.motorista}
-                onChange={e => setFormData({ ...formData, motorista: e.target.value })}
-                placeholder="Nome do motorista"
-              />
+              <Input value={formData.motorista} onChange={e => setFormData({ ...formData, motorista: e.target.value })} />
             </div>
           </div>
 
-          {/* Placa e Descrição */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Placa</Label>
-              <Input
-                value={formData.placa}
-                onChange={e => setFormData({ ...formData, placa: e.target.value })}
-                placeholder="Ex: ABC-1234"
-              />
+              <Input value={formData.placa} onChange={e => setFormData({ ...formData, placa: e.target.value })} />
             </div>
-
             <div className="space-y-2">
               <Label>Descrição Equipamento</Label>
-              <Input
-                value={formData.descricao}
-                onChange={e => setFormData({ ...formData, descricao: e.target.value })}
-                placeholder="Descrição do equipamento"
-              />
+              <Input value={formData.descricao} onChange={e => setFormData({ ...formData, descricao: e.target.value })} />
             </div>
           </div>
 
-          {/* Material */}
           <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Package className="w-4 h-4" />
-              Material
-            </Label>
-            <Select 
-              value={formData.material || undefined} 
-              onValueChange={(value) => setFormData({ ...formData, material: value })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o material" />
-              </SelectTrigger>
+            <Label className="flex items-center gap-2"><Package className="w-4 h-4" /> Material</Label>
+            <Select value={formData.material || undefined} onValueChange={(v) => setFormData({ ...formData, material: v })}>
+              <SelectTrigger><SelectValue placeholder="Selecione o material" /></SelectTrigger>
               <SelectContent>
-                {/* Add current material first if not in list */}
                 {formData.material && !materiais.find(m => m.nome === formData.material) && (
-                  <SelectItem key="current" value={formData.material}>
-                    {formData.material}
-                  </SelectItem>
+                  <SelectItem key="current" value={formData.material}>{formData.material}</SelectItem>
                 )}
-                {materiais.map(mat => (
-                  <SelectItem key={mat.id} value={mat.nome}>
-                    {mat.nome}
-                  </SelectItem>
-                ))}
+                {materiais.map(mat => <SelectItem key={mat.id} value={mat.nome}>{mat.nome}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Tonelada Ticket */}
           <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Scale className="w-4 h-4" />
-              Tonelada Ticket (t)
-            </Label>
+            <Label className="flex items-center gap-2"><Scale className="w-4 h-4" /> Tonelada Ticket (t)</Label>
             <Input
               type="text"
               inputMode="numeric"
               value={formData.toneladaTicket}
               onChange={e => {
                 const raw = e.target.value.replace(/\D/g, '');
-                if (raw === '') {
-                  setFormData({ ...formData, toneladaTicket: '' });
-                  return;
-                }
-                const num = parseInt(raw, 10);
-                const formatted = (num / 100).toFixed(2).replace('.', ',');
+                if (raw === '') { setFormData({ ...formData, toneladaTicket: '' }); return; }
+                const formatted = (parseInt(raw, 10) / 100).toFixed(2).replace('.', ',');
                 setFormData({ ...formData, toneladaTicket: formatted });
               }}
-              placeholder="0,00"
             />
           </div>
 
-          {/* Pesos */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Scale className="w-4 h-4" />
-                Peso Vazio (kg)
-              </Label>
-              <Input
-                type="text"
-                inputMode="numeric"
-                value={formData.pesoVazio}
-                onChange={e => setFormData({ ...formData, pesoVazio: e.target.value })}
-                placeholder="Ex: 15000"
-              />
+              <Label className="flex items-center gap-2"><Scale className="w-4 h-4" /> Peso Vazio (kg)</Label>
+              <Input value={formData.pesoVazio} onChange={e => setFormData({ ...formData, pesoVazio: e.target.value })} />
             </div>
-
             <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Scale className="w-4 h-4" />
-                Peso Final (kg)
-              </Label>
-              <Input
-                type="text"
-                inputMode="numeric"
-                value={formData.pesoFinal}
-                onChange={e => setFormData({ ...formData, pesoFinal: e.target.value })}
-                placeholder="Ex: 45000"
-              />
+              <Label className="flex items-center gap-2"><Scale className="w-4 h-4" /> Peso Final (kg)</Label>
+              <Input value={formData.pesoFinal} onChange={e => setFormData({ ...formData, pesoFinal: e.target.value })} />
             </div>
           </div>
 
-          {/* Calculated Values */}
-          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg space-y-2">
-            <p className="font-medium text-sm text-amber-700 dark:text-amber-400">Valores Calculados:</p>
-            <div className="grid grid-cols-3 gap-4 text-sm">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><MapPin className="w-4 h-4" /> Peso Chegada Obra (kg)</Label>
+              <Input value={formData.pesoChegada} onChange={e => setFormData({ ...formData, pesoChegada: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><MapPin className="w-4 h-4" /> Peso Vazio Saída Obra (kg)</Label>
+              <Input value={formData.pesoVazioObra} onChange={e => setFormData({ ...formData, pesoVazioObra: e.target.value })} />
+            </div>
+          </div>
+
+          <div className="p-4 bg-primary/10 rounded-lg space-y-2">
+            <p className="font-medium text-sm text-primary">Valores Calculados:</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <span className="text-muted-foreground">Peso Líquido:</span>
-                <span className="font-bold ml-2">{derived.pesoLiquido.toLocaleString('pt-BR')} kg</span>
+                <span className="text-muted-foreground">Peso Líq. Origem:</span>
+                <p className="font-bold">{derived.pesoLiquido.toLocaleString('pt-BR')} kg</p>
               </div>
               <div>
-                <span className="text-muted-foreground">Tonelada:</span>
-                <span className="font-bold ml-2">{derived.tonelada.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} t</span>
+                <span className="text-muted-foreground">Ton. Origem:</span>
+                <p className="font-bold">{derived.tonelada.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} t</p>
               </div>
               <div>
-                <span className="text-muted-foreground">m³:</span>
-                <span className="font-bold ml-2">{derived.metroCubico.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                <span className="text-muted-foreground text-blue-600 font-semibold">Ton. Calc Obra:</span>
+                <p className="font-bold text-blue-600">{derived.toneladaCalcObra.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} t</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Volume (m³):</span>
+                <p className="font-bold">{derived.metroCubico.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
               </div>
             </div>
           </div>
 
-          {/* Original values info */}
-          {editData && (
-            <div className="p-3 bg-muted/50 rounded-lg text-xs text-muted-foreground">
-              <p><strong>Linha:</strong> {editData.rowIndex} | <strong>Data Original:</strong> {editData.data}</p>
-            </div>
-          )}
-
-          {/* Submit */}
           <div className="flex gap-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="flex-1"
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              disabled={loading || sheetLoading}
-              className="flex-1 bg-amber-500 hover:bg-amber-600"
-            >
-              {loading || sheetLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Salvando...
-                </>
-              ) : (
-                'Salvar Alterações'
-              )}
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">Cancelar</Button>
+            <Button type="submit" disabled={loading || sheetLoading} className="flex-1 bg-amber-500 hover:bg-amber-600">
+              {loading || sheetLoading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Salvando...</> : 'Salvar Alterações'}
             </Button>
           </div>
         </form>
