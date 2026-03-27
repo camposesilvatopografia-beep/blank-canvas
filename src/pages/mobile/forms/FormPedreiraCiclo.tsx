@@ -2459,6 +2459,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
         details={successDetails}
         onNewRecord={handleNewRecord}
         accentColor="blue"
+        imageUrl={successImageUrl || undefined}
       />
     );
   }
