@@ -867,6 +867,14 @@ export default function Pedreira() {
             </div>
             <RelatorioFornecedorPedreira records={allRecordsForReport as any} dateRange={dateRange} />
           </TabsContent>
+          <TabsContent value="detalhamento" className="space-y-4">
+            <DetalhamentoViagemTab
+              records={records as any}
+              selectedDate={selectedDate}
+              allRecords={allRecordsForReport as any}
+              availableDates={availableDates}
+            />
+          </TabsContent>
         </Tabs>
       </TabsContent>
 
