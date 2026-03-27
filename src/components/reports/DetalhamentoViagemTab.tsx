@@ -284,7 +284,17 @@ export function DetalhamentoViagemTab({
           <tbody>${sortedRecords.map(r => `<tr>
             <td>${r.data || activeDate}</td><td>${r.hora}</td><td class="bold" style="color:#c2410c">${r.prefixo}</td>
             <td>${r.fornecedor}</td><td>${r.ordem || '—'}</td><td>${r.descricao}</td>
-            <td>${r.material}</td><td class="text-right bold">${fmt(r.tonelada)}</td>
+            <td>${r.material}</td>
+            <td class="text-right">${fmt(r.tonelada)}</td>
+            <td class="text-right">${r.pesoChegada && r.pesoChegada > 0 ? r.pesoChegada.toLocaleString('pt-BR') : '—'}</td>
+            <td class="text-right bold">${r.toneladaCalcObra && r.toneladaCalcObra > 0 ? fmt(r.toneladaCalcObra) : '—'}</td>
+            <td class="text-right">
+              ${r.toneladaCalcObra && r.toneladaCalcObra > 0 ? (() => {
+                const d = r.toneladaCalcObra - r.tonelada;
+                if (Math.abs(d) < 0.0005) return '—';
+                return `<span style="color:${d > 0 ? '#2563eb' : '#dc2626'}">${d > 0 ? '+' : ''}${fmt(d)}</span>`;
+              })() : '—'}
+            </td>
           </tr>`).join('')}</tbody>
           <tfoot><tr><td colspan="7" class="bold">TOTAL</td><td class="text-right bold">${fmt(totalTon)}</td></tr></tfoot>
         </table>
