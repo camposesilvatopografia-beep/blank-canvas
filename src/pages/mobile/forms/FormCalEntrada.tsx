@@ -393,6 +393,23 @@ export default function FormCalEntrada() {
               effectiveName || '',               // T: Usuario
               'Em aberto',                       // U: Status
             ];
+
+            // Backup to Supabase
+            supabase.from('movimentacoes_cal').insert({
+              data: entry.formData.data,
+              hora: hora,
+              prefixo_caminhao: entry.formData.prefixoCaminhao,
+              fornecedor: entry.formData.fornecedor,
+              nota_fiscal: entry.formData.notaFiscal,
+              quantidade: parseNumeric(entry.formData.quantidade),
+              local: 'Cebolão',
+              usuario: effectiveName,
+              foto_path: entry.fotoChegadaUrl,
+              nf_foto_path: entry.fotoTicketUrl,
+            }).then(({ error }) => {
+              if (error) console.error('Supabase backup error (Cal Entrada Sync):', error);
+            });
+
             await appendSheet('Mov_Cal', [partialRow]);
             console.log(`[CAL Sync] Wrote missing open entry ${entry.id} to sheet`);
           }
