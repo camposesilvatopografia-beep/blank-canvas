@@ -120,15 +120,17 @@ interface PedreiraRecord {
   material: string;
   pesoVazio: number;
   pesoFinal: number;
-  pesoLiquido: number;
-  tonelada: number;
-  frete: number;
-  pesoChegada: number;
-  pesoVazioObra: number;
-  fotoChegada: string;
-  fotoPesagem: string;
-  fotoVazio: string;
-  status: string;
+      pesoLiquido: number;
+      tonelada: number;
+      toneladaTicket?: number;
+      toneladaCalcObra?: number;
+      frete: number;
+      pesoChegada: number;
+      pesoVazioObra: number;
+      fotoChegada: string;
+      fotoPesagem: string;
+      fotoVazio: string;
+      status: string;
 }
 
 interface MaterialStat {
