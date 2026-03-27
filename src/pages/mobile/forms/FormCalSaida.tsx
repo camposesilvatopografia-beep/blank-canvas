@@ -87,19 +87,9 @@ function OcrWeightField({ label, sublabel, value, onChange, formatFn, photo, pre
         reader.onload = () => resolve(reader.result as string);
         reader.readAsDataURL(file);
       });
-      const response = await supabase.functions.invoke('ocr-peso', {
-        body: { imageBase64: base64 },
-      });
-      if (response.error) throw response.error;
-      const { value: ocrValue } = response.data;
-      if (ocrValue && ocrValue !== 'ERRO') {
-        onChange(String(parseInt(ocrValue, 10)));
-        toast({ title: '✅ Peso lido com sucesso!', description: `Valor: ${formatFn(ocrValue)}` });
-      } else {
-        toast({ title: 'Foto salva!', description: 'Digite o peso manualmente.' });
-      }
+      toast({ title: '✅ Foto capturada!', description: 'Digite o peso manualmente abaixo.' });
     } catch (error: any) {
-      toast({ title: 'Foto salva!', description: 'OCR indisponível — digite o peso manualmente.' });
+      toast({ title: '✅ Foto capturada!', description: 'Digite o peso manualmente abaixo.' });
     } finally {
       setOcrLoading(false);
       if (ocrRef.current) ocrRef.current.value = '';
@@ -140,7 +130,7 @@ function OcrWeightField({ label, sublabel, value, onChange, formatFn, photo, pre
         className="hidden"
         onChange={handleOcr}
       />
-      <p className="text-xs text-right text-gray-400 mt-1">{value ? `Será salvo como: ${formatFn(value)} kg` : 'kg • 📸 Toque na câmera para ler da balança'}</p>
+      <p className="text-xs text-right text-gray-400 mt-1">{value ? `Será salvo como: ${formatFn(value)} kg` : 'kg • 📸 Tire uma foto da balança'}</p>
       {preview && (
         <div className="relative mt-2">
           <img src={preview} alt={label} className="w-full h-32 object-cover rounded-lg" />

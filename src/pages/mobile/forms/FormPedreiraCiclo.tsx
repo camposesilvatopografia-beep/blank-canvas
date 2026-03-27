@@ -3166,7 +3166,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                       </p>
                     ) : (
                       <p className="text-sm text-muted-foreground mt-2">
-                        📸 Toque na câmera para ler da balança ou digite apenas números. Ex: 25960 = 25.960,00
+                        📸 Tire uma foto da balança e digite o peso manualmente abaixo.
                       </p>
                     )}
                   </Card>
@@ -4193,7 +4193,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                     const file = e.target.files?.[0];
                     if (!file) return;
                     setOcrLoading(true);
-                    // Always save the photo file regardless of OCR result
+                    // Always save the photo file
                     setFormObra(prev => ({ ...prev, ocrFotoFile: file }));
                     try {
                       const reader = new FileReader();
@@ -4201,20 +4201,10 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                         reader.onload = () => resolve(reader.result as string);
                         reader.readAsDataURL(file);
                       });
-                      const response = await supabase.functions.invoke('ocr-peso', {
-                        body: { imageBase64: base64 },
-                      });
-                      if (response.error) throw response.error;
-                      const { value } = response.data;
-                      if (value && value !== 'ERRO') {
-                        const rawValue = String(parseInt(value, 10));
-                        setFormObra(prev => ({ ...prev, pesoChegada: rawValue }));
-                        toast({ title: '✅ Peso lido com sucesso!', description: `Valor: ${formatBankInput(rawValue)}` });
-                      } else {
-                        toast({ title: 'Foto salva! Digite o peso manualmente', description: 'OCR não conseguiu ler, mas a foto foi capturada', variant: 'default' });
-                      }
+                      setOcrFotoPreview(base64);
+                      toast({ title: '✅ Foto capturada!', description: 'Digite o peso manualmente abaixo.' });
                     } catch (error: any) {
-                      toast({ title: 'Foto salva! Digite o peso manualmente', description: 'OCR indisponível, mas a foto foi capturada', variant: 'default' });
+                      toast({ title: 'Foto capturada!', description: 'Digite o peso manualmente abaixo.', variant: 'default' });
                     } finally {
                       setOcrLoading(false);
                       if (ocrInputRef.current) ocrInputRef.current.value = '';
@@ -4223,7 +4213,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                 />
                 {ocrFotoPreview && (
                   <div className="mt-3 relative">
-                    <img src={ocrFotoPreview} alt="Foto OCR" className="w-full max-h-48 object-contain rounded-xl border-2 border-amber-300" />
+                    <img src={ocrFotoPreview} alt="Foto da Balança" className="w-full max-h-48 object-contain rounded-xl border-2 border-amber-300" />
                     <div className="absolute top-2 right-2 flex gap-2">
                       <Button type="button" size="sm" variant="secondary" className="bg-white/90 text-amber-700 border border-amber-300 rounded-lg text-xs" onClick={() => {
                         if (ocrInputRef.current) {
@@ -4247,7 +4237,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                   </p>
                 ) : (
                   <p className="text-sm text-muted-foreground mt-2">
-                    📸 Toque na câmera para ler da balança ou digite apenas números. Ex: 4532000 = 45.320,00
+                    📸 Tire uma foto da balança e digite o peso manualmente abaixo.
                   </p>
                 )}
               </Card>
@@ -4579,7 +4569,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                         const file = e.target.files?.[0];
                         if (!file) return;
                         setCarregChegadaOcrLoading(true);
-                        // Always save the photo file regardless of OCR result
+                        // Always save the photo file
                         setCarregChegadaFotoFile(file);
                         const reader = new FileReader();
                         const base64 = await new Promise<string>((resolve) => {
@@ -4587,30 +4577,14 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                           reader.readAsDataURL(file);
                         });
                         setCarregChegadaFotoPreview(base64);
-                        try {
-                          const response = await supabase.functions.invoke('ocr-peso', {
-                            body: { imageBase64: base64 },
-                          });
-                          if (response.error) throw response.error;
-                          const { value } = response.data;
-                          if (value && value !== 'ERRO') {
-                            const rawValue = String(parseInt(value, 10));
-                            setFormCarregamento(f => ({ ...f, pesoFinal: rawValue }));
-                            toast({ title: '✅ Peso lido com sucesso!', description: `Valor: ${formatBankInput(rawValue)}` });
-                          } else {
-                            toast({ title: 'Foto salva! Digite o peso manualmente', description: 'OCR não conseguiu ler, mas a foto foi capturada', variant: 'default' });
-                          }
-                        } catch (error: any) {
-                          toast({ title: 'Foto salva! Digite o peso manualmente', description: 'OCR indisponível, mas a foto foi capturada', variant: 'default' });
-                        } finally {
-                          setCarregChegadaOcrLoading(false);
-                          if (carregChegadaOcrInputRef.current) carregChegadaOcrInputRef.current.value = '';
-                        }
+                        toast({ title: '✅ Foto capturada!', description: 'Digite o peso manualmente abaixo.' });
+                        setCarregChegadaOcrLoading(false);
+                        if (carregChegadaOcrInputRef.current) carregChegadaOcrInputRef.current.value = '';
                       }}
                     />
                     {carregChegadaFotoPreview && (
                       <div className="mt-3 relative">
-                        <img src={carregChegadaFotoPreview} alt="Foto OCR Chegada" className="w-full max-h-48 object-contain rounded-xl border-2 border-green-300" />
+                        <img src={carregChegadaFotoPreview} alt="Foto da Balança" className="w-full max-h-48 object-contain rounded-xl border-2 border-green-300" />
                         <div className="absolute top-2 right-2 flex gap-2">
                           <Button type="button" size="sm" variant="secondary" className="bg-white/90 text-green-700 border border-green-300 rounded-lg text-xs" onClick={() => {
                             if (carregChegadaOcrInputRef.current) {
@@ -4833,39 +4807,23 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                           onChange={async (e) => {
                             const file = e.target.files?.[0];
                             if (!file) return;
-                            setCarregSaidaOcrLoading(true);
-                            // Always save the photo file regardless of OCR result
-                            setCarregSaidaFotoFile(file);
-                            const reader = new FileReader();
-                            const base64 = await new Promise<string>((resolve) => {
-                              reader.onload = () => resolve(reader.result as string);
-                              reader.readAsDataURL(file);
-                            });
-                            setCarregSaidaFotoPreview(base64);
-                            try {
-                              const response = await supabase.functions.invoke('ocr-peso', {
-                                body: { imageBase64: base64 },
-                              });
-                              if (response.error) throw response.error;
-                              const { value } = response.data;
-                              if (value && value !== 'ERRO') {
-                                const rawValue = String(parseInt(value, 10));
-                                setCarregPesoSaida(rawValue);
-                                toast({ title: '✅ Peso lido com sucesso!', description: `Valor: ${formatBankInput(rawValue)}` });
-                              } else {
-                                toast({ title: 'Foto salva! Digite o peso manualmente', description: 'OCR não conseguiu ler, mas a foto foi capturada', variant: 'default' });
-                              }
-                            } catch (error: any) {
-                              toast({ title: 'Foto salva! Digite o peso manualmente', description: 'OCR indisponível, mas a foto foi capturada', variant: 'default' });
-                            } finally {
-                              setCarregSaidaOcrLoading(false);
-                              if (carregSaidaOcrInputRef.current) carregSaidaOcrInputRef.current.value = '';
-                            }
+                             setCarregSaidaOcrLoading(true);
+                             // Always save the photo file
+                             setCarregSaidaFotoFile(file);
+                             const reader = new FileReader();
+                             const base64 = await new Promise<string>((resolve) => {
+                               reader.onload = () => resolve(reader.result as string);
+                               reader.readAsDataURL(file);
+                             });
+                             setCarregSaidaFotoPreview(base64);
+                             toast({ title: '✅ Foto capturada!', description: 'Digite o peso manualmente abaixo.' });
+                             setCarregSaidaOcrLoading(false);
+                             if (carregSaidaOcrInputRef.current) carregSaidaOcrInputRef.current.value = '';
                           }}
                         />
                         {carregSaidaFotoPreview && (
                           <div className="mt-3 relative">
-                            <img src={carregSaidaFotoPreview} alt="Foto OCR Saída" className="w-full max-h-48 object-contain rounded-xl border-2 border-amber-300" />
+                            <img src={carregSaidaFotoPreview} alt="Foto da Balança" className="w-full max-h-48 object-contain rounded-xl border-2 border-amber-300" />
                             <div className="absolute top-2 right-2 flex gap-2">
                               <Button type="button" size="sm" variant="secondary" className="bg-white/90 text-amber-700 border border-amber-300 rounded-lg text-xs" onClick={() => {
                                 if (carregSaidaOcrInputRef.current) {
@@ -4889,7 +4847,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                           </p>
                         ) : (
                           <p className="text-sm text-muted-foreground mt-2">
-                            📸 Toque na câmera para ler da balança ou digite apenas números.
+                            📸 Tire uma foto da balança e digite o peso manualmente abaixo.
                           </p>
                         )}
                       </Card>
