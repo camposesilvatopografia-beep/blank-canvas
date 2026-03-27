@@ -4584,7 +4584,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                     />
                     {carregChegadaFotoPreview && (
                       <div className="mt-3 relative">
-                        <img src={carregChegadaFotoPreview} alt="Foto OCR Chegada" className="w-full max-h-48 object-contain rounded-xl border-2 border-green-300" />
+                        <img src={carregChegadaFotoPreview} alt="Foto da Balança" className="w-full max-h-48 object-contain rounded-xl border-2 border-green-300" />
                         <div className="absolute top-2 right-2 flex gap-2">
                           <Button type="button" size="sm" variant="secondary" className="bg-white/90 text-green-700 border border-green-300 rounded-lg text-xs" onClick={() => {
                             if (carregChegadaOcrInputRef.current) {
