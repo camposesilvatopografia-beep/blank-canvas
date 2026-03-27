@@ -1,15 +1,19 @@
 import { useState, useEffect, useCallback, createContext, useContext, ReactNode, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
+import { supabase } from '@/integrations/supabase/client';
+import { parseNumeric } from '@/utils/masks';
 
 export interface PendingRecord {
   id: string;
-  type: 'carga' | 'lancamento' | 'pedreira' | 'pipas' | 'cal';
+  type: 'carga' | 'lancamento' | 'pedreira' | 'pipas' | 'cal' | 'usina_solos';
   sheetName: string;
   rowData: string[];
-  data: Record<string, unknown>;
+  data: Record<string, any>;
   createdAt: string;
   retryCount: number;
+  syncedToSheets?: boolean;
+  syncedToSupabase?: boolean;
 }
 
 const STORAGE_KEY = 'apropriapp_pending_records';
