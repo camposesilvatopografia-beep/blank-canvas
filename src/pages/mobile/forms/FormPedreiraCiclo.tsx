@@ -383,6 +383,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
   const [formObra, setFormObra] = useState({
     horaChegada: format(new Date(), 'HH:mm'),
     pesoChegada: '',
+    pesoVazio: '',
     ocrFotoFile: null as File | null,
   });
   const [ocrLoading, setOcrLoading] = useState(false);
@@ -2083,18 +2084,23 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
 
       } else if (isTransferred && isStep2) {
         // ===== STEP 2: Truck returns empty → fill peso vazio, calculate, finalize =====
-        if (!formObraExtra.pesoVazio) {
-          toast({ title: 'Informe o peso vazio', variant: 'destructive' });
+        // Write peso vazio - use form field or fallback to ticket weight if missing
+        let effectivePesoVazioStep2 = formObraExtra.pesoVazio;
+        if (!effectivePesoVazioStep2) {
+          effectivePesoVazioStep2 = (currentRow[fi('Peso_Vazio')] || '').replace(/\./g, '').replace(',', '.');
+        }
+
+        if (!effectivePesoVazioStep2) {
+          toast({ title: 'Informe o peso vazio', description: 'Nenhum peso vazio encontrado no ticket ou local.', variant: 'destructive' });
           setLoading(false);
           return;
         }
 
-        // Write peso vazio
-        currentRow[fi('Peso_Vazio')] = formatPesoForSheet(formObraExtra.pesoVazio);
+        currentRow[fi('Peso_Vazio')] = formatPesoForSheet(effectivePesoVazioStep2);
 
         // The peso final (carregado) is already saved from step 1
         const pesoFinalRaw = currentRow[fi('Peso_Final')] || '0';
-        const derived = calculateDerivedValues(pesoFinalRaw, formObraExtra.pesoVazio);
+        const derived = calculateDerivedValues(pesoFinalRaw, effectivePesoVazioStep2);
         if (fi('Peso_Liquido_Cubico') !== -1) currentRow[fi('Peso_Liquido_Cubico')] = derived.pesoLiquido;
         else if (fi('Peso_Liquido') !== -1) currentRow[fi('Peso_Liquido')] = derived.pesoLiquido;
         if (fi('Metro_Cubico') !== -1) currentRow[fi('Metro_Cubico')] = derived.metroCubico;
@@ -2185,8 +2191,8 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
           const tcIdx2 = fi('Tonelada (Calc Obra)');
           if (tcIdx2 !== -1) {
             const pcNum2 = parseInt(formObra.pesoChegada, 10) / 100;
-            const pvRaw2 = currentRow[fi('Peso_Vazio')] || '0';
-            const pvNum2 = parseFloat(pvRaw2.replace(/\./g, '').replace(',', '.')) || 0;
+            const pvRaw2 = formObra.pesoVazio || currentRow[fi('Peso_Vazio')] || '0';
+            const pvNum2 = pvRaw2.includes(',') || pvRaw2.includes('.') ? parseBRNumber(pvRaw2) : parseBankDigits(pvRaw2);
             if (pcNum2 > 0 && pvNum2 > 0) {
               const tonCalcObra2 = (pcNum2 - pvNum2) / 1000;
               currentRow[tcIdx2] = tonCalcObra2.toFixed(2).replace('.', ',');
@@ -2300,7 +2306,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       pesoVazio: '',
       pesoFinal: '',
     });
-    setFormObra({ horaChegada: format(new Date(), 'HH:mm'), pesoChegada: '', ocrFotoFile: null });
+    setFormObra({ horaChegada: format(new Date(), 'HH:mm'), pesoChegada: '', pesoVazio: '', ocrFotoFile: null });
     setFormObraExtra({ material: '', pesoVazio: '', pesoFinal: '', numeroPedido: '' });
     setBalancaFotoFile(null);
     setObraVazioFotoFile(null);
@@ -3733,7 +3739,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                             pesoLiquido: row[fi('Peso_Liquido_Cubico')] || row[fi('Peso_Liquido')] || '',
                             tonelada: row[fi('Tonelada')] || '', metroCubico: row[fi('Metro_Cubico')] || '',
                             });
-                            setFormObra({ horaChegada: format(new Date(), 'HH:mm'), pesoChegada: '', ocrFotoFile: null });
+                            setFormObra({ horaChegada: format(new Date(), 'HH:mm'), pesoChegada: '', pesoVazio: '', ocrFotoFile: null });
                             setFormObraExtra({ material: '', pesoVazio: '', pesoFinal: '', numeroPedido: '' });
                             toast({ title: '✅ Registro encontrado!' });
                             break;
@@ -4160,6 +4166,28 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
                     📸 Toque na câmera para ler da balança ou digite apenas números. Ex: 4532000 = 45.320,00
                   </p>
                 )}
+              </Card>
+              )}
+
+              {!isPendenteObra && (
+              <Card className="bg-blue-50 border-2 border-blue-300 p-5 rounded-2xl shadow-sm">
+                <Label className="text-lg font-bold text-[#1d3557] flex items-center gap-2 mb-3">
+                  <Scale className="w-6 h-6 text-blue-600" />
+                  Peso Vazio na Obra (opcional)
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder={foundRecord?.pesoVazio ? `Usar do ticket: ${foundRecord.pesoVazio}` : 'Digite apenas números'}
+                    value={formObra.pesoVazio}
+                    onChange={e => setFormObra({ ...formObra, pesoVazio: e.target.value.replace(/[^0-9]/g, '') })}
+                    className="bg-white border-2 border-blue-400 text-gray-900 placeholder:text-gray-400 h-16 text-xl rounded-xl font-medium flex-1"
+                  />
+                </div>
+                <p className="text-xs text-blue-700 mt-2">
+                  Se deixado em branco, o sistema usará o <strong>peso vazio do ticket</strong> para o cálculo.
+                </p>
               </Card>
               )}
 
