@@ -1127,8 +1127,7 @@ export default function FormPedreira() {
                   reader.onload = () => resolve(reader.result as string);
                   reader.readAsDataURL(file);
                 });
-                setOcrFotoPreview(base64);
-                setOcrFotoFile(file);
+                    setOcrFotoFile(file);
                 const response = await supabase.functions.invoke('ocr-peso', {
                   body: { imageBase64: base64 },
                 });
