@@ -205,15 +205,6 @@ export default function FormPedreira() {
     return customPesoVazio || selectedCaminhao?.pesoVazio || '';
   };
 
-  // Parse a string that may be in Brazilian format (dot=thousands, comma=decimal) or plain number
-  const parseBRNumber = (value: string): number => {
-    if (!value) return NaN;
-    const cleaned = String(value).trim();
-    if (cleaned.includes(',')) {
-      return parseFloat(cleaned.replace(/\./g, '').replace(',', '.'));
-    }
-    return parseFloat(cleaned);
-  };
 
   // Weight formatting: raw kg digits → formatted with thousands separator (32500 → 32.500,00)
   const formatBankInput = (raw: string): string => {
