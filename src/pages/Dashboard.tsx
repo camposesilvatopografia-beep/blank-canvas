@@ -928,7 +928,7 @@ export default function Dashboard() {
               <div className="flex flex-col items-center justify-center text-center">
                 <AlertCircle className="w-12 h-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium">Nenhum dado encontrado</h3>
-                <p className="text-muted-foreground">Todas as planilhas estão vazias, preciso importar os arquivos completos, com os lançamentos</p>
+                <p className="text-muted-foreground text-center max-w-md mx-auto">Os novos lançamentos devem ser preenchidos na tabela do supabase do banco de dados tbm na tabela do google sheets em cada uma relacionada</p>
               </div>
             </Card>
           ) : (

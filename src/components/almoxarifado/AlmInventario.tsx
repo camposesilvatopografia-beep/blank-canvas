@@ -135,7 +135,7 @@ export default function AlmInventario() {
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
-              <TableRow><TableCell colSpan={visibleCount} className="text-center py-8 text-muted-foreground">Todas as planilhas estão vazias, preciso importar os arquivos completos, com os lançamentos</TableCell></TableRow>
+              <TableRow><TableCell colSpan={visibleCount} className="text-center py-12 text-muted-foreground px-6">Os novos lançamentos devem ser preenchidos na tabela do supabase do banco de dados tbm na tabela do google sheets em cada uma relacionada</TableCell></TableRow>
             ) : filtered.map((m, i) => {
               const baixo = m.estoque_atual <= m.estoque_minimo && m.estoque_minimo > 0;
               return (
