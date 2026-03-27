@@ -1961,6 +1961,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       setSelectedCarregPendente(null);
       setCarregPesoSaida('');
       setCarregSaidaFotoFile(null);
+      setSuccessImageUrl(carregSaidaFotoPreview);
       setSubmitted(true);
     } catch (error: any) {
       toast({ title: 'Erro', description: error.message, variant: 'destructive' });
