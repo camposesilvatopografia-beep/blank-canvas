@@ -108,19 +108,20 @@ export async function exportRelatorioIndividualPedreira(
         <div class="fotos-grid" style="grid-template-columns: ${gridCols}">
           ${hasFotoPesagem ? `
           <div class="foto-item">
-            <div class="foto-label">⚖️ Peso Carregado na Balança (Pedreira)</div>
+            <div class="foto-label">🏗️ PESAGEM ORIGEM (Peso Bruto) — Pedreira</div>
             <img src="${fotoPesagemSrc}" alt="Foto pesagem pedreira" class="foto-img" referrerpolicy="no-referrer" onerror="this.onerror=null;tryAltSrc(this,'${esc(fotoPesagemFallback)}')" />
           </div>
           ` : ''}
           ${hasFotoChegada ? `
           <div class="foto-item">
-            <div class="foto-label">🏢 Peso de Chegada na Obra (Carregado)</div>
+            <div class="foto-label">🏢 PESAGEM DESTINO (Peso Chegada) — Obra</div>
             <img src="${fotoChegadaSrc}" alt="Foto peso chegada" class="foto-img" referrerpolicy="no-referrer" onerror="this.onerror=null;tryAltSrc(this,'${esc(fotoChegadaFallback)}')" />
           </div>
           ` : ''}
           ${hasFotoVazio ? `
           <div class="foto-item">
-            <div class="foto-label">🚛 Peso de Saída (Vazio) — Obra</div>
+            <div class="foto-label">🚛 TARA / SAÍDA (Peso Vazio) — Obra</div>
+
             <img src="${fotoVazioSrc}" alt="Foto peso vazio" class="foto-img" referrerpolicy="no-referrer" onerror="this.onerror=null;tryAltSrc(this,'${esc(fotoVazioFallback)}')" />
           </div>
           ` : ''}
@@ -133,6 +134,13 @@ export async function exportRelatorioIndividualPedreira(
   const tonCalcObra = record.toneladaCalcObra || 0;
   const difTon = tonCalcObra > 0 && tonTicket > 0 ? (tonCalcObra - tonTicket) : 0;
   const hasDif = Math.abs(difTon) > 0.0005;
+
+  const pesoBrutoPedreira = record.pesoFinal || 0;
+  const pesoVazioPedreira = record.pesoVazio || (pesoBrutoPedreira > 0 && tonTicket > 0 ? (pesoBrutoPedreira - (tonTicket * 1000)) : 0);
+  
+  const pesoBrutoObra = record.pesoChegada || 0;
+  const pesoVazioObra = record.pesoVazio || 0; // Using record.pesoVazio as a general truck weight if specific one not available
+
 
   const html = `<!DOCTYPE html><html><head>
     <meta charset="UTF-8" />
@@ -155,8 +163,9 @@ export async function exportRelatorioIndividualPedreira(
       }
       .header img.logo { height: 50px; border-radius: 8px; background: rgba(255,255,255,0.15); padding: 4px; }
       .header .title-area { flex: 1; }
-      .header h1 { font-size: 16px; font-weight: 800; }
-      .header p { font-size: 10px; opacity: 0.85; margin-top: 2px; }
+      .header h1 { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
+      .header p { font-size: 11px; opacity: 0.95; margin-top: 4px; font-weight: 600; }
+
       .header .date-badge {
         background: rgba(255,255,255,0.2);
         padding: 8px 14px;
@@ -223,6 +232,15 @@ export async function exportRelatorioIndividualPedreira(
       .peso-cell.highlight { background: #fff7ed; }
       .peso-cell.dif-positiva .p-value { color: #2563eb; }
       .peso-cell.dif-negativa .p-value { color: #dc2626; }
+
+      .peso-cell-small {
+        text-align: center;
+        padding: 4px;
+      }
+      .peso-cell-small .p-label { font-size: 8px; color: #6b7280; text-transform: uppercase; font-weight: 700; }
+      .peso-cell-small .p-value { font-size: 14px; font-weight: 800; color: #1a1a2e; margin-top: 2px; }
+      .peso-cell-small .p-unit { font-size: 8px; color: #9ca3af; }
+
 
       .fotos-section {
         margin-bottom: 16px;
@@ -352,31 +370,63 @@ export async function exportRelatorioIndividualPedreira(
       </div>
     </div>
 
-    <div class="peso-section">
-      <div class="peso-header">⚖️ Dados de Pesagem</div>
-      <div class="peso-grid">
-        <div class="peso-cell">
-          <div class="p-label">Peso Final</div>
-          <div class="p-value">${record.pesoFinal > 0 ? record.pesoFinal.toLocaleString('pt-BR') : '—'}</div>
-          <div class="p-unit">kg</div>
+    <div class="peso-section" style="border-color: #f97316; margin-bottom: 24px;">
+      <div class="peso-header" style="background: #f97316; display: flex; justify-content: space-between; align-items: center;">
+        <span>📊 RESUMO DE PESAGEM</span>
+        ${hasDif ? `<span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; font-size: 10px;">DIFERENÇA: ${difTon > 0 ? '+' : ''}${fmt(difTon)} t</span>` : ''}
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: #fff;">
+        <!-- Coluna ORIGEM (Pedreira) -->
+        <div style="border-right: 1px solid #fed7aa; padding-bottom: 8px;">
+          <div style="background: #fff7ed; padding: 6px 12px; font-size: 10px; font-weight: 800; color: #c2410c; border-bottom: 1px solid #fed7aa; display: flex; align-items: center; gap: 6px;">
+            🏗️ ORIGEM (Pedreira/Ticket)
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 12px;">
+            <div class="peso-cell-small">
+              <div class="p-label">Peso Carregado</div>
+              <div class="p-value" style="font-size: 14px;">${record.pesoFinal > 0 ? record.pesoFinal.toLocaleString('pt-BR') : '—'}</div>
+              <div class="p-unit">kg</div>
+            </div>
+            <div class="peso-cell-small">
+              <div class="p-label">Peso Vazio</div>
+              <div class="p-value" style="font-size: 14px;">${pesoVazioPedreira > 0 ? Math.round(pesoVazioPedreira).toLocaleString('pt-BR') : '—'}</div>
+              <div class="p-unit">kg</div>
+            </div>
+            <div class="peso-cell-small" style="background: #fff7ed; border-radius: 4px;">
+              <div class="p-label" style="color: #c2410c;">Líquido (Ton)</div>
+              <div class="p-value" style="font-size: 16px; color: #c2410c;">${tonTicket > 0 ? fmt(tonTicket) : '—'}</div>
+              <div class="p-unit" style="color: #c2410c;">t</div>
+            </div>
+          </div>
         </div>
-        <div class="peso-cell highlight">
-          <div class="p-label">Ton. Ticket</div>
-          <div class="p-value">${tonTicket > 0 ? fmt(tonTicket) : '—'}</div>
-          <div class="p-unit">t</div>
-        </div>
-        <div class="peso-cell">
-          <div class="p-label">Ton. Calc Obra</div>
-          <div class="p-value">${tonCalcObra > 0 ? fmt(tonCalcObra) : '—'}</div>
-          <div class="p-unit">t</div>
-        </div>
-        <div class="peso-cell ${hasDif ? (difTon > 0 ? 'dif-positiva' : 'dif-negativa') : ''}">
-          <div class="p-label">Diferença</div>
-          <div class="p-value">${hasDif ? `${difTon > 0 ? '+' : ''}${fmt(difTon)}` : '—'}</div>
-          <div class="p-unit">t</div>
+
+        <!-- Coluna DESTINO (Obra) -->
+        <div>
+          <div style="background: #fff7ed; padding: 6px 12px; font-size: 10px; font-weight: 800; color: #c2410c; border-bottom: 1px solid #fed7aa; display: flex; align-items: center; gap: 6px;">
+            🚧 DESTINO (Obra/Controle)
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 12px;">
+            <div class="peso-cell-small">
+              <div class="p-label">Peso Chegada</div>
+              <div class="p-value" style="font-size: 14px;">${record.pesoChegada > 0 ? record.pesoChegada.toLocaleString('pt-BR') : '—'}</div>
+              <div class="p-unit">kg</div>
+            </div>
+            <div class="peso-cell-small">
+              <div class="p-label">Peso Vazio (Saída)</div>
+              <div class="p-value" style="font-size: 14px;">${pesoVazioObra > 0 ? pesoVazioObra.toLocaleString('pt-BR') : '—'}</div>
+              <div class="p-unit">kg</div>
+            </div>
+            <div class="peso-cell-small" style="background: #fff7ed; border-radius: 4px;">
+              <div class="p-label" style="color: #c2410c;">Líquido (Ton)</div>
+              <div class="p-value" style="font-size: 16px; color: #c2410c;">${tonCalcObra > 0 ? fmt(tonCalcObra) : '—'}</div>
+              <div class="p-unit" style="color: #c2410c;">t</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
 
     ${fotosHtml}
 

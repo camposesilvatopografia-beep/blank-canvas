@@ -95,19 +95,20 @@ export async function exportRelatorioIndividualCal(
         <div class="fotos-grid" style="grid-template-columns: ${gridCols}">
           ${hasFotoCarregado ? `
           <div class="foto-item">
-            <div class="foto-label">🏢 Peso Carregado</div>
+            <div class="foto-label">🏗️ PESAGEM ORIGEM (Carregado)</div>
             <img src="${finalFotoCarregado}" alt="Foto peso carregado" class="foto-img" referrerpolicy="no-referrer" onerror="this.onerror=null;tryAltSrc(this,'${record.fotoPesoCarregado.replace(/'/g, "\\'")}')" />
           </div>
           ` : ''}
           ${hasFotoDistribuido ? `
           <div class="foto-item">
-            <div class="foto-label">🚛 Peso Distribuído (Obra)</div>
+            <div class="foto-label">🚧 PESAGEM DESTINO (Obra)</div>
             <img src="${finalFotoDistribuido}" alt="Foto peso distribuído" class="foto-img" referrerpolicy="no-referrer" onerror="this.onerror=null;tryAltSrc(this,'${record.fotoPesoDistribuido.replace(/'/g, "\\'")}')" />
           </div>
           ` : ''}
           ${hasFotoVazio ? `
           <div class="foto-item">
-            <div class="foto-label">⚖️ Peso Vazio</div>
+            <div class="foto-label">🚛 TARA (Peso Vazio)</div>
+
             <img src="${fotoVazioSrc}" alt="Foto peso vazio" class="foto-img" referrerpolicy="no-referrer" onerror="this.onerror=null;tryAltSrc(this,'${record.fotoPesoVazio.replace(/'/g, "\\'")}')" />
           </div>
           ` : ''}
@@ -121,6 +122,13 @@ export async function exportRelatorioIndividualCal(
   const toneladaCalc = pesoLiquido > 100 ? pesoLiquido / 1000 : pesoLiquido;
   const hasDif = record.qtd > 0 && record.qtdBalancaObra > 0;
   const difTon = hasDif ? record.qtdBalancaObra - record.qtd : 0;
+
+  const pesoBrutoOrigem = record.pesoBruto || 0;
+  const pesoVazioOrigem = record.pesoVazio || 0;
+  
+  const pesoBrutoDestino = record.qtdBalancaObra ? (record.qtdBalancaObra * 1000 + pesoVazioOrigem) : 0;
+  const pesoVazioDestino = pesoVazioOrigem; // Usually same truck weight
+
 
   const html = `<!DOCTYPE html><html><head>
     <meta charset="UTF-8" />
@@ -220,6 +228,15 @@ export async function exportRelatorioIndividualCal(
       .peso-cell.highlight { background: #ecfeff; }
       .peso-cell.dif-positiva .p-value { color: #2563eb; }
       .peso-cell.dif-negativa .p-value { color: #dc2626; }
+
+      .peso-cell-small {
+        text-align: center;
+        padding: 4px;
+      }
+      .peso-cell-small .p-label { font-size: 8px; color: #6b7280; text-transform: uppercase; font-weight: 700; }
+      .peso-cell-small .p-value { font-size: 14px; font-weight: 800; color: #1a1a2e; margin-top: 2px; }
+      .peso-cell-small .p-unit { font-size: 8px; color: #9ca3af; }
+
 
       .fotos-section { margin-bottom: 16px; }
       .fotos-section h3 {
@@ -337,31 +354,63 @@ export async function exportRelatorioIndividualCal(
       </div>
     </div>
 
-    <div class="peso-section">
-      <div class="peso-header">⚖️ Dados de Pesagem</div>
-      <div class="peso-grid">
-        <div class="peso-cell">
-          <div class="p-label">Peso Vazio</div>
-          <div class="p-value">${record.pesoVazio > 0 ? record.pesoVazio.toLocaleString('pt-BR') : '—'}</div>
-          <div class="p-unit">kg</div>
+    <div class="peso-section" style="border-color: #0891b2; margin-bottom: 24px;">
+      <div class="peso-header" style="background: #0891b2; display: flex; justify-content: space-between; align-items: center;">
+        <span>📊 RESUMO DE PESAGEM</span>
+        ${hasDif ? `<span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; font-size: 10px;">DIFERENÇA: ${difTon > 0 ? '+' : ''}${fmt(difTon)} t</span>` : ''}
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: #fff;">
+        <!-- Coluna ORIGEM (Ticket) -->
+        <div style="border-right: 1px solid #cffafe; padding-bottom: 8px;">
+          <div style="background: #ecfeff; padding: 6px 12px; font-size: 10px; font-weight: 800; color: #0e7490; border-bottom: 1px solid #cffafe; display: flex; align-items: center; gap: 6px;">
+            🏗️ ORIGEM (Ticket)
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 12px;">
+            <div class="peso-cell-small">
+              <div class="p-label">Peso Bruto</div>
+              <div class="p-value" style="font-size: 14px;">${record.pesoBruto > 0 ? record.pesoBruto.toLocaleString('pt-BR') : '—'}</div>
+              <div class="p-unit">kg</div>
+            </div>
+            <div class="peso-cell-small">
+              <div class="p-label">Peso Vazio</div>
+              <div class="p-value" style="font-size: 14px;">${record.pesoVazio > 0 ? record.pesoVazio.toLocaleString('pt-BR') : '—'}</div>
+              <div class="p-unit">kg</div>
+            </div>
+            <div class="peso-cell-small" style="background: #ecfeff; border-radius: 4px;">
+              <div class="p-label" style="color: #0e7490;">Líquido (Ton)</div>
+              <div class="p-value" style="font-size: 16px; color: #0e7490;">${record.qtd > 0 ? fmt(record.qtd) : '—'}</div>
+              <div class="p-unit" style="color: #0e7490;">t</div>
+            </div>
+          </div>
         </div>
-        <div class="peso-cell">
-          <div class="p-label">Peso Carregado</div>
-          <div class="p-value">${record.pesoBruto > 0 ? record.pesoBruto.toLocaleString('pt-BR') : '—'}</div>
-          <div class="p-unit">kg</div>
-        </div>
-        <div class="peso-cell highlight">
-          <div class="p-label">Qtd (Ticket)</div>
-          <div class="p-value">${record.qtd > 0 ? fmt(record.qtd) : '—'}</div>
-          <div class="p-unit">t</div>
-        </div>
-        <div class="peso-cell ${hasDif ? (difTon > 0 ? 'dif-positiva' : difTon < 0 ? 'dif-negativa' : '') : ''}">
-          <div class="p-label">Qtd Balança Obra</div>
-          <div class="p-value">${record.qtdBalancaObra > 0 ? fmt(record.qtdBalancaObra) : '—'}</div>
-          <div class="p-unit">t</div>
+
+        <!-- Coluna DESTINO (Obra) -->
+        <div>
+          <div style="background: #ecfeff; padding: 6px 12px; font-size: 10px; font-weight: 800; color: #0e7490; border-bottom: 1px solid #cffafe; display: flex; align-items: center; gap: 6px;">
+            🚧 DESTINO (Obra)
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 12px;">
+            <div class="peso-cell-small">
+              <div class="p-label">Peso Chegada</div>
+              <div class="p-value" style="font-size: 14px;">${pesoBrutoDestino > 0 ? Math.round(pesoBrutoDestino).toLocaleString('pt-BR') : '—'}</div>
+              <div class="p-unit">kg</div>
+            </div>
+            <div class="peso-cell-small">
+              <div class="p-label">Peso Vazio</div>
+              <div class="p-value" style="font-size: 14px;">${record.pesoVazio > 0 ? record.pesoVazio.toLocaleString('pt-BR') : '—'}</div>
+              <div class="p-unit">kg</div>
+            </div>
+            <div class="peso-cell-small" style="background: #ecfeff; border-radius: 4px;">
+              <div class="p-label" style="color: #0e7490;">Líquido (Ton)</div>
+              <div class="p-value" style="font-size: 16px; color: #0e7490;">${record.qtdBalancaObra > 0 ? fmt(record.qtdBalancaObra) : '—'}</div>
+              <div class="p-unit" style="color: #0e7490;">t</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
 
     ${fotosHtml}
 
