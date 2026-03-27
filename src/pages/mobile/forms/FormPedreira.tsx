@@ -365,7 +365,7 @@ export default function FormPedreira() {
         } catch (e) { console.error('Upload foto erro:', e); }
       }
 
-      const generateId = () => Math.random().toString(36).substring(2, 10);
+      const recordId = Math.random().toString(36).substring(2, 10);
       
       let headers = sheetHeaders;
       if (!headers || headers.length === 0) {
@@ -383,7 +383,7 @@ export default function FormPedreira() {
         else if (fallbackIdx < colCount) pedreiraRow[fallbackIdx] = value;
       };
 
-      sv('ID', 0, generateId());
+      sv('ID', 0, recordId);
       sv('Data', 1, dataFormatada);
       sv('Hora', 2, formData.horaCarregamento);
       sv('Ordem_Carregamento', 3, formData.numeroPedido || '');
