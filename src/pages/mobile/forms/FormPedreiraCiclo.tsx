@@ -1364,6 +1364,9 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
       // Backup to Supabase
       await supabaseBackupPedreira(currentRow, headers);
 
+      // Backup to Supabase
+      await supabaseBackupPedreira(currentRow, headers);
+
       localStorage.setItem('pedreira_data_updated', Date.now().toString());
       playSuccessSound();
       setSuccessTitle('Transferido para Obra!');
