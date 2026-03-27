@@ -44,10 +44,148 @@ export function useOfflineSync() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(pendingRecords));
   }, [pendingRecords]);
 
+  // Function to sync a single record to Supabase based on its type
+  const syncRecordToSupabase = useCallback(async (record: PendingRecord): Promise<boolean> => {
+    try {
+      const data = record.data;
+      const type = record.type;
+      let table = '';
+      let payload: any = {};
+
+      switch (type) {
+        case 'carga':
+          table = 'apontamentos_carga';
+          payload = {
+            data: data.data,
+            hora: data.hora,
+            prefixo_escavadeira: data.prefixo_escavadeira,
+            descricao_escavadeira: data.descricao_escavadeira,
+            empresa_escavadeira: data.empresa_escavadeira,
+            operador: data.operador,
+            prefixo_caminhao: data.caminhao,
+            descricao_caminhao: data.descricao_caminhao,
+            empresa_caminhao: data.empresa_caminhao,
+            motorista: data.motorista,
+            local: data.local,
+            estaca: data.estaca,
+            material: data.material,
+            quantidade: parseNumeric(data.quantidade),
+            viagens: parseInt(data.viagens) || 1,
+            volume_total: parseNumeric(data.volumeTotal),
+            status: 'Sincronizado'
+          };
+          break;
+        case 'lancamento':
+          table = 'apontamentos_descarga';
+          payload = {
+            data: data.data,
+            hora: data.hora,
+            prefixo_caminhao: data.caminhao,
+            descricao_caminhao: data.descricao_caminhao,
+            empresa_caminhao: data.empresa_caminhao,
+            motorista: data.motorista,
+            volume_total: parseNumeric(data.volumeTotal),
+            viagens: parseInt(data.viagens) || 1,
+            local: data.localLancamento || data.local,
+            estaca: data.estaca,
+            material: data.material,
+          };
+          break;
+        case 'pedreira':
+          table = 'movimentacoes_pedreira';
+          // Support for both load form and cycle form
+          if (data.formData) { // FormPedreiraCiclo
+            const fd = data.formData;
+            payload = {
+              external_id: record.id,
+              data: fd.data || new Date().toISOString().split('T')[0],
+              hora: fd.hora || new Date().toLocaleTimeString('pt-BR', { hour12: false }),
+              prefixo_caminhao: fd.caminhao,
+              material: fd.material,
+              viagens: 1,
+              volume: parseNumeric(fd.pesoFinal),
+              volume_total: parseNumeric(fd.tonelada),
+              usuario: fd.usuario,
+            };
+          } else { // FormPedreira
+            payload = {
+              data: data.data,
+              hora: data.horaCarregamento,
+              prefixo_caminhao: data.caminhao,
+              fornecedor: data.fornecedor,
+              material: data.material,
+              nota_fiscal: data.numeroPedido,
+              viagens: 1,
+              volume: parseNumeric(data.pesoFinal),
+              volume_total: parseNumeric(data.toneladaNum),
+              usuario: data.usuario || data.effectiveName,
+            };
+          }
+          break;
+        case 'pipas':
+          table = 'movimentacoes_pipas';
+          payload = {
+            data: data.data,
+            hora: data.hora,
+            prefixo_pipa: data.veiculo,
+            motorista: data.motorista,
+            empresa: data.empresa,
+            local: data.localTrabalho,
+            atividade: data.atividade,
+            viagens: parseInt(data.viagens) || 1,
+            volume_total: parseNumeric(data.volume_total),
+          };
+          break;
+        case 'cal':
+          table = 'movimentacoes_cal';
+          const fd = data.formData || data;
+          payload = {
+            data: fd.data,
+            hora: fd.hora || new Date().toLocaleTimeString('pt-BR', { hour12: false }),
+            prefixo_caminhao: fd.prefixoCaminhao,
+            motorista: fd.motorista,
+            fornecedor: fd.fornecedor,
+            nota_fiscal: fd.notaFiscal,
+            quantidade: parseNumeric(fd.quantidade),
+            local: fd.local || 'Cebolão',
+            usuario: fd.usuario,
+          };
+          break;
+        case 'usina_solos':
+          table = 'movimentacoes_usina_solos';
+          payload = {
+            data: data.data,
+            hora: data.hora,
+            prefixo_caminhao: data.caminhao,
+            motorista: data.motorista,
+            material: data.material,
+            volume: parseNumeric(data.volume),
+            viagens: parseInt(data.viagens) || 1,
+            local: data.local,
+          };
+          break;
+      }
+
+      if (table) {
+        console.log(`[OfflineSync] Syncing to Supabase table ${table}...`);
+        const { error } = await supabase.from(table).upsert(payload, { onConflict: 'external_id' });
+        if (error) {
+          console.error(`[OfflineSync] Supabase sync error for ${type}:`, error);
+          return false;
+        }
+        console.log(`[OfflineSync] Record synced to Supabase successfully`);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('[OfflineSync] Supabase sync catch error:', err);
+      return false;
+    }
+  }, []);
+
   // Auto-sync when coming back online
   const syncAllPending = useCallback(async () => {
     if (syncInProgress.current || pendingRecords.length === 0) {
-      // If no pending records but isSyncing is stuck, reset it
       setIsSyncing(false);
       return;
     }
@@ -58,9 +196,8 @@ export function useOfflineSync() {
     let successCount = 0;
     let failCount = 0;
     const recordsToRemove: string[] = [];
-    const recordsToUpdate: PendingRecord[] = [];
+    const updatedRecords = [...pendingRecords];
 
-    // Safety timeout: force reset after 30 seconds
     const safetyTimeout = setTimeout(() => {
       console.warn('Sync safety timeout reached, forcing reset');
       setIsSyncing(false);
@@ -68,43 +205,54 @@ export function useOfflineSync() {
     }, 30000);
 
     try {
-      for (const record of pendingRecords) {
+      for (let i = 0; i < updatedRecords.length; i++) {
+        const record = updatedRecords[i];
         try {
-          console.log(`Syncing record ${record.id} to ${record.sheetName}...`);
-          const success = await appendSheet(record.sheetName, [record.rowData]);
-          
-          if (success) {
+          // Sync to Sheets
+          if (!record.syncedToSheets) {
+            console.log(`Syncing record ${record.id} to ${record.sheetName}...`);
+            const sheetSuccess = await appendSheet(record.sheetName, [record.rowData]);
+            if (sheetSuccess) {
+              record.syncedToSheets = true;
+              console.log(`Record ${record.id} synced to Sheets`);
+            }
+          }
+
+          // Sync to Supabase
+          if (!record.syncedToSupabase) {
+            const supabaseSuccess = await syncRecordToSupabase(record);
+            if (supabaseSuccess) {
+              record.syncedToSupabase = true;
+              console.log(`Record ${record.id} synced to Supabase`);
+            }
+          }
+
+          // If both synced, remove from queue
+          if (record.syncedToSheets && record.syncedToSupabase) {
             recordsToRemove.push(record.id);
             successCount++;
-            console.log(`Record ${record.id} synced successfully`);
           } else {
-            if (record.retryCount < MAX_RETRIES) {
-              recordsToUpdate.push({ ...record, retryCount: record.retryCount + 1 });
-            } else {
+            // Check retries
+            if (record.retryCount >= MAX_RETRIES) {
               recordsToRemove.push(record.id);
               failCount++;
               console.error(`Record ${record.id} failed after max retries`);
+            } else {
+              record.retryCount++;
             }
           }
         } catch (error) {
           console.error('Error syncing record:', error);
-          if (record.retryCount < MAX_RETRIES) {
-            recordsToUpdate.push({ ...record, retryCount: record.retryCount + 1 });
-          } else {
+          if (record.retryCount >= MAX_RETRIES) {
             recordsToRemove.push(record.id);
             failCount++;
+          } else {
+            record.retryCount++;
           }
         }
       }
 
-      // Update state after all syncs
-      setPendingRecords(prev => {
-        const filtered = prev.filter(r => !recordsToRemove.includes(r.id));
-        return filtered.map(r => {
-          const updated = recordsToUpdate.find(u => u.id === r.id);
-          return updated || r;
-        });
-      });
+      setPendingRecords(updatedRecords.filter(r => !recordsToRemove.includes(r.id)));
 
       if (successCount > 0) {
         toast({
@@ -127,7 +275,7 @@ export function useOfflineSync() {
       setIsSyncing(false);
       syncInProgress.current = false;
     }
-  }, [pendingRecords, appendSheet, toast]);
+  }, [pendingRecords, appendSheet, toast, syncRecordToSupabase]);
 
   // Monitor online/offline status
   useEffect(() => {
