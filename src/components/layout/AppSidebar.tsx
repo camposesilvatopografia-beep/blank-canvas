@@ -85,6 +85,14 @@ const menuItems: MenuItem[] = [
       { title: 'Caminhões Herval', icon: Truck, path: '/sala-tecnica/caminhoes-herval', menuKey: 'sala_tecnica_herval' },
     ],
   },
+  {
+    title: 'Controle de Manutenção e Abastecimentos', icon: Fuel, menuKey: 'manutencao_abastecimento',
+    children: [
+      { title: 'Abastecimentos', icon: Droplets, path: '/manutencao/abastecimentos', menuKey: 'manut_abastecimentos' },
+      { title: 'Horímetros', icon: Gauge, path: '/manutencao/horimetros', menuKey: 'manut_horimetros' },
+      { title: 'Manutenções', icon: Wrench, path: '/manutencao/manutencoes', menuKey: 'manut_manutencoes' },
+    ],
+  },
   { title: 'Frota Geral', icon: Truck, path: '/frota', sectionKey: 'frota', menuKey: 'frota_geral' },
   { title: 'Alertas', icon: Bell, path: '/alertas', sectionKey: 'alertas', menuKey: 'alertas' },
   { title: 'Almoxarifado', icon: Warehouse, path: '/almoxarifado', adminOnly: true, menuKey: 'almoxarifado' },
@@ -127,8 +135,6 @@ export const AppSidebar = () => {
       prev.includes(title) ? prev.filter(t => t !== title) : [...prev, title]
     );
   };
-
-  
 
   const isActive = (path?: string) => path && location.pathname === path;
   const isChildActive = (children?: MenuItem[]) =>
