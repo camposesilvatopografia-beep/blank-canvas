@@ -1622,6 +1622,7 @@ export default function FormPedreira({ desktopMode = false }: { desktopMode?: bo
         { label: 'Tonelada', value: `${derived.tonelada} t` },
         { label: 'Status', value: 'Pesado' },
       ]);
+      setSuccessImageUrl(hervalFotoPreview || hervalFotoPreview2);
       setSubmitted(true);
     } catch (error: any) {
       toast({ title: 'Erro', description: error.message, variant: 'destructive' });
