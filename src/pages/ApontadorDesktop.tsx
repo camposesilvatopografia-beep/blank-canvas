@@ -776,6 +776,9 @@ export default function ApontadorDesktop() {
           )}
         </main>
       </div>
+      
+      {/* AI Assistant */}
+      <AiAssistantChat />
     </div>
   );
 }
