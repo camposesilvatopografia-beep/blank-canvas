@@ -528,7 +528,6 @@ export default function FormCalEntrada() {
             data: formData.data,
             hora,
             prefixo_caminhao: formData.prefixoCaminhao,
-            motorista: formData.motorista,
             fornecedor: formData.fornecedor,
             nota_fiscal: formData.notaFiscal,
             quantidade: parseNumeric(formData.quantidade),
