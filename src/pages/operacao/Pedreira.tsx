@@ -759,9 +759,9 @@ export default function Pedreira() {
               <Activity className="w-3.5 h-3.5" />
               Rel. Medição
             </TabsTrigger>
-            <TabsTrigger value="fornecedor" className="flex items-center gap-1 text-xs">
-              <Building2 className="w-3.5 h-3.5" />
-              Rel. Fornecedor
+            <TabsTrigger value="detalhamento" className="flex items-center gap-1 text-xs">
+              <ClipboardList className="w-3.5 h-3.5" />
+              Detalhamento
             </TabsTrigger>
           </TabsList>
 
