@@ -332,7 +332,7 @@ export default function Auth() {
               {!isSignUp && (
                 <div className="mt-4 p-4 rounded-xl bg-primary/10 border border-primary/20 backdrop-blur-sm animate-pulse">
                   <p className="text-xs text-primary font-medium text-center leading-relaxed">
-                    Crie o login de acesso do adm principal, <span className="font-bold underline">jeanallbuquerque@gmail.com</span>, senha <span className="font-bold underline">051525</span>... Para continuar configuração do sistema
+                    Atualize a parte de cadastros, para que eu possa usar o sistema
                   </p>
                 </div>
               )}
