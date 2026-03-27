@@ -332,7 +332,7 @@ export default function Auth() {
               {!isSignUp && (
                 <div className="mt-4 p-4 rounded-xl bg-primary/10 border border-primary/20 backdrop-blur-sm animate-pulse">
                   <p className="text-xs text-primary font-medium text-center leading-relaxed">
-                    Atualize a parte de cadastros, para que eu possa usar o sistema
+                    As tabelas do supabase nao estao preenchidas, atualize
                   </p>
                 </div>
               )}

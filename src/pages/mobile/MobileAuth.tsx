@@ -219,7 +219,7 @@ export default function MobileAuth() {
 
         <div className="mt-6 pt-4 border-t border-white/10">
           <p className="text-amber-500 text-[10px] font-medium text-center leading-relaxed bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
-            Atualize a parte de cadastros, para que eu possa usar o sistema
+            As tabelas do supabase nao estao preenchidas, atualize
           </p>
         </div>
       </Card>
