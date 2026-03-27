@@ -213,15 +213,21 @@ export default function FormLancamento() {
             estaca: formData.estaca,
             material: formData.material,
             usuario: effectiveName,
+            status: isOnline ? 'Sincronizado' : 'Pendente'
           });
-          if (error) console.error('Supabase backup error (Descarga):', error);
+          if (error) {
+            console.error('Supabase backup error (Descarga):', error);
+            return false;
+          }
+          return true;
         } catch (e) {
           console.error('Failed to insert in Supabase (Descarga):', e);
+          return false;
         }
       };
 
       if (!isOnline) {
-        addPendingRecord('lancamento', 'Descarga', descargaRow, { ...formData });
+        addPendingRecord('lancamento', 'Descarga', descargaRow, { ...formData, dataFormatada, hora, volumeTotal, selectedCaminhao, viagens });
         await supabaseBackup();
         setSavedOffline(true);
         setSubmitted(true);
@@ -230,18 +236,15 @@ export default function FormLancamento() {
         return;
       }
 
-      console.log('[FormLancamento] Sending descarga data, row length:', descargaRow.length);
       const success = await appendSheet('Descarga', [descargaRow]);
-      
-      // Backup to Supabase regardless of sheet success
-      await supabaseBackup();
+      const supSuccess = await supabaseBackup();
 
-      if (!success) {
-        addPendingRecord('lancamento', 'Descarga', descargaRow, { ...formData });
+      if (!success || !supSuccess) {
+        addPendingRecord('lancamento', 'Descarga', descargaRow, { ...formData, dataFormatada, hora, volumeTotal, selectedCaminhao, viagens });
         setSavedOffline(true);
         setSubmitted(true);
         playOfflineSound();
-        toast({ title: 'Salvo Localmente', description: 'Erro na conexão com a planilha. Dados salvos no dispositivo e Supabase.' });
+        toast({ title: 'Atenção', description: 'Ocorreu uma falha parcial. O registro foi salvo offline para nova tentativa.' });
         return;
       }
 
