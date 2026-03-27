@@ -32,7 +32,7 @@ export default function FormUsinaSolos() {
   const { profile } = useAuth();
   const { effectiveName } = useImpersonation();
   const { appendSheet, readSheet, writeSheet, deleteRow, loading } = useGoogleSheets();
-  const { isOnline, pendingCount } = useOfflineSync();
+  const { isOnline, pendingCount, addPendingRecord } = useOfflineSync();
   const { toast } = useToast();
 
   const [data, setData] = useState(format(new Date(), 'yyyy-MM-dd'));
@@ -111,38 +111,68 @@ export default function FormUsinaSolos() {
       return;
     }
 
-    const dataFormatada = format(new Date(data + 'T12:00:00'), 'dd/MM/yyyy');
-    const row = [dataFormatada, quantidadeReal.toFixed(2).replace('.', ',')];
+    try {
+      const dataFormatada = format(new Date(data + 'T12:00:00'), 'dd/MM/yyyy');
+      const row = [dataFormatada, quantidadeReal.toFixed(2).replace('.', ',')];
 
-    const success = await appendSheet('Produção Usina Solos', [row]);
-    
-    // Backup to Supabase
-    if (success) {
-      supabase.from('movimentacoes_usina_solos').insert({
-        data: data,
-        hora: format(new Date(), 'HH:mm'),
-        usina: 'Usina de Solos',
-        material: 'BGTC/BGTC-F',
-        quantidade: quantidadeReal,
-        umidade: 0,
-        local: 'Usina',
-        usuario: effectiveName,
-      }).then(({ error }) => {
-        if (error) console.error('Supabase backup error (Usina Solos):', error);
-      });
-    }
+      const supabaseBackup = async () => {
+        try {
+          const { error } = await supabase.from('movimentacoes_usina_solos').insert({
+            data: data,
+            hora: format(new Date(), 'HH:mm:ss'),
+            usina: 'Usina de Solos',
+            material: 'BGTC/BGTC-F',
+            quantidade: quantidadeReal,
+            umidade: 0,
+            local: 'Usina',
+            usuario: effectiveName,
+          });
+          if (error) console.error('Supabase backup error (Usina Solos):', error);
+        } catch (e) {
+          console.error('Failed to insert in Supabase (Usina Solos):', e);
+        }
+      };
 
-    if (success) {
-      playSuccessSound();
-      setShowSuccess(true);
-      setTimeout(() => {
-        setShowSuccess(false);
-        setQuantidadeRaw('');
-      }, 2000);
-    } else {
-      toast({ title: 'Erro ao salvar', description: 'Tente novamente', variant: 'destructive' });
+      if (!isOnline) {
+        addPendingRecord('carga', 'Produção Usina Solos', row, { data, quantidadeReal });
+        await supabaseBackup();
+        playSuccessSound();
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          setQuantidadeRaw('');
+        }, 2000);
+        return;
+      }
+
+      const success = await appendSheet('Produção Usina Solos', [row]);
+      
+      // Backup regardless of sheet success
+      await supabaseBackup();
+
+      if (success) {
+        playSuccessSound();
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          setQuantidadeRaw('');
+        }, 2000);
+      } else {
+        // Sheet failed, save offline
+        addPendingRecord('carga', 'Produção Usina Solos', row, { data, quantidadeReal });
+        toast({ title: 'Salvo Localmente', description: 'Falha na planilha. Dados salvos no dispositivo e Supabase.' });
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          setQuantidadeRaw('');
+        }, 2000);
+      }
+    } catch (error: any) {
+      console.error('Usina Solos submission error:', error);
+      toast({ title: 'Erro ao salvar', description: error.message, variant: 'destructive' });
     }
   };
+
 
   const openEdit = (rec: UsinaSolosRecord) => {
     setEditingRecord(rec);

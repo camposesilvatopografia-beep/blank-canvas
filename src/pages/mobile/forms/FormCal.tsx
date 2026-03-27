@@ -311,8 +311,9 @@ export default function FormCal() {
 
     try {
       const now = new Date();
-      const hora = format(now, 'HH:mm');
+      const hora = format(now, 'HH:mm:ss');
       const dataFormatada = format(new Date(formData.data + 'T12:00:00'), 'dd/MM/yyyy');
+
       const generateId = () => Math.random().toString(36).substring(2, 10);
       
       const quantidadeFormatted = formatForSheet(formData.quantidade);
@@ -324,7 +325,7 @@ export default function FormCal() {
         dataFormatada,                                     // B: Data
         formData.tipo === 'Saída' ? 'Saida' : formData.tipo, // C: Tipo
         hora,                                              // D: Hora
-        '',                                                // E: Veiculo (vazio no mov simples)
+        '',                                                // E: Veiculo
         '',                                                // F: Peso de Chegada
         '',                                                // G: Peso Vazio
         '',                                                // H: Qtd Balança Obra
@@ -342,18 +343,31 @@ export default function FormCal() {
         userName || '',                                    // T: Usuario
       ];
 
-      console.log('[FormCal] Submitting:', { online: navigator.onLine, tipo: formData.tipo, qty: quantidadeFormatted, user: userName, rowLength: calRow.length });
-      console.log('[FormCal] Row data:', JSON.stringify(calRow));
-      // Save offline ONLY when truly offline
-      if (!navigator.onLine) {
-        addPendingRecord('cal', 'Mov_Cal', calRow, { formData });
+      const supabaseBackup = async () => {
+        try {
+          const { error } = await supabase.from('movimentacoes_cal').insert({
+            data: formData.data,
+            hora,
+            prefixo_caminhao: defaultPrefixoEq,
+            fornecedor: defaultFornecedor,
+            nota_fiscal: formData.tipo === 'Entrada' ? formData.notaFiscal : '',
+            quantidade: parseNumeric(formData.quantidade),
+            local: 'Cebolão',
+            usuario: effectiveName,
+          });
+          if (error) console.error('Supabase backup error (Cal):', error);
+        } catch (e) {
+          console.error('Failed to insert in Supabase (Cal):', e);
+        }
+      };
+
+      if (!isOnline) {
+        addPendingRecord('cal', 'Mov_Cal', calRow, { ...formData });
+        await supabaseBackup();
         setSavedOffline(true);
         setSubmitted(true);
         playOfflineSound();
-        toast({
-          title: 'Salvo Localmente',
-          description: 'Será sincronizado quando a conexão voltar.',
-        });
+        toast({ title: 'Salvo Localmente', description: 'Será sincronizado quando a conexão voltar.' });
         setLoading(false);
         return;
       }
@@ -362,26 +376,16 @@ export default function FormCal() {
       const success = await appendSheet('Mov_Cal', [calRow]);
       
       // Backup to Supabase
-      if (success) {
-        supabase.from('movimentacoes_cal').insert({
-          data: formData.data,
-          hora,
-          prefixo_caminhao: defaultPrefixoEq,
-          fornecedor: defaultFornecedor,
-          nota_fiscal: formData.tipo === 'Entrada' ? formData.notaFiscal : '',
-          quantidade: parseNumeric(formData.quantidade),
-          local: 'Cebolão',
-          usuario: effectiveName,
-        }).then(({ error }) => {
-          if (error) console.error('Supabase backup error (Cal):', error);
-        });
-      }
+      await supabaseBackup();
 
-      console.log('[FormCal] appendSheet result:', success);
       if (!success) {
-        throw new Error('Erro ao salvar movimento');
+        addPendingRecord('cal', 'Mov_Cal', calRow, { ...formData });
+        setSavedOffline(true);
+        setSubmitted(true);
+        playOfflineSound();
+        toast({ title: 'Salvo Localmente', description: 'Falha na planilha. Registro salvo offline e Supabase.' });
+        return;
       }
-
 
       setSubmitted(true);
       playSuccessSound();
@@ -391,51 +395,36 @@ export default function FormCal() {
       });
 
     } catch (error: any) {
-      // Only save offline if truly no connection
-      if (!navigator.onLine) {
-        const now = new Date();
-        const hora = format(now, 'HH:mm');
-        const dataFormatada = format(new Date(formData.data + 'T12:00:00'), 'dd/MM/yyyy');
-        const generateIdFallback = () => Math.random().toString(36).substring(2, 10);
-        
-        const calRowOffline = [
-          generateIdFallback(),                              // A
-          dataFormatada,                                     // B
-          formData.tipo === 'Saída' ? 'Saida' : formData.tipo, // C
-          hora,                                              // D
-          '',                                                // E
-          '',                                                // F
-          '',                                                // G
-          '',                                                // H
-          '',                                                // I
-          '',                                                // J
-          '',                                                // K
-          defaultFornecedor,                                 // L
-          defaultPrefixoEq,                                  // M
-          formData.unidade,                                  // N
-          formatForSheet(formData.quantidade),               // O
-          formData.tipo === 'Entrada' ? formData.notaFiscal : '', // P
-          formData.tipo === 'Entrada' ? 'R$ ' + formData.valor : '', // Q
-          'Cebolão',                                         // R: Local
-          effectiveName || '',                               // S: Usuario
-        ];
+      console.error('Cal submission error:', error);
+      const now = new Date();
+      const hora = format(now, 'HH:mm:ss');
+      const dataFormatada = format(new Date(formData.data + 'T12:00:00'), 'dd/MM/yyyy');
+      const generateIdFallback = () => Math.random().toString(36).substring(2, 10);
+      
+      const calRowOffline = [
+        generateIdFallback(),                              // A
+        dataFormatada,                                     // B
+        formData.tipo === 'Saída' ? 'Saida' : formData.tipo, // C
+        hora,                                              // D
+        '', '', '', '', '', '', '', '',
+        defaultFornecedor,
+        defaultPrefixoEq,
+        formData.unidade,
+        formatForSheet(formData.quantidade),
+        formData.tipo === 'Entrada' ? formData.notaFiscal : '',
+        formData.tipo === 'Entrada' ? 'R$ ' + formData.valor : '',
+        'Cebolão',
+        effectiveName || '',
+      ];
 
-        addPendingRecord('cal', 'Mov_Cal', calRowOffline, { formData });
-        setSavedOffline(true);
-        setSubmitted(true);
-        playOfflineSound();
-        toast({
-          title: 'Salvo Localmente',
-          description: 'Erro na conexão. Será sincronizado depois.',
-        });
-      } else {
-        // Online but failed - show error, don't save offline
-        toast({
-          title: 'Erro',
-          description: error.message || 'Erro ao salvar movimento. Tente novamente.',
-          variant: 'destructive',
-        });
-      }
+      addPendingRecord('cal', 'Mov_Cal', calRowOffline, { ...formData });
+      setSavedOffline(true);
+      setSubmitted(true);
+      playOfflineSound();
+      toast({
+        title: 'Salvo Localmente',
+        description: 'Erro na conexão. Será sincronizado depois.',
+      });
     } finally {
       setLoading(false);
     }

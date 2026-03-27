@@ -63,3 +63,16 @@ export function formatBankNumberInput(value: string, decimals = 2, maxDigits = 1
 export function formatToneladaInput(value: string): string {
   return formatBankNumberInput(value, 2, 9);
 }
+
+/**
+ * Parses a numeric string formatted for Brazil (e.g. "1.234,56") back to a float (e.g. 1234.56)
+ */
+export function parseNumeric(val: string | number | null | undefined): number {
+  if (val === null || val === undefined) return 0;
+  if (typeof val === 'number') return val;
+  if (!val) return 0;
+  const clean = String(val).trim().replace(/\./g, '').replace(',', '.');
+  const result = Number.parseFloat(clean);
+  return Number.isNaN(result) ? 0 : result;
+}
+

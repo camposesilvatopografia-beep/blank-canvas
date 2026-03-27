@@ -8,6 +8,8 @@ import { useOfflineCache } from '@/hooks/useOfflineCache';
 import { supabase } from '@/integrations/supabase/client';
 import { useEquipmentPermissions } from '@/hooks/useEquipmentPermissions';
 import { useLocalPermissions } from '@/hooks/useLocalPermissions';
+import { parseNumeric } from '@/utils/masks';
+
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -106,6 +108,9 @@ export default function FormCarga() {
     viagens: '1',
     localLancamento: '',
   });
+
+  const isSalaTecnica = isAdmin || profile?.tipo === 'Sala Técnica';
+
 
   // Use cached data directly - instant loading! + filter by local permissions
   const locaisOrigem = useMemo(() => {
@@ -298,7 +303,7 @@ export default function FormCarga() {
       const generateId = () => Math.random().toString(36).substring(2, 10);
       
       // Calculate Volume_Total = Volume × N_Viagens
-      const volumeUnitario = parseFloat(selectedCaminhao?.volume || '0');
+      const volumeUnitario = parseNumeric(selectedCaminhao?.volume || '0');
       const numViagens = parseInt(isSalaTecnica ? formData.viagens : '1') || 1;
       const volumeTotal = volumeUnitario * numViagens;
       const viagens = isSalaTecnica ? formData.viagens : '1';
@@ -313,9 +318,37 @@ export default function FormCarga() {
           })
         : buildCargaRowFallback(generateId(), dataFormatada, hora, viagens, volumeTotal);
 
+      // ALWAYS try to backup to Supabase (before or after, but consistently)
+      const supabaseBackup = async () => {
+        try {
+          const { error } = await supabase.from('apontamentos_carga').insert({
+            data: formData.data,
+            hora,
+            prefixo_escavadeira: formData.escavadeira,
+            descricao_escavadeira: selectedEscavadeira?.descricao,
+            empresa_escavadeira: selectedEscavadeira?.empresa,
+            operador: selectedEscavadeira?.operador,
+            prefixo_caminhao: formData.caminhao,
+            descricao_caminhao: selectedCaminhao?.descricao,
+            empresa_caminhao: selectedCaminhao?.empresa,
+            motorista: selectedCaminhao?.motorista,
+            volume_total: volumeTotal,
+            viagens: parseInt(viagens),
+            local: formData.local,
+            estaca: formData.estaca,
+            material: formData.material,
+            status: isOnline ? 'Sincronizado' : 'Pendente'
+          });
+          if (error) console.error('Supabase backup error (Carga):', error);
+        } catch (e) {
+          console.error('Failed to insert in Supabase:', e);
+        }
+      };
+
       // Check if offline
       if (!isOnline) {
         addPendingRecord('carga', 'Carga', cargaRow, { ...formData, dataFormatada, hora });
+        await supabaseBackup();
 
         if (addLancamento && formData.localLancamento) {
           const descargaRow = descargaHeaders.length > 0
@@ -327,6 +360,21 @@ export default function FormCarga() {
               })
             : buildDescargaRowFallback(generateId(), dataFormatada, hora, viagens, volumeTotal);
           addPendingRecord('lancamento', 'Descarga', descargaRow, { ...formData, localLancamento: formData.localLancamento });
+          
+          // Also backup Descarga part
+          await supabase.from('apontamentos_descarga').insert({
+            data: formData.data,
+            hora,
+            prefixo_caminhao: formData.caminhao,
+            descricao_caminhao: selectedCaminhao?.descricao,
+            empresa_caminhao: selectedCaminhao?.empresa,
+            motorista: selectedCaminhao?.motorista,
+            volume_total: volumeTotal,
+            viagens: parseInt(viagens),
+            local: formData.localLancamento,
+            estaca: formData.estaca,
+            material: formData.material,
+          });
         }
 
         setSavedOffline(true);
@@ -335,35 +383,15 @@ export default function FormCarga() {
         return;
       }
 
-      // Online - save directly
+      // Online - save directly to sheet
       console.log('[FormCarga] Sending carga data (dynamic mapping), row length:', cargaRow.length);
       const successCarga = await appendSheet('Carga', [cargaRow]);
       
-      // Backup to Supabase
-      if (successCarga) {
-        supabase.from('apontamentos_carga').insert({
-          data: formData.data,
-          hora,
-          prefixo_escavadeira: formData.escavadeira,
-          descricao_escavadeira: selectedEscavadeira?.descricao,
-          empresa_escavadeira: selectedEscavadeira?.empresa,
-          operador: selectedEscavadeira?.operador,
-          prefixo_caminhao: formData.caminhao,
-          descricao_caminhao: selectedCaminhao?.descricao,
-          empresa_caminhao: selectedCaminhao?.empresa,
-          motorista: selectedCaminhao?.motorista,
-          volume_total: volumeTotal,
-          viagens: parseInt(viagens),
-          local: formData.local,
-          estaca: formData.estaca,
-          material: formData.material,
-          status: 'Sincronizado'
-        }).then(({ error }) => {
-          if (error) console.error('Supabase backup error (Carga):', error);
-        });
-      }
+      // Backup to Supabase (after sheet attempt)
+      await supabaseBackup();
 
       if (!successCarga) {
+        // If sheet failed (e.g. 403), treat as offline save
         addPendingRecord('carga', 'Carga', cargaRow, { ...formData, dataFormatada, hora });
         setSavedOffline(true);
         setSubmitted(true);
@@ -385,23 +413,19 @@ export default function FormCarga() {
         const successDescarga = await appendSheet('Descarga', [descargaRow]);
         
         // Backup to Supabase (Descarga)
-        if (successDescarga) {
-          supabase.from('apontamentos_descarga').insert({
-            data: formData.data,
-            hora,
-            prefixo_caminhao: formData.caminhao,
-            descricao_caminhao: selectedCaminhao?.descricao,
-            empresa_caminhao: selectedCaminhao?.empresa,
-            motorista: selectedCaminhao?.motorista,
-            volume_total: volumeTotal,
-            viagens: parseInt(viagens),
-            local: formData.localLancamento,
-            estaca: formData.estaca,
-            material: formData.material,
-          }).then(({ error }) => {
-            if (error) console.error('Supabase backup error (Descarga from Carga):', error);
-          });
-        }
+        await supabase.from('apontamentos_descarga').insert({
+          data: formData.data,
+          hora,
+          prefixo_caminhao: formData.caminhao,
+          descricao_caminhao: selectedCaminhao?.descricao,
+          empresa_caminhao: selectedCaminhao?.empresa,
+          motorista: selectedCaminhao?.motorista,
+          volume_total: volumeTotal,
+          viagens: parseInt(viagens),
+          local: formData.localLancamento,
+          estaca: formData.estaca,
+          material: formData.material,
+        });
 
         if (!successDescarga) {
           addPendingRecord('lancamento', 'Descarga', descargaRow, { ...formData, localLancamento: formData.localLancamento });
@@ -424,7 +448,7 @@ export default function FormCarga() {
       const hora = format(now, 'HH:mm:ss');
       const dataFormatada = format(new Date(formData.data + 'T12:00:00'), 'dd/MM/yyyy');
       const generateIdFallback = () => Math.random().toString(36).substring(2, 10);
-      const volumeUnitarioFallback = parseFloat(selectedCaminhao?.volume || '0');
+      const volumeUnitarioFallback = parseNumeric(selectedCaminhao?.volume || '0');
       const numViagensFallback = parseInt(isSalaTecnica ? formData.viagens : '1') || 1;
       const volumeTotalFallback = volumeUnitarioFallback * numViagensFallback;
       const viagens = isSalaTecnica ? formData.viagens : '1';
@@ -450,6 +474,7 @@ export default function FormCarga() {
 
   // Fallback row builders (hardcoded positions) for when headers aren't available
   const buildCargaRowFallback = (id: string, dataFormatada: string, hora: string, viagens: string, volumeTotal: number) => [
+
     id, dataFormatada, hora,
     formData.escavadeira, selectedEscavadeira?.potencia || '', selectedEscavadeira?.descricao || '',
     selectedEscavadeira?.empresa || '', selectedEscavadeira?.operador || '',
@@ -485,7 +510,6 @@ export default function FormCarga() {
     setAddLancamento(false);
   };
 
-  const isSalaTecnica = isAdmin || profile?.tipo === 'Sala Técnica';
 
   if (submitted) {
     const successDetails = [
