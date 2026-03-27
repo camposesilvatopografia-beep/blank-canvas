@@ -908,7 +908,7 @@ export default function Apontadores() {
                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-muted-foreground"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? <Eye className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
                 </div>
               </div>
@@ -935,7 +935,7 @@ export default function Apontadores() {
             </Button>
             <Button onClick={handleSave} disabled={saving}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              {isNew ? 'Cadastrar' : 'Salvar'}
+              {isNew ? 'Cadastrar' : 'Atualizar'}
             </Button>
           </DialogFooter>
         </DialogContent>
