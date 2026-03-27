@@ -344,31 +344,63 @@ export async function exportRelatorioIndividualCal(
       </div>
     </div>
 
-    <div class="peso-section">
-      <div class="peso-header">⚖️ Dados de Pesagem</div>
-      <div class="peso-grid">
-        <div class="peso-cell">
-          <div class="p-label">Peso Vazio</div>
-          <div class="p-value">${record.pesoVazio > 0 ? record.pesoVazio.toLocaleString('pt-BR') : '—'}</div>
-          <div class="p-unit">kg</div>
+    <div class="peso-section" style="border-color: #0891b2; margin-bottom: 24px;">
+      <div class="peso-header" style="background: #0891b2; display: flex; justify-content: space-between; align-items: center;">
+        <span>📊 RESUMO DE PESAGEM</span>
+        ${hasDif ? `<span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; font-size: 10px;">DIFERENÇA: ${difTon > 0 ? '+' : ''}${fmt(difTon)} t</span>` : ''}
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: #fff;">
+        <!-- Coluna ORIGEM (Ticket) -->
+        <div style="border-right: 1px solid #cffafe; padding-bottom: 8px;">
+          <div style="background: #ecfeff; padding: 6px 12px; font-size: 10px; font-weight: 800; color: #0e7490; border-bottom: 1px solid #cffafe; display: flex; align-items: center; gap: 6px;">
+            🏗️ ORIGEM (Ticket)
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 12px;">
+            <div class="peso-cell-small">
+              <div class="p-label">Peso Bruto</div>
+              <div class="p-value" style="font-size: 14px;">${record.pesoBruto > 0 ? record.pesoBruto.toLocaleString('pt-BR') : '—'}</div>
+              <div class="p-unit">kg</div>
+            </div>
+            <div class="peso-cell-small">
+              <div class="p-label">Peso Vazio</div>
+              <div class="p-value" style="font-size: 14px;">${record.pesoVazio > 0 ? record.pesoVazio.toLocaleString('pt-BR') : '—'}</div>
+              <div class="p-unit">kg</div>
+            </div>
+            <div class="peso-cell-small" style="background: #ecfeff; border-radius: 4px;">
+              <div class="p-label" style="color: #0e7490;">Líquido (Ton)</div>
+              <div class="p-value" style="font-size: 16px; color: #0e7490;">${record.qtd > 0 ? fmt(record.qtd) : '—'}</div>
+              <div class="p-unit" style="color: #0e7490;">t</div>
+            </div>
+          </div>
         </div>
-        <div class="peso-cell">
-          <div class="p-label">Peso Carregado</div>
-          <div class="p-value">${record.pesoBruto > 0 ? record.pesoBruto.toLocaleString('pt-BR') : '—'}</div>
-          <div class="p-unit">kg</div>
-        </div>
-        <div class="peso-cell highlight">
-          <div class="p-label">Qtd (Ticket)</div>
-          <div class="p-value">${record.qtd > 0 ? fmt(record.qtd) : '—'}</div>
-          <div class="p-unit">t</div>
-        </div>
-        <div class="peso-cell ${hasDif ? (difTon > 0 ? 'dif-positiva' : difTon < 0 ? 'dif-negativa' : '') : ''}">
-          <div class="p-label">Qtd Balança Obra</div>
-          <div class="p-value">${record.qtdBalancaObra > 0 ? fmt(record.qtdBalancaObra) : '—'}</div>
-          <div class="p-unit">t</div>
+
+        <!-- Coluna DESTINO (Obra) -->
+        <div>
+          <div style="background: #ecfeff; padding: 6px 12px; font-size: 10px; font-weight: 800; color: #0e7490; border-bottom: 1px solid #cffafe; display: flex; align-items: center; gap: 6px;">
+            🚧 DESTINO (Obra)
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 12px;">
+            <div class="peso-cell-small">
+              <div class="p-label">Peso Chegada</div>
+              <div class="p-value" style="font-size: 14px;">${pesoBrutoDestino > 0 ? Math.round(pesoBrutoDestino).toLocaleString('pt-BR') : '—'}</div>
+              <div class="p-unit">kg</div>
+            </div>
+            <div class="peso-cell-small">
+              <div class="p-label">Peso Vazio</div>
+              <div class="p-value" style="font-size: 14px;">${record.pesoVazio > 0 ? record.pesoVazio.toLocaleString('pt-BR') : '—'}</div>
+              <div class="p-unit">kg</div>
+            </div>
+            <div class="peso-cell-small" style="background: #ecfeff; border-radius: 4px;">
+              <div class="p-label" style="color: #0e7490;">Líquido (Ton)</div>
+              <div class="p-value" style="font-size: 16px; color: #0e7490;">${record.qtdBalancaObra > 0 ? fmt(record.qtdBalancaObra) : '—'}</div>
+              <div class="p-unit" style="color: #0e7490;">t</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
 
     ${fotosHtml}
 
